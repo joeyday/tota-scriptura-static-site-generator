@@ -20,7 +20,7 @@ Commands (run from the vault root):
 
 For a local `tsgen` command, run `npm link` once in the tsgen repo. During tsgen development you can also run `cd vault && node ../build.js` (see `CLAUDE.md`).
 
-The vault scan, `abbreviations.json`, `alt-text.json` are resolved from the **working directory**. Output goes to `./dist`, or to the directory named by the `TSGEN_OUT` environment variable if set. CI sets nothing; locally it keeps build output out of the iCloud-synced vault (for example `export TSGEN_OUT="$HOME/Projects/tota-scriptura-static-site-generator/out"` in `~/.zshrc`). The template is resolved from tsgen's own directory.
+The vault scan, `abbreviations.json`, `alt-text.json` are resolved from the **working directory**. Output goes to `./dist`, or to the directory named by the `TSGEN_OUT` environment variable if set. CI sets nothing; locally it keeps build output out of the iCloud-synced vault (for example `export TSGEN_OUT="$HOME/Projects/tsgen/out"` in `~/.zshrc`). The template is resolved from tsgen's own directory.
 
 `dist/` is **not** cleaned before a build. Delete it yourself for a clean build. (See `docs/plan.md`.)
 
