@@ -22,7 +22,7 @@ For a local `tsgen` command, run `npm link` once in the tsgen repo. During tsgen
 
 The vault scan, `abbreviations.json`, `alt-text.json` are resolved from the **working directory**. Output goes to `./dist`, or to the directory named by the `TSGEN_OUT` environment variable if set. CI sets nothing; locally it keeps build output out of the iCloud-synced vault (for example `export TSGEN_OUT="$HOME/Projects/tsgen/out"` in `~/.zshrc`). The template is resolved from tsgen's own directory.
 
-`dist/` is **not** cleaned before a build. Delete it yourself for a clean build. (See `docs/plan.md`.)
+The output directory is emptied at the start of every build, so deleted pages don't linger. The build refuses to clear a directory that is, or contains, the vault.
 
 Dependencies: `yaml` (frontmatter), `markdown-it`, `markdown-it-footnote`, `markdown-it-mark`, `markdown-it-container`, `markdown-it-bracketed-spans`, `markdown-it-attrs`, `ejs`, `slugify`. The search page loads `minisearch@7.2.0` from jsDelivr (pinned, with an SRI hash) at runtime.
 
@@ -34,8 +34,8 @@ The rest come from the vault:
 
 | Path | Required | Purpose |
 |---|---|---|
-| `**/*.md` | | Pages. Skipped directories: `node_modules`, `dist`, `.git`, `.github`, `.local`, `template`, and any dot-prefixed directory. Files named `replit.md` are skipped too (case-insensitive). |
-| `**/*.{png,jpg,jpeg,gif,svg,webp,avif,ico,bmp,css,js,eot,otf,ttf,woff,woff2}` | | Copied flat into `dist/asset/`. Only `build.js` is excluded, so any other `.js` file in the vault is copied too. If two files share a name (compared case-insensitively), the build warns and the last one copied wins. |
+| `**/*.md` | | Pages. Skipped directories: `node_modules`, `dist`, `.git`, `.github`, `.local`, `template`, and any dot-prefixed directory. |
+| `**/*.{png,jpg,jpeg,gif,svg,webp,avif,ico,bmp,css,js,eot,otf,ttf,woff,woff2}` | | Copied flat into `dist/asset/`. Any `.js` file in the vault is copied too. If two files share a name (compared case-insensitively), the build warns and the last one copied wins. |
 | `abbreviations.json` | no | `{ "term": "expansion" \| null }` |
 | `alt-text.json` | no | `{ "image-basename.png": "alt text" }` |
 
@@ -53,7 +53,7 @@ The rest come from the vault:
 
 Frontmatter is a YAML block between `---` lines at the very top of the file (`lib/frontmatter.js`, parsed with `yaml`). A file without one has none. A block that is never closed, or isn't valid YAML (or isn't a set of `key: value` pairs), fails the build, listing every offending file. That includes files in `partial/`, whose frontmatter is otherwise ignored.
 
-Keys are matched case-insensitively for every property below. The template, however, receives the raw `frontmatter` object. Only `title` and `permalink` are normalised into lowercase keys, and `title` only when no title key exists at all. So `Title: Foo` gives the page the title "Foo", but the template sees `frontmatter.title === undefined`.
+Keys are lowercase (`title`, `featured with`). A key with any capital letter, such as `Title:`, fails the build, since it would otherwise be silently ignored. A `title` or `permalink` that is a number (`title: 1984`) is read as text; any other non-text value fails the build.
 
 | Key | Effect |
 |---|---|
@@ -81,26 +81,26 @@ For all page-name values, `[[Page|Display]]` is reduced to `Page`.
 
 ## Per-page pipeline
 
-For each non-hidden page, in order:
+For each non-hidden page, in order. Code (fenced blocks and inline code spans) is masked first, so steps 1–6 never touch it, and it is restored just before markdown-it. Indented code blocks are not recognised as code (four spaces is also how list items continue).
 
 1. **Partials**: `{{name}}`, `{{[[name]]}}` and `{{name|arg1|arg2}}` are replaced by the body of `partial/name.md`. Only the `partial/` folder (flat, no subfolders) is consulted. The name is matched by basename, case-insensitively, with no path syntax, aliases or permalinks. Everything in `partial/` is a partial and never a page: no frontmatter is read from it (any that is present is stripped and ignored), it is not in the link maps, and it has no URL, alias redirects or backlinks. Inside the partial's text, `{{1}}`… are replaced by the arguments, unfilled ones become empty, `{{$args}}` becomes the arguments joined by `, `, and `{{$n}}` becomes the argument count. Partials are expanded recursively, and a circular partial is replaced by a comment with a warning. A `|` inside `[[…]]` does not split arguments. A bare numeric `{{3}}` anywhere becomes empty.
-2. **Wikilinks**: `[[Target]]` and `[[Target|Text]]` become Markdown links. One that matches no page, or several, **fails the build** (all of them are listed, with the page that holds each), but only on pages that get published: a hidden page is never rendered, so a bad link there is ignored. This check also sees links inside `%%comments%%` and code, like the rest of the wikilink pass. The link text is the raw inner text, not the target's title. A `.md` suffix is stripped. A leading `!` on a non-image wikilink is ignored. `#heading` fragments are not supported and produce a broken link.
+2. **Wikilinks**: `[[Target]]` and `[[Target|Text]]` become Markdown links. One that matches no page, or several, **fails the build** (all of them are listed, with the page that holds each), but only on pages that get published: a hidden page is never rendered, so a bad link there is ignored. Links inside `%%comments%%` and code are ignored. The link text is the raw inner text, not the target's title. A `.md` suffix is stripped. A leading `!` on a non-image wikilink is ignored. `#heading` fragments are not supported and produce a broken link.
    Image targets (by extension) are looked up in the asset map by **bare filename only**:
    - `[[img.png]]` becomes a link.
    - `![[img.png]]` becomes `<figure><img alt="img.png"></figure>`.
    - `![[img.png|Alt]]` sets the alt text.
    - `![[img.png|300]]` and `|300x150` set the dimensions.
 3. **EJS**: the whole page body is rendered as an EJS template with `frontmatter`, `fileMap` and `imageMap`. It is skipped when the body has no `<%`. If rendering fails, the build fails.
-4. **Comments**: `%%…%%` is stripped.
+4. **Comments**: `%%…%%` is stripped right after the partials are expanded, before wikilinks and EJS, so a commented-out link or template tag does nothing.
 5. **Small text**: `~text~` becomes `<small>`.
 6. **Fenced-div attribute protection**: `::: {…}` attributes are protected from `markdown-it-attrs`.
-7. **markdown-it**: rendered with `html`, `linkify`, `typographer`, footnotes, `==mark==`, `~~strike~~`, tables, bracketed spans `[text]{.cls}`, generic attributes `{.cls #id k=v}`, and containers. Every `:::` fence becomes a `<div>`. `::: a b` produces `class="a b"`, and `:::{.a .b #id k=v}` sets the full attribute set.
+7. **markdown-it**: rendered with `html`, `linkify`, `typographer`, footnotes, `==mark==`, `~~strike~~`, tables (each wrapped in a `<div class="table-scroll">` that scrolls sideways), bracketed spans `[text]{.cls}`, generic attributes `{.cls #id k=v}`, and containers. Every `:::` fence becomes a `<div>`. `::: a b` produces `class="a b"`, and `:::{.a .b #id k=v}` sets the full attribute set.
 8. **Layout**: `template/layout.ejs` is rendered, then **link classification** runs on the whole page:
    - `http(s)` links get `external`. Everything else gets `internal`.
    - Absolute paths (`/…`) can also get `draft`, `category`, `notes`, `featured`, `planned` and `broken`. A path is `broken` when it is not a known URL and not under `/index/`.
    - Only double-quoted `href`s are classified.
 
-Steps 1–6 are plain regex passes over the raw Markdown. They also apply inside code spans and code blocks.
+Steps 1–6 are plain regex passes over the raw Markdown, outside code.
 
 ### Layout template variables
 
@@ -115,7 +115,7 @@ Steps 1–6 are plain regex passes over the raw Markdown. They also apply inside
 
 ## Generated pages
 
-- **Backlinks**: `/{url}/backlinks` (or `/backlinks` for `/`) for every non-hidden page that isn't a notes page. It lists the non-hidden pages whose wikilinks resolve to the page and, in a second section below, those that resolve to its notes page. The two sections get headings ("Links to the topic page", "Links to the notes"; the kind comes from the folder: topic, category, reference, … or meta for root pages) only when there is a notes section. An empty list says "No pages link to this topic page." Its Topic/Notes/Backlinks tabs match the page's and its notes page's, with Backlinks selected; a notes page's Backlinks tab points here. This is counted on partial-expanded Markdown, *before* comment stripping or EJS. It counts self-links and links inside `%%comments%%`.
+- **Backlinks**: `/{url}/backlinks` (or `/backlinks` for `/`) for every non-hidden page that isn't a notes page. It lists the non-hidden pages whose wikilinks resolve to the page and, in a second section below, those that resolve to its notes page. The two sections get headings ("Links to the topic page", "Links to the notes"; the kind comes from the folder: topic, category, reference, … or meta for root pages) only when there is a notes section. An empty list says "No pages link to this topic page." Its Topic/Notes/Backlinks tabs match the page's and its notes page's, with Backlinks selected; a notes page's Backlinks tab points here. This is counted on partial-expanded Markdown with code and comments removed, before EJS. A page's links to itself are not counted.
 - **Alias redirects**: written after the pages. The build fails if an alias would replace a page, or two aliases redirect the same URL to different pages.
 - **Indexes**:
   - `/index/alphabetical/{namespace}`: one list per namespace, for `topic`, `commentary`, `summary`, `reference`, `meta` (the root) and `category`, in that order (also the order of the menu). Each lists that folder's pages that are not hidden, unlisted or notes pages, plus their aliases. A namespace with nothing listed has no page and no menu entry. Each list starts with a menu linking to the other namespaces' lists, on two lines (`Topics · Commentaries · Summaries`, then `Reference · Meta · Categories`); a line or entry with nothing listed is left out. `/index/alphabetical` is a stub that redirects to the Topic list.

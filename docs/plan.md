@@ -159,23 +159,9 @@ Each item below was reproduced on 2026-10-01 in a scratch vault. The fixed ones 
 - **Distant translation capture.** In "Romans 3:23 is a great verse. Later the KJV renders it…", the KJV link applies to Romans 3:23. There is no adjacency requirement, unlike continuation refs.
 - **"Romans 3, 5"** is read as Romans 3:5, not chapters 3 and 5. The linker and the Scripture collector agree, so this is at least consistent.
 - **Uppercase words read as Roman numerals:** `MD`, `DC`, `MIX`, `CD`, `CV`, `LI`, …
-- **`~small~`, `%%comments%%`, wikilinks and partials are processed inside code spans and blocks.** `` `~x~` `` renders as literal `<small>x</small>`.
-- **Backlinks count links inside `%%comments%%`** and self-links. The pre-pass runs before comment stripping.
-- **Capitalised frontmatter keys** such as `Title:` give an empty `frontmatter.title` in the template.
 - **Path-qualified image wikilinks** (`[[topic/pic.png]]`) aren't resolved and emit a relative href.
 - **`[[Page#Heading]]` is unsupported** and renders as broken.
-- **`dist/` isn't cleaned.** Stale pages survive. On rebuilds the old Scripture-index files are post-processed twice in one run (23 vs 18 files processed in the test).
-- **Unescaped interpolation** in several places: abbreviation `title`, image `alt`, alias redirect titles, fenced-div attributes, and search results (`innerHTML`). `$` in embed arguments is treated as a replacement pattern.
-- **A non-string `title` or `permalink`** (for example `title: 1984`) would throw. This was found by reading the code, not reproduced.
-
-
-**Dead or misleading code** to clean up when touched:
-- `SKIP_FILES` (`replit.md`) and `ASSET_SKIP_FILES` (`build.js`) are dead.
-- The `TRANSLATIONS` Set is unused (the list is duplicated three times as regexes).
-- The `osis` field is unused.
-- The `permalink === ""` homepage branch is unreachable.
-- Scripture URLs are added to `allKnownUrls` after all link classification has already run.
-- The "slugify not initialised" comment on `_initBookCwmsToInfo` is wrong: ESM imports are hoisted.
+- **Unescaped interpolation** in a few places: abbreviation `title`, image `alt` and fenced-div attributes. `$` in embed arguments is treated as a replacement pattern.
 
 ### Open questions for Joey (from the 2026-10-02 code review)
 Delete a question once its answer has been acted on.
@@ -214,10 +200,10 @@ Done 2026-10-06 (unreleased): footnote roles and backlink labels, the featured s
 **B. Accessibility, needs a decision from Joey**
 - **Links are underlined only on hover** (colour alone, about 3:1 against body text; dark mode weakest). Options: underline in running prose, or keep the bare style and accept the borderline WCAG 1.4.1 result.
 - **Root font size is viewport-derived** (`html { font-size: clamp(0px, …, 22px) }`): ignores the user's default font size; at 200% browser zoom text grows only about 1.65×. A deliberate design, so it's a tradeoff. A percentage base plus a `vw` term would respect the preference. Also `clamp(0px, x, 22px)` is `min(x, 22px)`, and `-webkit-text-size-adjust: none` should be `100%`.
-- `abbr { text-decoration: none }` hides the only cue that a title exists, and `title` doesn't work on touch. 11 pages have bare `<abbr>` (used purely as a styling hook; a span class would be more honest). `/random` hardcodes `<abbr>LORD</abbr>`, which misses the divine-name treatment.
+- `abbr { text-decoration: none }` hides the only cue that a title exists, and `title` doesn't work on touch. 11 pages have bare `<abbr>` (used purely as a styling hook; a span class would be more honest).
+- Tables: add captions (9 pages have an authored one; there's no syntax for it yet), and look at `th { width: 20% }`, which applies per cell. Each table now scrolls sideways in a `.table-scroll` wrapper (not keyboard-focusable, to avoid dozens of tab stops on the citation pages).
+- CSS Naked: the deferred module script flashes styled content before it strips it; fixing that means a blocking script in the head.
 - Heading levels skip on 101 pages (h1 → h3); authored content, since h3 carries the small-caps look. Decide whether to fix in content or style by class.
-- Tables: captions on 9 pages, a horizontal-scroll wrapper, and `th { width: 20% }` applying per cell.
-- CSS Naked toggle: "Click here" link text, `localStorage` not in try/catch, deferred module script flashes styled content first.
 - Visual order differs from DOM order on desktop (header and sidebar are right of `main` but first in the DOM). Probably acceptable.
 
 **C. Standards and correctness**

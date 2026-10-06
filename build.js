@@ -55,8 +55,21 @@ const plannedNotice = (fileInfo) =>
       : `This ${nsName(fileInfo.nsDir || "meta").toLowerCase()} page is`
   } under construction.</em></p></div>`;
 
-async function build() {
+// Every build starts from an empty output directory, so pages deleted from the
+// vault don't linger. Refuses a directory that is the vault or holds it.
+async function cleanOutputDir() {
+  const rel = path.relative(path.resolve(OUTPUT_DIR), process.cwd());
+  if (rel === "" || !(rel.startsWith("..") || path.isAbsolute(rel))) {
+    throw new BuildError(
+      `Refusing to clear "${path.resolve(OUTPUT_DIR)}": it holds the vault. Point TSGEN_OUT somewhere else.`,
+    );
+  }
+  await fs.rm(OUTPUT_DIR, { recursive: true, force: true });
   await fs.mkdir(OUTPUT_DIR, { recursive: true });
+}
+
+async function build() {
+  await cleanOutputDir();
 
   const imageMap = await copyAssets({
     outputDir: OUTPUT_DIR,

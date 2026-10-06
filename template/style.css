@@ -46,6 +46,10 @@ img, picture, video, canvas, svg {
     height: auto;
 }
 
+.table-scroll {
+    overflow-x: auto;
+}
+
 table {
 	border-collapse: collapse;
 	border-spacing: 0;
