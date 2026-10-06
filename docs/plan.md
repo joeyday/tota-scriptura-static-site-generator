@@ -145,9 +145,6 @@ The vault flags were migrated in v0.3.3: `unlisted` is gone from `About`, `Colop
 
 The Scripture index includes every namespace's pages except `category`, `reference` and notes pages (Joey, 2026-10-05: `meta` stays in, even though it is out of the random pool). Search includes a namespace's pages whenever they're not unlisted. Whether `unlisted` should survive at all (it would cover only `404`, `Sandbox` and the auto-unlisted empty categories) is for later.
 
-### Backlog: decouple the random pool from `unlisted` (Joey, 2026-10-02)
-Today the random pool is just the alphabetical lists (minus `category`, `meta` and `reference`), so `unlisted` controls it by accident. Joey has ideas for the random feature: the pool should stay controllable, but through its own mechanism, independent of `unlisted`. Not designed yet; ask Joey for the ideas before touching it.
-
 ### `reading/` is now `summary/` (done; live since v0.3.0)
 Menu label "Summaries", nav tab "Summary page". A summary page summarises the main arguments and Scripture citations of a book or article. Its notes page, like a commentary's, holds Joey's own observations and collected material. The `Book summaries` / `Article summaries` categories have no pages yet; their members are hidden, so the build is silent about it.
 

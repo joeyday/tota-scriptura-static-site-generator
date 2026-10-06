@@ -563,9 +563,7 @@ main {
             padding: 0;
 
             span {
-                font-size: 210%;
                 cursor: default;
-                line-height: 1rem;
             }
         }
     }
