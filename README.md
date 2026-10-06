@@ -57,7 +57,7 @@ Keys are matched case-insensitively for every property below. The template, howe
 
 | Key | Effect |
 |---|---|
-| `title` | Display title. Defaults to the filename without `.md`. |
+| `title` | Display title. Defaults to the filename without `.md`. A notes page gets " notes" appended (`Trinity notes`) wherever its title appears: its heading, search, backlinks lists, alias redirect pages. A backlinks page is titled `{title} backlinks`. |
 | `permalink` | URL slug (see above). |
 | `hidden` | No page is generated. Hidden pages are left out of every index, search, the random pool, backlinks, notes links and categories, and links to them get the `broken` class. Their `aliases` write no redirect stubs. |
 | `unlisted` | The page is built and links to it count as valid. It is left out of all index pages (including the Scripture index), search, the random pool, featured/featured-with, and category membership. It still takes part in notes links and backlinks. |
@@ -114,10 +114,10 @@ Steps 1–6 are plain regex passes over the raw Markdown. They also apply inside
 
 ## Generated pages
 
-- **Backlinks**: `/{url}/backlinks` (or `/backlinks` for `/`) for every non-hidden page that isn't a notes page. It lists the non-hidden pages whose wikilinks resolve to the page and, in a second section below (with headings, only when there is one), those that resolve to its notes page. Its Topic/Notes/Backlinks tabs match the page's and its notes page's, with Backlinks selected; a notes page's Backlinks tab points here. This is counted on partial-expanded Markdown, *before* comment stripping or EJS. It counts self-links and links inside `%%comments%%`.
+- **Backlinks**: `/{url}/backlinks` (or `/backlinks` for `/`) for every non-hidden page that isn't a notes page. It lists the non-hidden pages whose wikilinks resolve to the page and, in a second section below, those that resolve to its notes page. The two sections get headings ("Links to the topic page", "Links to the notes"; the kind comes from the folder: topic, category, reference, … or meta for root pages) only when there is a notes section. An empty list says "No pages link to this topic page." Its Topic/Notes/Backlinks tabs match the page's and its notes page's, with Backlinks selected; a notes page's Backlinks tab points here. This is counted on partial-expanded Markdown, *before* comment stripping or EJS. It counts self-links and links inside `%%comments%%`.
 - **Alias redirects**: written after the pages. The build fails if an alias would replace a page, or two aliases redirect the same URL to different pages.
 - **Indexes**:
-  - `/index/alphabetical/{namespace}`: one list per namespace, for `topic`, `commentary`, `summary`, `reference`, `meta` (the root) and `category`, in that order (also the order of the menu). Each lists that folder's pages that are not hidden, unlisted or notes pages, plus their aliases. A namespace with nothing listed has no page and no menu entry. Each list starts with a menu linking to the other namespaces' lists. `/index/alphabetical` is a stub that redirects to the Topic list.
+  - `/index/alphabetical/{namespace}`: one list per namespace, for `topic`, `commentary`, `summary`, `reference`, `meta` (the root) and `category`, in that order (also the order of the menu). Each lists that folder's pages that are not hidden, unlisted or notes pages, plus their aliases. A namespace with nothing listed has no page and no menu entry. Each list starts with a menu linking to the other namespaces' lists, on two lines (`Topics · Commentaries · Summaries`, then `Reference · Meta · Categories`); a line or entry with nothing listed is left out. `/index/alphabetical` is a stub that redirects to the Topic list.
   - `/index/categorical`: a flat list of top-level category pages only: category pages that are not hidden, not unlisted (so not empty) and not themselves in a category.
   - `/index/featured`
   - `/index/drafts`

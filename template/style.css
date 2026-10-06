@@ -505,7 +505,8 @@ main {
         }
     }
 
-    /* Namespace menu on the alphabetical indexes. Type like .quick-nav, box like .categories. */
+    /* Namespace menu on the alphabetical indexes: a box holding one list per line.
+       Type like .quick-nav, box like .categories. */
     .namespace-menu {
         font-size: 1rem;
         font-family: var(--font-secondary);
@@ -516,9 +517,14 @@ main {
         margin: 0 auto 1rem;
         padding: 0.25em 0.75em;
         text-align: center;
-        text-wrap: pretty;
 
         border-radius: 0.25em;
+
+        ul {
+            display: block;
+            margin: 0;
+            padding: 0;
+        }
 
         li {
             display: inline;
@@ -528,6 +534,7 @@ main {
 
             &::after {
                 content: ' · ';
+                font-weight: normal;
             }
 
             &:last-child::after {
@@ -984,7 +991,7 @@ footer {
 }
 
 .index.alphabetical article {
-	ul:not(.namespace-menu) li {
+	ul:not(.namespace-menu ul) li {
 		color: var(--color-main-text-muted);
 	}
 
