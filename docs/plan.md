@@ -148,10 +148,6 @@ Open: the Scripture index and search include a namespace's pages whenever they'r
 ### Backlog: decouple the random pool from `unlisted` (Joey, 2026-10-02)
 Today the random pool is just the alphabetical lists (minus `category`), so `unlisted` controls it by accident. Joey has ideas for the random feature: the pool should stay controllable, but through its own mechanism, independent of `unlisted`. Not designed yet; ask Joey for the ideas before touching it.
 
-### Backlog: generated pages' nav tab (Joey, 2026-10-02)
-- Generated index pages say "Meta page" in the nav tab. They should say "Index page".
-- Generated pages never have notes pages, so the "Notes" tab shouldn't be shown for them (best: not in the DOM at all). Needs a layout flag or a separate path for generated pages.
-
 ### `reading/` is now `summary/` (done; live since v0.3.0)
 Menu label "Summaries", nav tab "Summary page". A summary page summarises the main arguments and Scripture citations of a book or article. Its notes page, like a commentary's, holds Joey's own observations and collected material. The `Book summaries` / `Article summaries` categories have no pages yet; their members are hidden, so the build is silent about it.
 
@@ -189,7 +185,40 @@ Delete a question once its answer has been acted on.
 
 11. **`~text~` and small text** (Joey, 2026-10-02: no problems so far; open to ignoring stray tildes, and to a battle-tested syntax if CommonMark has one, but typing `<small>` is a non-starter). Idea: make a parenthetical on content pages small implicitly. A survey of `vault/` on 2026-10-02 found 502 parentheticals already wrapped in `~…~` on content pages and **101 bare ones** (notes pages are mostly bare, 994 vs 146, so the rule would be content pages only). Not a "very small number"; the bare ones are a mix, so the rule would need an opt-out.
 
-## 3. Retire the Replit docs
+## 3. Joey's backlog (pasted 2026-10-05)
+
+Documented as-is, not yet triaged. Joey is busy until his doctor appointments are done; **don't start any of this until he says so.** Some items may be stale, so verify each against the code before acting, and ask Joey the listed questions first. Already done and left out: the new feather favicons (v0.5.0) and the `build.js` split.
+
+### Bugs
+- **Sidebar grays.** Some text and borders are the same color as the background in the sidebar. Needs a rethink of how the shades of gray are used across the stylesheet, not a one-off patch.
+- **Broken links don't render as links (?).** Links that should render as broken just don't render as links. Joey isn't sure; reproduce first. Related: `[[Page#Heading]]` renders as broken (section 2).
+
+### Improvements
+- **Markup accessibility** (ChatGPT's suggestions):
+  - Give the search input a real label (a placeholder isn't enough). The `.visually-hidden` snippets Joey pasted are the likely tool; keep the `:not(:focus):not(:active)` form.
+  - Footnote back-links get an `aria-label` saying which footnote they return to.
+  - Add a meta description. Question: where does the text come from (frontmatter, first paragraph, a site-wide default)?
+- **Dark-mode `mark`.** The highlight background is too dark. Copy how Logos does its yellow highlight in dark mode, and lighten the colors of text sitting on it.
+- **`Reference` namespace** for the `OTNT` and `NTOT` pages, ideally with better names. Question: names, and what happens to their current root URLs (redirects?).
+
+### Features Joey can develop himself
+- **Stylesheet tweaks:** the search box placeholder is very faint (maybe a hardcoded color); the search button border color is hardcoded; think about the Search page's style.
+- **`disambiguation` property.** Special handling, probably in the template only. The vault has one use (`topic/`).
+- **Share / Open Graph.** Social previews use Open Graph meta tags (Mastodon, Facebook, Threads, Bluesky, LinkedIn); Twitter needs its own tags. Natural pairing with the meta description above.
+- **Social media links** in the sidebar or footer.
+
+### Features that might be easier with Claude
+- **Statistics page.** Number of pages, Scripture citations, and what percent of the Bible is cited (possibly scarily low). Joey wants more ideas for what to include.
+- **Table of contents**, maybe only on notes pages. It could double as the full book outline on commentary pages.
+- **`aliases` parity with Obsidian.** Understand how Obsidian uses `aliases` and match it. Obsidian disallows wikilinks in `aliases`; tsgen optionally allows them. tsgen assumes all aliases sit in the same folder as the page; check whether Obsidian thinks about it that way or more subtly.
+
+### Crazypants future
+- **Static book generator.**
+
+### Visually hidden snippets
+Joey's four variants (`.visually-hidden` ×3 with slightly different property sets, and the `.sr-only` form with `!important`) are not copied here. The `template/style.css` should get exactly one; ask Joey which, or pick the modern `clip-path` form without `clip`, since the `ie9+` fallback is unneeded.
+
+## 4. Retire the Replit docs
 
 `README.md` now carries the accurate reference. The Replit docs were moved to `archive/` on 2026-10-01. Joey will decide whether and when to delete them:
 - `replit.md`

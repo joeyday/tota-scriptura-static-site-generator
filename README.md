@@ -101,18 +101,18 @@ Steps 1–6 are plain regex passes over the raw Markdown. They also apply inside
 
 ### Layout template variables
 
-`frontmatter`, `bodyClasses`, `content`, `nsLabel`, `isNote`, `notePage`, `noteUrl`, `categories`, `subcategories`, `pages`, `featured` and `featuredWith`.
+`frontmatter`, `bodyClasses`, `content`, `nsLabel`, `view`, `pageUrl`, `noteUrl`, `backlinksUrl`, `categories`, `subcategories`, `pages`, `featured` and `featuredWith`.
 
 - `bodyClasses`: the URL's path segments, or `["home"]` for `/`.
-- `nsLabel`: the page's folder name, capitalised, plus " page" (`Topic page`, `Commentary page`), or `Meta page` for root pages and generated pages. A notes page uses its page's folder.
-- `isNote`: true for a notes page. `notePage` is `{url}` of its page (null when the page doesn't exist or is hidden). `noteUrl` is a page's notes URL, or null.
+- `nsLabel`: the page's folder name, capitalised, plus " page" (`Topic page`, `Commentary page`), or `Meta page` for root pages. A notes page uses its page's folder. Generated pages have no Notes or Backlinks tab: the alphabetical, featured and Scripture indexes show a lone `Index page` tab, and search, random and backlinks pages have no page-actions nav at all.
+- `view`: which tab is showing: `page`, `notes` or `backlinks` (null for generated pages other than backlinks, which show no Notes or Backlinks tab). `pageUrl` is the page's own URL (null for a notes page whose page doesn't exist or is hidden). `noteUrl` is the notes URL, or null. `backlinksUrl` is the page's backlinks page, or null when the page is missing or hidden.
 - `categories`, `subcategories`, `pages`: arrays of `{title,url}`. `subcategories` holds members that are category pages, and `pages` holds the rest.
 - `featured`: true only for `featured: true`.
 - `featuredWith`: the raw page-name string, or null.
 
 ## Generated pages
 
-- **Backlinks**: `/{url}/backlinks` (or `/backlinks` for `/`) for every non-hidden page. Sources are all non-hidden pages whose wikilinks resolve to the page. This is counted on partial-expanded Markdown, *before* comment stripping or EJS. It counts self-links and links inside `%%comments%%`.
+- **Backlinks**: `/{url}/backlinks` (or `/backlinks` for `/`) for every non-hidden page that isn't a notes page. It lists the non-hidden pages whose wikilinks resolve to the page and, in a second section below (with headings, only when there is one), those that resolve to its notes page. Its Topic/Notes/Backlinks tabs match the page's and its notes page's, with Backlinks selected; a notes page's Backlinks tab points here. This is counted on partial-expanded Markdown, *before* comment stripping or EJS. It counts self-links and links inside `%%comments%%`.
 - **Alias redirects**: written after the pages. The build fails if an alias would replace a page, or two aliases redirect the same URL to different pages.
 - **Indexes**:
   - `/index/alphabetical/{namespace}`: one list per namespace, for `topic`, `category`, `commentary`, `summary` and `meta` (the root). Each lists that folder's pages that are not hidden, unlisted or notes pages, plus their aliases. A namespace with nothing listed has no page and no menu entry. Each list starts with a menu linking to the other namespaces' lists. `/index/alphabetical` is a stub that redirects to the Topic list.

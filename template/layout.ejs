@@ -89,30 +89,36 @@
         </article>
     </main>
     
+    <%_ if (nsLabel) { _%>
     <h2 id="page-actions" class="visually-hidden">Page actions</h2>
     <nav class="page-actions" aria-labelledby="page-actions">
         <ul>
-            <% if (!isNote) { %>
+            <%_ if (!view || view === "page") { _%>
             <li class="topic selected"><%= nsLabel %></li>
-            <% } else if (notePage) { %>
-            <li class="topic"><a href="<%= notePage.url %>"><%= nsLabel %></a></li>
-            <% } else { %>
+            <%_ } else if (!pageUrl) { _%>
             <li class="topic muted"><%= nsLabel %></li>
-            <% } %>
+            <%_ } else { _%>
+            <li class="topic"><a href="<%= pageUrl %>"><%= nsLabel %></a></li>
+            <%_ } _%>
 
-            <% if (isNote) { %>
+            <%_ if (view) { _%>
+            <%_ if (view === "notes") { _%>
             <li class="notes selected">Notes</li>
-            <% } else if (noteUrl) { %>
+            <%_ } else if (noteUrl) { _%>
             <li class="notes"><a href="<%= noteUrl %>">Notes</a></li>
-            <% } else { %>
+            <%_ } else { _%>
             <li class="notes muted">Notes</li>
-            <% } %>
+            <%_ } _%>
 
-            <% if (backlinksUrl) { %>
+            <%_ if (view === "backlinks") { _%>
+            <li class="backlinks selected">Backlinks</li>
+            <%_ } else if (backlinksUrl) { _%>
             <li class="backlinks"><a href="<%= backlinksUrl %>">Backlinks</a></li>
-            <% } %>
+            <%_ } _%>
+            <%_ } _%>
         </ul>
     </nav>
+    <%_ } _%>
 
     <h2 id="site-navigation" class="visually-hidden">Site navigation</h2>
     <nav class="site-navigation" aria-labelledby="site-navigation">

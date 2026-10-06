@@ -7,7 +7,7 @@ import slugify from "slugify";
 import { BuildError } from "./lib/errors.js";
 import { createLayout } from "./lib/layout.js";
 import { findCategory } from "./lib/links.js";
-import { buildModel, nsName } from "./lib/model.js";
+import { backlinksUrlFor, buildModel, nsName } from "./lib/model.js";
 import { createOutput } from "./lib/output.js";
 import { writeBacklinksPages } from "./lib/pages/backlinks.js";
 import { writeIndexes } from "./lib/pages/indexes.js";
@@ -113,15 +113,20 @@ async function build() {
       }
     }
 
+    // The page itself, for a notes page's "Topic page" tab (null when its page is missing or hidden).
+    const pageUrl = fileInfo.isNote
+      ? pageByNotes[fileInfo.finalUrlPath]
+      : fileInfo.finalUrlPath;
+
     const finalHtml = renderLayout(htmlContent, {
       url: fileInfo.finalUrlPath,
       frontmatter: fileInfo.parsed.data,
       // The page's folder names its namespace: "topic" → "Topic page". Root pages: "Meta page".
       nsLabel: `${nsName(fileInfo.nsDir || "meta")} page`,
-      isNote: fileInfo.isNote,
-      notePage: pageByNotes[fileInfo.finalUrlPath] || null,
+      view: fileInfo.isNote ? "notes" : "page",
+      pageUrl,
       noteUrl: notesByPage[fileInfo.finalUrlPath] || null,
-      backlinksUrl: fileInfo.finalUrlPath === "/" ? "/backlinks" : `${fileInfo.finalUrlPath}/backlinks`,
+      backlinksUrl: pageUrl && !fileInfo.hidden ? backlinksUrlFor(pageUrl) : null,
       categories: resolvedCategories,
       subcategories,
       pages,
@@ -160,7 +165,13 @@ async function build() {
 
   await writeAliasRedirects({ output, aliasRedirects });
 
-  await writeBacklinksPages({ output, renderLayout, filesToProcess, backlinksMap });
+  await writeBacklinksPages({
+    output,
+    renderLayout,
+    filesToProcess,
+    backlinksMap,
+    notesByPage,
+  });
   await writeIndexes({
     output,
     renderLayout,
