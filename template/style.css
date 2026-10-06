@@ -86,6 +86,11 @@ footer a,
 
 
 
+a:focus-visible {
+	text-decoration: underline;
+	text-decoration-thickness: 0.075rem;
+}
+
 /* End CSS reset */
 
 	
@@ -523,6 +528,7 @@ main {
 				
 				&::after {
 					content: ' · ';
+					content: ' · ' / '';
 				}
 				
 				&:last-child::after {
@@ -561,6 +567,7 @@ main {
 
             &::after {
                 content: ' · ';
+                content: ' · ' / '';
                 font-weight: normal;
             }
 

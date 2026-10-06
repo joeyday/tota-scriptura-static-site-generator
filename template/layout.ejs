@@ -34,24 +34,24 @@
 </head>
 <body<% if (bodyClasses.length) { %> class="<%= bodyClasses.join(' ') %>"<% } %>>
     <header>
-        <a href="/"><span class="site-logo fa-sharp fa-solid fa-feather-pointed"></span> <span class="site-title">Tota Scriptura</span></a>
+        <a href="/"><span class="site-logo fa-sharp fa-solid fa-feather-pointed" aria-hidden="true"></span> <span class="site-title">Tota Scriptura</span></a>
     </header>
     <main>
         <article>
             <header>
                 <h1><%= frontmatter.title %></h1>
                 <% if (frontmatter['quick nav']) { %>
-                <nav class="quick-nav">
+                <nav class="quick-nav" aria-label="Quick links">
                     <ul>
                         <li><a href="/index/featured">Featured<span> topics</span></a></li>
                         <li><a href="/index/alphabetical/topic">Alphabetical<span> index</span></a></li>
                     </ul>
                 </nav>
-                <% } else if (featured || featuredWith) { %><span class="featured-badge fa-sharp fa-solid fa-star"></span><% } %>
+                <% } else if (featured || featuredWith) { %><span class="featured-badge fa-sharp fa-solid fa-star" role="img" aria-label="Featured"></span><% } %>
             </header>
             
             <% if (frontmatter.draft) { %>
-            <div class="message"><p><span class="fa-sharp fa-solid fa-pencil"></span> <em><%= view === "notes" ? "These notes are" : `This ${(nsLabel || "page").toLowerCase()} is` %> a working draft.</em></p></div>
+            <div class="message"><p><span class="fa-sharp fa-solid fa-pencil" aria-hidden="true"></span> <em><%= view === "notes" ? "These notes are" : `This ${(nsLabel || "page").toLowerCase()} is` %> a working draft.</em></p></div>
             <% } %>
             
             <%- content %>
@@ -80,7 +80,7 @@
     
             <% if (categories.length) { %>
             <p class="categories">
-                <span class="categories-icon fa-sharp fa-solid fa-tags fa-rotate-90"></span>
+                <span class="categories-icon fa-sharp fa-solid fa-tags fa-rotate-90" aria-hidden="true"></span>
                 <a class="index-link" href="/index/categorical">Categories</a>:
                 <% categories.forEach(function(cat, i) { %>
                 <a href="<%= cat.url %>"><%= cat.title %></a><%= i < categories.length - 1 ? ', ' : '' %>
@@ -95,7 +95,7 @@
     <nav class="page-actions" aria-labelledby="page-actions">
         <ul>
             <%_ if (!view || view === "page") { _%>
-            <li class="topic selected"><%= nsLabel %></li>
+            <li class="topic selected" aria-current="page"><%= nsLabel %></li>
             <%_ } else if (!pageUrl) { _%>
             <li class="topic muted"><%= nsLabel %></li>
             <%_ } else { _%>
@@ -104,7 +104,7 @@
 
             <%_ if (view) { _%>
             <%_ if (view === "notes") { _%>
-            <li class="notes selected">Notes</li>
+            <li class="notes selected" aria-current="page">Notes</li>
             <%_ } else if (noteUrl) { _%>
             <li class="notes"><a href="<%= noteUrl %>">Notes</a></li>
             <%_ } else { _%>
@@ -112,7 +112,7 @@
             <%_ } _%>
 
             <%_ if (view === "backlinks") { _%>
-            <li class="backlinks selected">Backlinks</li>
+            <li class="backlinks selected" aria-current="page">Backlinks</li>
             <%_ } else if (backlinksUrl) { _%>
             <li class="backlinks"><a href="<%= backlinksUrl %>">Backlinks</a></li>
             <%_ } _%>
@@ -139,9 +139,9 @@
                 <li><a href="/about">About this project</a></li>
             </ul>
 
-            <form action="/search" method="GET">
-                <input type="text" name="q" placeholder="Search" aria-label="Search">
-                <button type="submit" aria-label="Search"><span class="fa-sharp fa-solid fa-magnifying-glass"></span></button>
+            <form action="/search" method="GET" role="search">
+                <input type="search" name="q" placeholder="Search" aria-label="Search">
+                <button type="submit" aria-label="Search"><span class="fa-sharp fa-solid fa-magnifying-glass" aria-hidden="true"></span></button>
             </form>
         </div>
     </nav>
