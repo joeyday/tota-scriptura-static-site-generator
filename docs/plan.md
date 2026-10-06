@@ -184,10 +184,10 @@ Delete a question once its answer has been acted on.
 
 ## 3. Joey's backlog (pasted 2026-10-05)
 
-Documented as-is, not yet triaged. Joey is busy until his doctor appointments are done; **don't start any of this until he says so.** Some items may be stale, so verify each against the code before acting, and ask Joey the listed questions first. Already done and left out: the new feather favicons (v0.5.0) and the `build.js` split.
+Documented as-is, not yet triaged. Joey cleared work on 2026-10-06 (the colonoscopy gate starts on 2026-10-10; it is a start date for the check-in, not a deadline). Some items may be stale, so verify each against the code before acting, and ask Joey the listed questions first. Already done and left out: the new feather favicons (v0.5.0) and the `build.js` split.
 
 ### Bugs
-- **Sidebar grays.** Some text and borders are the same color as the background in the sidebar. Needs a rethink of how the shades of gray are used across the stylesheet, not a one-off patch.
+- **Color system review (2026-10-06).** Fixed: muted nav text, the search field and the button border now derive from the nav text and background (`--color-nav-text-muted`, `--color-nav-field-background`, `--color-nav-stroke`); `color-scheme: light dark`; light/dark `theme-color`; dark `mark` lightened with lifted link colors inside it. Open: the stroke ladder has two identical steps (`stroke` and `thin-stroke`), `--c: 0.25` is outside sRGB for most hues in light mode, and the brand-link `!important` rules. Joey to eyeball the nav and `mark` in both modes.
 - **Broken links don't render as links (?).** Links that should render as broken just don't render as links. Joey isn't sure; reproduce first. Related: `[[Page#Heading]]` renders as broken (section 2).
 
 ### Improvements
