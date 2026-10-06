@@ -139,14 +139,14 @@ Every top-level folder is a namespace, and each can have a `notes/` folder next 
 Old `/notes/…` URLs are not redirected, on purpose. The vault copy refreshed on 2026-10-02 has no aliases on notes pages and the migration script is a no-op on it. Still open: the `isEmbed` name is unchanged, and the `Topic` nav `li` keeps its `topic` CSS class.
 
 ### Per-namespace alphabetical indexes (done; live since v0.3.0)
-Each namespace (`topic`, `category`, `commentary`, `summary`, and `meta` for the root) has its own list at `/index/alphabetical/{namespace}`, with a menu to the others at the top. `/index/alphabetical` redirects to the Topic list. A namespace with nothing listed doesn't exist: no page, no menu entry. The nav tab says "Topic page", "Meta page" and so on. The random pool is every list except `category` and `meta`.
+Each namespace (`topic`, `commentary`, `summary`, `reference`, `meta` for the root, and `category`, in menu order) has its own list at `/index/alphabetical/{namespace}`, with a menu to the others at the top. `/index/alphabetical` redirects to the Topic list. A namespace with nothing listed doesn't exist: no page, no menu entry. The nav tab says "Topic page", "Meta page" and so on. The random pool is every list except `category`, `meta` and `reference`.
 
 The vault flags were migrated in v0.3.3: `unlisted` is gone from `About`, `Colophon`, `NTOT`, `OTNT`, `Home page` and the commentary pages, and kept on `404` and `Sandbox`. The `summary/` pages are still `hidden`; un-hide them as they become real and the Summaries list appears by itself.
 
 Open: the Scripture index and search include a namespace's pages whenever they're not unlisted. Check that's what you want for `commentary/` and `meta`. Whether `unlisted` should survive at all (it would cover only `404`, `Sandbox` and the auto-unlisted empty categories) is for later.
 
 ### Backlog: decouple the random pool from `unlisted` (Joey, 2026-10-02)
-Today the random pool is just the alphabetical lists (minus `category` and `meta`), so `unlisted` controls it by accident. Joey has ideas for the random feature: the pool should stay controllable, but through its own mechanism, independent of `unlisted`. Not designed yet; ask Joey for the ideas before touching it.
+Today the random pool is just the alphabetical lists (minus `category`, `meta` and `reference`), so `unlisted` controls it by accident. Joey has ideas for the random feature: the pool should stay controllable, but through its own mechanism, independent of `unlisted`. Not designed yet; ask Joey for the ideas before touching it.
 
 ### `reading/` is now `summary/` (done; live since v0.3.0)
 Menu label "Summaries", nav tab "Summary page". A summary page summarises the main arguments and Scripture citations of a book or article. Its notes page, like a commentary's, holds Joey's own observations and collected material. The `Book summaries` / `Article summaries` categories have no pages yet; their members are hidden, so the build is silent about it.

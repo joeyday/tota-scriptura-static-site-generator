@@ -117,14 +117,14 @@ Steps 1–6 are plain regex passes over the raw Markdown. They also apply inside
 - **Backlinks**: `/{url}/backlinks` (or `/backlinks` for `/`) for every non-hidden page that isn't a notes page. It lists the non-hidden pages whose wikilinks resolve to the page and, in a second section below (with headings, only when there is one), those that resolve to its notes page. Its Topic/Notes/Backlinks tabs match the page's and its notes page's, with Backlinks selected; a notes page's Backlinks tab points here. This is counted on partial-expanded Markdown, *before* comment stripping or EJS. It counts self-links and links inside `%%comments%%`.
 - **Alias redirects**: written after the pages. The build fails if an alias would replace a page, or two aliases redirect the same URL to different pages.
 - **Indexes**:
-  - `/index/alphabetical/{namespace}`: one list per namespace, for `topic`, `category`, `commentary`, `summary`, `reference` and `meta` (the root). Each lists that folder's pages that are not hidden, unlisted or notes pages, plus their aliases. A namespace with nothing listed has no page and no menu entry. Each list starts with a menu linking to the other namespaces' lists. `/index/alphabetical` is a stub that redirects to the Topic list.
+  - `/index/alphabetical/{namespace}`: one list per namespace, for `topic`, `commentary`, `summary`, `reference`, `meta` (the root) and `category`, in that order (also the order of the menu). Each lists that folder's pages that are not hidden, unlisted or notes pages, plus their aliases. A namespace with nothing listed has no page and no menu entry. Each list starts with a menu linking to the other namespaces' lists. `/index/alphabetical` is a stub that redirects to the Topic list.
   - `/index/categorical`: a flat list of top-level category pages only: category pages that are not hidden, not unlisted (so not empty) and not themselves in a category.
   - `/index/featured`
   - `/index/drafts`
 
   All lists are sorted ignoring a leading "A/An/The" and ignoring case.
 - **Search**: `/search`, plus `dist/search.js` and `dist/search-index.json`. The index holds `{id,title,url,body}` for non-hidden, non-unlisted pages, with the body limited to the first 5000 characters of tag-stripped text. Searches use MiniSearch with prefix matching, fuzzy 0.2 and a 2× title boost. The `?q=` parameter stays in sync with the search box.
-- **Random**: `/random` redirects on the client to a random page from the alphabetical-index pool, minus the `category` and `meta` namespaces. Its body (a Proverbs 16:33 quotation) is hardcoded.
+- **Random**: `/random` redirects on the client to a random page from the alphabetical-index pool, minus the `category`, `meta` and `reference` namespaces. Its body (a Proverbs 16:33 quotation) is hardcoded.
 - **Scripture index**: `/index/scripture` lists the referenced books. `/index/scripture/{book-slug}` is a `<dl>` with one `<dt>` per unique reference, which links to each page or section where that reference appears. References come from content pages that are not unlisted, category pages or notes pages.
 
 ## Post-processing (every `.html` under `dist/`, in order)
