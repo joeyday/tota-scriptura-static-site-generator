@@ -321,7 +321,9 @@ main {
         color: var(--color-secondary);
     }
     
-    a.broken {
+    a.planned,
+    a.broken,
+    span.broken {
         color: var(--color-tertiary);
     }
 
@@ -447,6 +449,7 @@ main {
 
         a { color: oklch(from var(--color-primary) calc(l + var(--mark-link-lift)) c h); }
         a.external { color: oklch(from var(--color-secondary) calc(l + var(--mark-link-lift)) c h); }
+        a.planned,
         a.broken { color: oklch(from var(--color-tertiary) calc(l + var(--mark-link-lift)) c h); }
     }
     

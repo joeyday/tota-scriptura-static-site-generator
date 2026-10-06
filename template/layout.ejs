@@ -29,7 +29,7 @@
     <meta name="msapplication-TileImage" content="/asset/mstile-144x144.png?v=<%= cacheBust %>">
     <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
     <meta name="theme-color" content="#161616" media="(prefers-color-scheme: dark)">
-    <meta name="format-detection" content="telephone=no">
+    <meta name="format-detection" content="telephone=no"><% if (frontmatter.planned) { %><meta name="robots" content="noindex"><% } %>
     
 </head>
 <body<% if (bodyClasses.length) { %> class="<%= bodyClasses.join(' ') %>"<% } %>>
@@ -51,7 +51,7 @@
             </header>
             
             <% if (frontmatter.draft) { %>
-            <div class="message"><p><span class="fa-sharp fa-solid fa-pencil"></span> <em>Notice: this topic is a working draft.</em></p></div>
+            <div class="message"><p><span class="fa-sharp fa-solid fa-pencil"></span> <em><%= view === "notes" ? "These notes are" : `This ${(nsLabel || "page").toLowerCase()} is` %> a working draft.</em></p></div>
             <% } %>
             
             <%- content %>

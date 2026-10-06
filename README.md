@@ -59,9 +59,9 @@ Keys are matched case-insensitively for every property below. The template, howe
 |---|---|
 | `title` | Display title. Defaults to the filename without `.md`. A notes page gets " notes" appended (`Trinity notes`) wherever its title appears: its heading, search, backlinks lists, alias redirect pages. A backlinks page is titled `{title} backlinks`. |
 | `permalink` | URL slug (see above). |
-| `hidden` | No page is generated. Hidden pages are left out of every index, search, the random pool, backlinks, notes links and categories, and links to them get the `broken` class. Their `aliases` write no redirect stubs. |
+| `hidden` | No page is generated. Hidden pages are left out of every index, search, the random pool, backlinks, notes links and categories, and their `aliases` write no redirect stubs. **Exception, a placeholder:** a hidden page that a published page links to by wikilink (links from hidden pages don't count, and neither do category membership or the generated tabs) builds as a placeholder at its URL: the title and an "under construction" notice (`fa-person-digging`, "This topic page is under construction."), `noindex`, none of its content. A placeholder is in no index, search, Scripture index or random pool, has no backlinks page and no alias redirects, and links to it get the `planned` class (pink, like `broken`). A hidden page nobody links to builds nothing. |
 | `unlisted` | The page is built and links to it count as valid. It is left out of all index pages (including the Scripture index), search, the random pool, featured/featured-with, and category membership. It still takes part in notes links and backlinks. |
-| `draft` | Listed on `/index/drafts`. Links to it get the `draft` class. |
+| `draft` | Listed on `/index/drafts`. Links to it get the `draft` class. The page shows "This topic page is a working draft." (the namespace varies; a notes page says "These notes are a working draft."). |
 | `featured` | Listed on `/index/featured`. Gets a star on the alphabetical indexes. Links to it get the `featured` class. |
 | `featured with` | Value is a page name or `[[wikilink]]`. Shown as "(and …)" after the target on `/index/featured`. Gets a star on the alphabetical index. |
 | `categories` | A string or list of page names/`[[wikilinks]]`, each naming a page in `category/`, by basename or as `category/Name` (case-insensitive). A page in `category/` is a category page. A category with no listed members is made `unlisted` automatically, which can empty its parent category in turn. A name with no matching page logs a warning and renders as a broken link. |
@@ -75,7 +75,7 @@ For all page-name values, `[[Page|Display]]` is reduced to `Page`.
 
 1. If the target contains `/`, it is **path-qualified** and matches the file at exactly that path from the vault root, case-insensitively: `topic/Trinity`, `topic/notes/Trinity`. There is no suffix matching.
 2. Otherwise the target is looked up in `fileMap`, which is keyed by the lowercased basename, the permalink, the alias name and the alias slug. A key also matches when its hyphens are read as spaces (`[[foo bar]]` finds the key `foo-bar`).
-3. When several candidates match, notes pages are dropped unless nothing else matches. Then the candidate in the source page's own folder wins (a notes page counts as in its page's folder), then the one in `topic/`, then the one at the vault root. When a tiebreak decides, a warning asks you to qualify the link. If none applies, the result is ambiguous: a warning is logged and the link is rendered as a `broken` span.
+3. When several candidates match, notes pages are dropped unless nothing else matches. Then the candidate in the source page's own folder wins (a notes page counts as in its page's folder), then the one in `topic/`, then the one at the vault root. When a tiebreak decides, a warning asks you to qualify the link. If none applies, the result is ambiguous: the build fails (see Wikilinks).
 
 
 ## Per-page pipeline
@@ -83,7 +83,7 @@ For all page-name values, `[[Page|Display]]` is reduced to `Page`.
 For each non-hidden page, in order:
 
 1. **Partials**: `{{name}}`, `{{[[name]]}}` and `{{name|arg1|arg2}}` are replaced by the body of `partial/name.md`. Only the `partial/` folder (flat, no subfolders) is consulted. The name is matched by basename, case-insensitively, with no path syntax, aliases or permalinks. Everything in `partial/` is a partial and never a page: no frontmatter is read from it (any that is present is stripped and ignored), it is not in the link maps, and it has no URL, alias redirects or backlinks. Inside the partial's text, `{{1}}`… are replaced by the arguments, unfilled ones become empty, `{{$args}}` becomes the arguments joined by `, `, and `{{$n}}` becomes the argument count. Partials are expanded recursively, and a circular partial is replaced by a comment with a warning. A `|` inside `[[…]]` does not split arguments. A bare numeric `{{3}}` anywhere becomes empty.
-2. **Wikilinks**: `[[Target]]` and `[[Target|Text]]` become Markdown links, or `<span class="broken">` when unresolved. The link text is the raw inner text, not the target's title. A `.md` suffix is stripped. A leading `!` on a non-image wikilink is ignored. `#heading` fragments are not supported and produce a broken link.
+2. **Wikilinks**: `[[Target]]` and `[[Target|Text]]` become Markdown links. One that matches no page, or several, **fails the build** (all of them are listed, with the page that holds each), but only on pages that get published: a hidden page is never rendered, so a bad link there is ignored. This check also sees links inside `%%comments%%` and code, like the rest of the wikilink pass. The link text is the raw inner text, not the target's title. A `.md` suffix is stripped. A leading `!` on a non-image wikilink is ignored. `#heading` fragments are not supported and produce a broken link.
    Image targets (by extension) are looked up in the asset map by **bare filename only**:
    - `[[img.png]]` becomes a link.
    - `![[img.png]]` becomes `<figure><img alt="img.png"></figure>`.
@@ -96,7 +96,7 @@ For each non-hidden page, in order:
 7. **markdown-it**: rendered with `html`, `linkify`, `typographer`, footnotes, `==mark==`, `~~strike~~`, tables, bracketed spans `[text]{.cls}`, generic attributes `{.cls #id k=v}`, and containers. Every `:::` fence becomes a `<div>`. `::: a b` produces `class="a b"`, and `:::{.a .b #id k=v}` sets the full attribute set.
 8. **Layout**: `template/layout.ejs` is rendered, then **link classification** runs on the whole page:
    - `http(s)` links get `external`. Everything else gets `internal`.
-   - Absolute paths (`/…`) can also get `draft`, `category`, `notes`, `featured` and `broken`. A path is `broken` when it is not a known URL and not under `/index/`.
+   - Absolute paths (`/…`) can also get `draft`, `category`, `notes`, `featured`, `planned` and `broken`. A path is `broken` when it is not a known URL and not under `/index/`.
    - Only double-quoted `href`s are classified.
 
 Steps 1–6 are plain regex passes over the raw Markdown. They also apply inside code spans and code blocks.

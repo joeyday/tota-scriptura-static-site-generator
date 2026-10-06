@@ -46,6 +46,14 @@ function cacheBuster() {
   }
 }
 
+// "This topic page is under construction." (notes pages: "These notes are …")
+const plannedNotice = (fileInfo) =>
+  `<div class="message"><p><span class="fa-sharp fa-solid fa-person-digging"></span> <em>${
+    fileInfo.isNote
+      ? "These notes are"
+      : `This ${nsName(fileInfo.nsDir || "meta").toLowerCase()} page is`
+  } under construction.</em></p></div>`;
+
 async function build() {
   await fs.mkdir(OUTPUT_DIR, { recursive: true });
 
@@ -71,6 +79,7 @@ async function build() {
     alphabeticalByNs,
     listedNamespaces,
     backlinksMap,
+    plannedUrls,
   } = buildModel({ filesToProcess, index, fileMap, partials, imageMap, aliasRedirects });
 
   const renderLayout = createLayout({
@@ -79,18 +88,48 @@ async function build() {
     categoryUrls,
     notesUrls,
     featuredUrls,
+    plannedUrls,
     allKnownUrls,
     cacheBust: cacheBuster(),
   });
 
   const searchDocs = [];
+  const linkProblems = [];
 
   const output = await createOutput({ outputDir: OUTPUT_DIR });
 
-  for (const fileInfo of filesToProcess) {
-    if (fileInfo.hidden) continue;
+  // A hidden page that a published page links to builds as a placeholder: its
+  // title and a notice, nothing else. It stays out of the Scripture index,
+  // search and every list, and has no backlinks page.
+  const emitPlaceholder = (fileInfo) =>
+    output.emitPage(
+      fileInfo.finalUrlPath,
+      renderLayout(plannedNotice(fileInfo), {
+        url: fileInfo.finalUrlPath,
+        frontmatter: { title: fileInfo.title, planned: true },
+        nsLabel: `${nsName(fileInfo.nsDir || "meta")} page`,
+        view: fileInfo.isNote ? "notes" : "page",
+        pageUrl: fileInfo.isNote ? pageByNotes[fileInfo.finalUrlPath] : fileInfo.finalUrlPath,
+        noteUrl: notesByPage[fileInfo.finalUrlPath] || null,
+      }),
+      null,
+    );
 
-    const htmlContent = renderBody(fileInfo, { partials, fileMap, index, imageMap });
+  for (const fileInfo of filesToProcess) {
+    if (fileInfo.hidden) {
+      if (plannedUrls.has(fileInfo.finalUrlPath)) {
+        await emitPlaceholder(fileInfo);
+      }
+      continue;
+    }
+
+    const htmlContent = renderBody(fileInfo, {
+      partials,
+      fileMap,
+      index,
+      imageMap,
+      problems: linkProblems,
+    });
 
     const resolvedCategories = fileInfo.categories.map((catName) => {
       const target = findCategory(index, catName);
@@ -163,6 +202,11 @@ async function build() {
         body: bodyText.slice(0, 5000),
       });
     }
+  }
+
+  // Hidden pages are never rendered, so a bad link there doesn't count.
+  if (linkProblems.length > 0) {
+    throw new BuildError(`Broken links in published pages:\n${linkProblems.join("\n")}`);
   }
 
   await writeAliasRedirects({ output, aliasRedirects });
