@@ -29,6 +29,14 @@
     <meta name="msapplication-TileImage" content="/asset/mstile-144x144.png?v=<%= cacheBust %>">
     <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
     <meta name="theme-color" content="#161616" media="(prefers-color-scheme: dark)">
+    <meta name="description" content="<%= description %>">
+    <meta property="og:site_name" content="Tota Scriptura">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="<%= frontmatter.title %>">
+    <meta property="og:description" content="<%= description %>">
+    <meta property="og:url" content="https://totascriptura.org<%= url %>">
+<% if (hero) { %>    <meta property="og:image" content="https://totascriptura.org<%= hero.url %>">
+<% } %>    <meta name="twitter:card" content="<%= hero && hero.wide ? 'summary_large_image' : 'summary' %>">
     <meta name="format-detection" content="telephone=no"><% if (frontmatter.planned) { %><meta name="robots" content="noindex"><% } %>
     
 </head>

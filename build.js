@@ -15,6 +15,7 @@ import { writeRandom } from "./lib/pages/random.js";
 import { writeAliasRedirects } from "./lib/pages/redirects.js";
 import { writeScriptureIndex } from "./lib/pages/scripture.js";
 import { writeSearch } from "./lib/pages/search.js";
+import { describe, findHero } from "./lib/html/describe.js";
 import { renderBody } from "./lib/render.js";
 import { copyAssets, loadVault } from "./lib/vault.js";
 
@@ -160,6 +161,10 @@ async function build() {
     const finalHtml = renderLayout(htmlContent, {
       url: fileInfo.finalUrlPath,
       frontmatter: fileInfo.parsed.data,
+      // The frontmatter's `description`, else the first paragraph with text.
+      description:
+        String(fileInfo.parsed.data.description || "").trim() || describe(htmlContent),
+      hero: findHero(fileInfo.parsed.content, imageMap),
       // The page's folder names its namespace: "topic" → "Topic page". Root pages: "Meta page".
       nsLabel: `${nsName(fileInfo.nsDir || "meta")} page`,
       view: fileInfo.isNote ? "notes" : "page",
@@ -199,7 +204,7 @@ async function build() {
         id: fileInfo.finalUrlPath,
         title: fileInfo.title,
         url: fileInfo.finalUrlPath,
-        body: bodyText.slice(0, 5000),
+        body: bodyText,
       });
     }
   }
