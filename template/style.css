@@ -1109,10 +1109,10 @@ footer {
 	}
 }
 
-a[href*="mastodon.social"] {
+a[href^="https://mastodon.social/"] {
     color: var(--color-link-mastodon) !important;
 }
 
-a[href*="facebook.com"] {
+a:is([href^="http://facebook.com/"], [href^="https://facebook.com/"], [href^="https://www.facebook.com/"]) {
     color: var(--color-link-facebook) !important;
 }

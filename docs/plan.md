@@ -188,15 +188,12 @@ Documented as-is, not yet triaged. Joey cleared work on 2026-10-06 (the colonosc
 
 ### Bugs
 - **Color system review (2026-10-06).** Fixed: muted nav text, the search field now derives from the nav text and background (`--color-nav-text-muted` and `--color-nav-field-background`); `color-scheme: light dark`; light/dark `theme-color`; dark `mark` lightened with lifted link colors inside it. Also done (0.6.0): `--c` is 0.16 as the sRGB fallback and 0.25 / 0.17 under `@media (color-gamut: p3)`. Several hues still exceed sRGB at 0.16 and rely on the browser's gamut mapping; checkable by setting the Mac's display profile to sRGB. Open: the stroke ladder has two identical steps (`stroke` and `thin-stroke`), and the brand-link `!important` rules.
-- **Broken links don't render as links (?).** Links that should render as broken just don't render as links. Joey isn't sure; reproduce first. Related: `[[Page#Heading]]` renders as broken (section 2).
 
 ### Improvements
 - **Markup accessibility** (ChatGPT's suggestions):
   - Give the search input a real label (a placeholder isn't enough). The `.visually-hidden` snippets Joey pasted are the likely tool; keep the `:not(:focus):not(:active)` form.
   - Footnote back-links get an `aria-label` saying which footnote they return to.
-  - Add a meta description. Question: where does the text come from (frontmatter, first paragraph, a site-wide default)?
 - **Dark-mode `mark`.** The highlight background is too dark. Copy how Logos does its yellow highlight in dark mode, and lighten the colors of text sitting on it.
-- **Search truncates long pages (fixed, unreleased: the cap is gone).** The search index cuts each document's body at 5,000 characters (`build.js`), so text past that point never matches: 24 of 227 documents (17 of them notes pages) hit the cap. The index is about 358 KB, so there is room to raise it or drop it. (The page-vs-notes ambiguity is settled: notes pages are titled "X notes", and Joey dropped the merge-into-one-document idea, 2026-10-05.)
 - **`reference/` namespace: waiting on the content move.** The code is done (the `reference/` folder, "Reference page" tab, "All reference pages" index, "Reference" menu label). Joey is moving `OTNT.md` and `NTOT.md` into `reference/` in the real vault himself, with the new `title`s ("Old Testament citations in New Testament", "New Testament citations of Old Testament"). Open: whether to rename the files for nicer URLs, and the old root URLs `/otnt` and `/ntot` (no redirects for now; see cross-namespace aliases below). Delete this item once the content repo has the move.
 
 ### HTML/CSS review (Claude, 2026-10-06)
@@ -224,20 +221,14 @@ Done 2026-10-06 (unreleased): footnote roles and backlink labels, the featured s
 - Visual order differs from DOM order on desktop (header and sidebar are right of `main` but first in the DOM). Probably acceptable.
 
 **C. Standards and correctness**
-- Escape titles in generated HTML: `lib/pages/indexes.js`, `scripture.js`, `redirects.js` (`<title>Redirecting to ${toTitle}`) and the `innerHTML` in `search.js`. Only `backlinks.js` has `escHtml`; share it.
-- Meta description and Open Graph (already listed above). Also a canonical URL on content pages and `noindex` on backlinks pages (thin).
-- Redirect stubs: add a viewport meta; write the canonical absolute.
 - Footer on mobile shows a dangling "· Colophon" (`style.css:830` hides "About" but leaves the middot from `layout.ejs:154`).
 - `img { width: 100% }` upscales small images; the usual reset is `max-width: 100%`.
 - `--main-width: min(100vw, 412px)` includes the classic-scrollbar width, so narrow desktop windows scroll horizontally.
-- `a[href*="facebook.com"]` / `mastodon.social` match substrings anywhere in the URL: anchor on `//host/`.
 - No print stylesheet: nav/footer text is white (invisible without background printing) and every `@media` rule is `screen`-only.
-- Put `<meta charset>` before `<title>`.
 
 **D. Head and load cost**
 - Trim the favicon block (`layout.ejs:13-29`): nine apple-touch sizes (iOS uses 180), five PNG favicons, `rel="shortcut icon"` and `msapplication-*` are obsolete. Replace with a 32px `.ico`, an SVG icon, one 180px touch icon and manifest 192/512; unify the `?` and `?v=` cache-bust forms. Saves about 2KB per page. Favicons are Joey's work (v0.5.0), so confirm the replacement set with him.
 - `preconnect` for the Typekit origins; check Typekit's `font-display` is `swap`; ask whether the Font Awesome kit supports subsetting (the site uses five glyphs).
-- Search script: drop the per-hit `docs.find` (hits already carry `title`/`url` via `storeFields`); MiniSearch is loaded from jsDelivr with a floating `@7` and no SRI.
 
 **E. CSS simplification (no visible change; verify with `compare-dist.mjs` where output is affected, by eye otherwise)**
 - Collapse the link reset (`style.css:58-85`) to `a { text-decoration: none }` and `a:hover { underline }`; every other selector in those lists is redundant, and some `text-decoration: none` rules later on can go too.
@@ -256,7 +247,6 @@ Done 2026-10-06 (unreleased): footnote roles and backlink labels, the featured s
 ### Features Joey can develop himself
 - **Stylesheet tweaks:** the search box placeholder is very faint (maybe a hardcoded color); the search button border color is hardcoded; think about the Search page's style.
 - **`disambiguation` property.** Special handling, probably in the template only. The vault has one use (`topic/`).
-- **Share / Open Graph.** Social previews use Open Graph meta tags (Mastodon, Facebook, Threads, Bluesky, LinkedIn); Twitter needs its own tags. Natural pairing with the meta description above.
 - **Social media links** in the sidebar or footer.
 
 ### Features that might be easier with Claude

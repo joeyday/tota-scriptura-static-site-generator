@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta charset="UTF-8">
     <title><%= frontmatter.title %> ‹ Tota Scriptura</title>
 
-    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="canonical" href="https://totascriptura.org<%= url %>">
     <link rel="stylesheet" href="/asset/style.css?<%= cacheBust %>">
     
     <link rel="stylesheet" href="https://use.typekit.net/exn2xvh.css">
@@ -37,7 +38,7 @@
     <meta property="og:url" content="https://totascriptura.org<%= url %>">
 <% if (hero) { %>    <meta property="og:image" content="https://totascriptura.org<%= hero.url %>">
 <% } %>    <meta name="twitter:card" content="<%= hero && hero.wide ? 'summary_large_image' : 'summary' %>">
-    <meta name="format-detection" content="telephone=no"><% if (frontmatter.planned) { %><meta name="robots" content="noindex"><% } %>
+    <meta name="format-detection" content="telephone=no"><% if (frontmatter.planned || noindex) { %><meta name="robots" content="noindex"><% } %>
     
 </head>
 <body<% if (bodyClasses.length) { %> class="<%= bodyClasses.join(' ') %>"<% } %>>

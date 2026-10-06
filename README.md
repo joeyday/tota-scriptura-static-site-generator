@@ -24,7 +24,7 @@ The vault scan, `abbreviations.json`, `alt-text.json` are resolved from the **wo
 
 `dist/` is **not** cleaned before a build. Delete it yourself for a clean build. (See `docs/plan.md`.)
 
-Dependencies: `yaml` (frontmatter), `markdown-it`, `markdown-it-footnote`, `markdown-it-mark`, `markdown-it-container`, `markdown-it-bracketed-spans`, `markdown-it-attrs`, `ejs`, `slugify`. The search page loads `minisearch@7` from jsDelivr at runtime.
+Dependencies: `yaml` (frontmatter), `markdown-it`, `markdown-it-footnote`, `markdown-it-mark`, `markdown-it-container`, `markdown-it-bracketed-spans`, `markdown-it-attrs`, `ejs`, `slugify`. The search page loads `minisearch@7.2.0` from jsDelivr (pinned, with an SRI hash) at runtime.
 
 ## Inputs
 
