@@ -203,12 +203,13 @@ Documented as-is, not yet triaged. Joey cleared work on 2026-10-06 (the colonosc
 Findings from a read of `template/` and the generated pages (plus a scan of all 523 built pages), listed in the order I'd do them. Joey wants all of it done eventually. Line numbers are as of 2026-10-06; verify before acting. The contrast figures are hand-computed from the oklch values, so confirm them in a checker. The "Markup accessibility" and "Stylesheet tweaks" items elsewhere in this section overlap with this list; fold them in when working on either.
 
 **A. Accessibility, small and mechanical**
+Done 2026-10-06 (unreleased): footnote roles and backlink labels, the featured star's text alternative, `aria-hidden` on decorative icons, `aria-current`, the search label and `type="search"`, empty alt text on the CSS separators, and `:focus-visible`. What remains in this group is the nav-text contrast item and the namespace-menu label.
 - Footnotes: the `↩︎` backrefs have no accessible name; the footnotes `<section>` has no label. Post-process markdown-it-footnote's output: `aria-label` ("Back to footnote N"), `role="doc-noteref"`, `doc-backlink`, `doc-endnotes`.
 - Featured star has no text alternative (`layout.ejs:50`, `lib/pages/indexes.js`): `role="img" aria-label="Featured"`, or a visually hidden "(featured)".
 - Decorative Font Awesome icons (logo, pencil, tags, magnifying glass): add `aria-hidden="true"`.
 - `aria-current="page"` on the selected page-actions tab and the selected namespace in `.namespace-menu`.
 - Search page: real label, drop `autofocus`, `type="search"`, `aria-live="polite"` on `#search-results`. Layout form: `role="search"`, `type="search"`.
-- Replace the hidden `<h2>`s before the two navs (`layout.ejs:94,124`, on 461 pages) with `aria-label`; label the quick-nav and `.namespace-menu`.
+- Label the `.namespace-menu` (a `div`; making it a `nav` would pull in the white-on-gray nav styling). The quick-nav is labelled. **Keep the hidden `<h2>`s before the two navs** (Joey, 2026-10-06): the markup should make sense without CSS (CSS Naked Day), and a hidden heading is visible there while an `aria-label` is not.
 - Decorative CSS separators read aloud: `content: " · " / ""` (`style.css` quick-nav and namespace-menu); the `›` list marker; the literal `&nbsp;&rsaquo;` in `lib/pages/scripture.js`.
 - Add a `:focus-visible` rule matching the `a:hover` underline.
 - `--color-nav-text-muted` is about 3.2:1 (light) and 4.3:1 (dark) against the nav background; fix for the mobile "muted" tabs. (Related to the color-system item under Bugs.)
