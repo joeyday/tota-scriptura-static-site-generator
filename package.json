@@ -1,6 +1,6 @@
 {
   "name": "tsgen",
-  "version": "0.6.2",
+  "version": "0.6.3",
   "private": true,
   "description": "Bespoke static site generator for totascriptura.org",
   "type": "module",
