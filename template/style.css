@@ -160,7 +160,6 @@ footer a,
     --color-nav-text: var(--color-white);
     /* Derived from the text and background so they can never collapse into the background */
     --color-nav-text-muted: color-mix(in oklch, var(--color-nav-text), var(--color-nav-background) 40%);
-    --color-nav-stroke: var(--color-nav-text-muted);
     --color-nav-field-background: oklch(from var(--color-nav-background) calc(l - 0.1) c h);
     
     --color-main-text-mark-background: oklch(from var(--color-quinary) 0.95 0.075 h);
@@ -767,15 +766,23 @@ nav.site-navigation {
         }
     }
 
+    /* The search button is a circle inset in the right end of the field */
     form {
-        margin-top: 1.4rem;
-        
+        display: grid; /* input and button share one cell; the button sits at its end */
+        width: 80%;
+        margin: 1.4rem auto 0;
+        font-size: 0.875em;
+
         input {
-            display: block;
-            width: 70%;
-            margin: 0 auto 0.5em;
-            padding: 0.1em 0.6em;
-            font-size: 0.875em;
+            grid-area: 1 / 1;
+            min-width: 0;
+            width: 100%;
+            margin: 0;
+            /* Fixed height: Safari and Firefox won't take a line-height below the font's
+               normal one, so a padded input comes out taller there than in Chrome */
+            height: 2.2em;
+            padding: 0 2.6em 0 0.9em;
+            font-size: 1em;
             color: var(--color-nav-text);
             background-color: var(--color-nav-field-background);
             border: none;
@@ -786,15 +793,28 @@ nav.site-navigation {
                 opacity: 1; /* Firefox dims placeholders by default */
             }
         }
-        
+
         button {
-            margin: 0.5em 0.25em;
-            padding: 0.25em 0.5em;
-            font-size: 0.875em;
+            grid-area: 1 / 1;
+            justify-self: end;
+            align-self: center;
+            margin: 0 0.2em 0 0;
+            display: grid;
+            place-items: center;
+            width: 1.8em;
+            height: 1.8em;
+            padding: 0;
+            font-size: 1em;
+            line-height: 1;
             color: var(--color-nav-text);
             background-color: var(--color-nav-background);
-            border: 2px solid var(--color-nav-stroke);
-            border-radius: 3em;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+
+            span {
+                font-size: 0.75em; /* leaves a margin around the icon */
+            }
         }
     }
 }
