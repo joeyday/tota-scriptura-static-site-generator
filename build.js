@@ -135,11 +135,13 @@ async function build() {
     });
 
     const outFilePath = output.fileFor(fileInfo.finalUrlPath);
-    // Notes pages, category pages and unlisted pages stay out of the Scripture index.
+    // Notes pages, category pages, reference pages (long citation tables) and
+    // unlisted pages stay out of the Scripture index.
     await output.emitPage(
       fileInfo.finalUrlPath,
       finalHtml,
       fileInfo.unlisted ||
+        fileInfo.relDir === "reference" ||
         categoryUrls.has(fileInfo.finalUrlPath) ||
         notesUrls.has(fileInfo.finalUrlPath)
         ? null

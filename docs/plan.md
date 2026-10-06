@@ -143,7 +143,7 @@ Each namespace (`topic`, `commentary`, `summary`, `reference`, `meta` for the ro
 
 The vault flags were migrated in v0.3.3: `unlisted` is gone from `About`, `Colophon`, `NTOT`, `OTNT`, `Home page` and the commentary pages, and kept on `404` and `Sandbox`. The `summary/` pages are still `hidden`; un-hide them as they become real and the Summaries list appears by itself.
 
-Open: the Scripture index and search include a namespace's pages whenever they're not unlisted. Check that's what you want for `commentary/` and `meta`. Whether `unlisted` should survive at all (it would cover only `404`, `Sandbox` and the auto-unlisted empty categories) is for later.
+The Scripture index includes every namespace's pages except `category`, `reference` and notes pages (Joey, 2026-10-05: `meta` stays in, even though it is out of the random pool). Search includes a namespace's pages whenever they're not unlisted. Whether `unlisted` should survive at all (it would cover only `404`, `Sandbox` and the auto-unlisted empty categories) is for later.
 
 ### Backlog: decouple the random pool from `unlisted` (Joey, 2026-10-02)
 Today the random pool is just the alphabetical lists (minus `category`, `meta` and `reference`), so `unlisted` controls it by accident. Joey has ideas for the random feature: the pool should stay controllable, but through its own mechanism, independent of `unlisted`. Not designed yet; ask Joey for the ideas before touching it.

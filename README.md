@@ -125,7 +125,7 @@ Steps 1–6 are plain regex passes over the raw Markdown. They also apply inside
   All lists are sorted ignoring a leading "A/An/The" and ignoring case.
 - **Search**: `/search`, plus `dist/search.js` and `dist/search-index.json`. The index holds `{id,title,url,body}` for non-hidden, non-unlisted pages, with the body limited to the first 5000 characters of tag-stripped text. Searches use MiniSearch with prefix matching, fuzzy 0.2 and a 2× title boost. The `?q=` parameter stays in sync with the search box.
 - **Random**: `/random` redirects on the client to a random page from the alphabetical-index pool, minus the `category`, `meta` and `reference` namespaces. Its body (a Proverbs 16:33 quotation) is hardcoded.
-- **Scripture index**: `/index/scripture` lists the referenced books. `/index/scripture/{book-slug}` is a `<dl>` with one `<dt>` per unique reference, which links to each page or section where that reference appears. References come from content pages that are not unlisted, category pages or notes pages.
+- **Scripture index**: `/index/scripture` lists the referenced books. `/index/scripture/{book-slug}` is a `<dl>` with one `<dt>` per unique reference, which links to each page or section where that reference appears. References come from content pages, in any namespace except `reference` (whose pages are long citation tables); unlisted pages, category pages and notes pages are left out. Meta (root) pages are included.
 
 ## Post-processing (every `.html` under `dist/`, in order)
 
