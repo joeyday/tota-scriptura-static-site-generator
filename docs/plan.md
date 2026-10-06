@@ -199,6 +199,59 @@ Documented as-is, not yet triaged. Joey cleared work on 2026-10-06 (the colonosc
 - **Search truncates long pages.** The search index cuts each document's body at 5,000 characters (`build.js`), so text past that point never matches: 24 of 227 documents (17 of them notes pages) hit the cap. The index is about 358 KB, so there is room to raise it or drop it. (The page-vs-notes ambiguity is settled: notes pages are titled "X notes", and Joey dropped the merge-into-one-document idea, 2026-10-05.)
 - **`reference/` namespace: waiting on the content move.** The code is done (the `reference/` folder, "Reference page" tab, "All reference pages" index, "Reference" menu label). Joey is moving `OTNT.md` and `NTOT.md` into `reference/` in the real vault himself, with the new `title`s ("Old Testament citations in New Testament", "New Testament citations of Old Testament"). Open: whether to rename the files for nicer URLs, and the old root URLs `/otnt` and `/ntot` (no redirects for now; see cross-namespace aliases below). Delete this item once the content repo has the move.
 
+### HTML/CSS review (Claude, 2026-10-06)
+Findings from a read of `template/` and the generated pages (plus a scan of all 523 built pages), listed in the order I'd do them. Joey wants all of it done eventually. Line numbers are as of 2026-10-06; verify before acting. The contrast figures are hand-computed from the oklch values, so confirm them in a checker. The "Markup accessibility" and "Stylesheet tweaks" items elsewhere in this section overlap with this list; fold them in when working on either.
+
+**A. Accessibility, small and mechanical**
+- Footnotes: the `↩︎` backrefs have no accessible name; the footnotes `<section>` has no label. Post-process markdown-it-footnote's output: `aria-label` ("Back to footnote N"), `role="doc-noteref"`, `doc-backlink`, `doc-endnotes`.
+- Featured star has no text alternative (`layout.ejs:50`, `lib/pages/indexes.js`): `role="img" aria-label="Featured"`, or a visually hidden "(featured)".
+- Decorative Font Awesome icons (logo, pencil, tags, magnifying glass): add `aria-hidden="true"`.
+- `aria-current="page"` on the selected page-actions tab and the selected namespace in `.namespace-menu`.
+- Search page: real label, drop `autofocus`, `type="search"`, `aria-live="polite"` on `#search-results`. Layout form: `role="search"`, `type="search"`.
+- Replace the hidden `<h2>`s before the two navs (`layout.ejs:94,124`, on 461 pages) with `aria-label`; label the quick-nav and `.namespace-menu`.
+- Decorative CSS separators read aloud: `content: " · " / ""` (`style.css` quick-nav and namespace-menu); the `›` list marker; the literal `&nbsp;&rsaquo;` in `lib/pages/scripture.js`.
+- Add a `:focus-visible` rule matching the `a:hover` underline.
+- `--color-nav-text-muted` is about 3.2:1 (light) and 4.3:1 (dark) against the nav background; fix for the mobile "muted" tabs. (Related to the color-system item under Bugs.)
+
+**B. Accessibility, needs a decision from Joey**
+- **Links are underlined only on hover** (colour alone, about 3:1 against body text; dark mode weakest). Options: underline in running prose, or keep the bare style and accept the borderline WCAG 1.4.1 result.
+- **Root font size is viewport-derived** (`html { font-size: clamp(0px, …, 22px) }`): ignores the user's default font size; at 200% browser zoom text grows only about 1.65×. A deliberate design, so it's a tradeoff. A percentage base plus a `vw` term would respect the preference. Also `clamp(0px, x, 22px)` is `min(x, 22px)`, and `-webkit-text-size-adjust: none` should be `100%`.
+- `abbr { text-decoration: none }` hides the only cue that a title exists, and `title` doesn't work on touch. 11 pages have bare `<abbr>` (used purely as a styling hook; a span class would be more honest). `/random` hardcodes `<abbr>LORD</abbr>`, which misses the divine-name treatment.
+- Heading levels skip on 101 pages (h1 → h3); authored content, since h3 carries the small-caps look. Decide whether to fix in content or style by class.
+- Tables: captions on 9 pages, a horizontal-scroll wrapper, and `th { width: 20% }` applying per cell.
+- CSS Naked toggle: "Click here" link text, `localStorage` not in try/catch, deferred module script flashes styled content first.
+- Visual order differs from DOM order on desktop (header and sidebar are right of `main` but first in the DOM). Probably acceptable.
+
+**C. Standards and correctness**
+- Escape titles in generated HTML: `lib/pages/indexes.js`, `scripture.js`, `redirects.js` (`<title>Redirecting to ${toTitle}`) and the `innerHTML` in `search.js`. Only `backlinks.js` has `escHtml`; share it.
+- Meta description and Open Graph (already listed above). Also a canonical URL on content pages and `noindex` on backlinks pages (thin).
+- Redirect stubs: add a viewport meta; write the canonical absolute.
+- Footer on mobile shows a dangling "· Colophon" (`style.css:830` hides "About" but leaves the middot from `layout.ejs:154`).
+- `img { width: 100% }` upscales small images; the usual reset is `max-width: 100%`.
+- `--main-width: min(100vw, 412px)` includes the classic-scrollbar width, so narrow desktop windows scroll horizontally.
+- `a[href*="facebook.com"]` / `mastodon.social` match substrings anywhere in the URL: anchor on `//host/`.
+- No print stylesheet: nav/footer text is white (invisible without background printing) and every `@media` rule is `screen`-only.
+- Put `<meta charset>` before `<title>`.
+
+**D. Head and load cost**
+- Trim the favicon block (`layout.ejs:13-29`): nine apple-touch sizes (iOS uses 180), five PNG favicons, `rel="shortcut icon"` and `msapplication-*` are obsolete. Replace with a 32px `.ico`, an SVG icon, one 180px touch icon and manifest 192/512; unify the `?` and `?v=` cache-bust forms. Saves about 2KB per page. Favicons are Joey's work (v0.5.0), so confirm the replacement set with him.
+- `preconnect` for the Typekit origins; check Typekit's `font-display` is `swap`; ask whether the Font Awesome kit supports subsetting (the site uses five glyphs).
+- Search script: drop the per-hit `docs.find` (hits already carry `title`/`url` via `storeFields`); MiniSearch is loaded from jsDelivr with a floating `@7` and no SRI.
+
+**E. CSS simplification (no visible change; verify with `compare-dist.mjs` where output is affected, by eye otherwise)**
+- Collapse the link reset (`style.css:58-85`) to `a { text-decoration: none }` and `a:hover { underline }`; every other selector in those lists is redundant, and some `text-decoration: none` rules later on can go too.
+- `style.css:981`'s `!important` (and its "why?" comment): `header:not(article *), nav:not(article *), footer { a {…} }` nests as `:is(…) a`, which takes the specificity of the most specific member, so `footer a` inherits `header:not(article *)`'s weight. Split footer out of the list or use `body > header` / `body > nav`, then remove the `!important`. Same fix retires `:not(article *)` everywhere.
+- Replace the `font-feature-settings` blocks (and their `-webkit-`/`-moz-` triplets) with `font-variant-caps: all-small-caps` and `font-variant-numeric: oldstyle-nums`; the divine-name initial then needs only `font-variant-caps: normal`.
+- Remove dead prefixes (`-moz-hyphens`, `-ms-hyphens`, `-webkit-clip-path`) and the duplicate `hyphens: auto`; remove the IE9-era `display: block` list and the `content: ''; content: none` pair.
+- One `.visually-hidden`: reuse it for the quick-nav spans instead of a second ten-line `!important` copy (ties into "Visually hidden snippets" below).
+- `data-name` on divine-name spans is read by no CSS or JS I found; drop it (changes output, so re-baseline).
+- Body-class hacks `[class="index scripture"]` and `.index.scripture:not([class="index scripture"])`: use a real class or `:has()`. Slugs like `home`/`index` can collide with `.home`/`.index`.
+- `div:not([class], [id], [style]) p` (callouts) also catches hand-written `<div><p>` on `/random` and the 404 page; use an explicit `.callout`.
+- Unused or duplicate tokens: `--color-red/orange/puke/violet/magenta/indigo/blue` (unused), `--color-neutral-gray` = `--color-light-gray`, `--color-main-thin-stroke` = `--color-main-stroke` in light mode (matches the open item under Bugs). Fix the stale `--main-large-max-width` comment and the "14px·0.857=12px" comments (the root size is fluid now); a single custom property for `0.857em` (used about 14 times).
+- The `h1` margin and border at `style.css:262-268` are overridden by `article header h1`; `.message` mixes `rem` among `em`, and wraps its text in a non-emphatic `<em>`.
+- The desktop layout rests on a double gradient hack (`html` and `body`) plus a fixed footer width ("why does the body not extend?" comment); a single full-height grid would be easier to reason about. Do this one carefully: it is the riskiest visual change here.
+- Head whitespace isn't minified; low value (gzip hides it).
+
 ### Features Joey can develop himself
 - **Stylesheet tweaks:** the search box placeholder is very faint (maybe a hardcoded color); the search button border color is hardcoded; think about the Search page's style.
 - **`disambiguation` property.** Special handling, probably in the template only. The vault has one use (`topic/`).
