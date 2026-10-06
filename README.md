@@ -24,7 +24,7 @@ The vault scan, `abbreviations.json`, `alt-text.json` are resolved from the **wo
 
 `dist/` is **not** cleaned before a build. Delete it yourself for a clean build. (See `docs/plan.md`.)
 
-Dependencies: `gray-matter`, `markdown-it`, `markdown-it-footnote`, `markdown-it-mark`, `markdown-it-container`, `markdown-it-bracketed-spans`, `markdown-it-attrs`, `ejs`, `slugify`. The search page loads `minisearch@7` from jsDelivr at runtime.
+Dependencies: `yaml` (frontmatter), `markdown-it`, `markdown-it-footnote`, `markdown-it-mark`, `markdown-it-container`, `markdown-it-bracketed-spans`, `markdown-it-attrs`, `ejs`, `slugify`. The search page loads `minisearch@7` from jsDelivr at runtime.
 
 ## Inputs
 
@@ -50,6 +50,8 @@ The rest come from the vault:
 - Each page is written to `dist/{url}/index.html`. An empty `dist/.nojekyll` is always written.
 
 ## Frontmatter
+
+Frontmatter is a YAML block between `---` lines at the very top of the file (`lib/frontmatter.js`, parsed with `yaml`). A file without one has none. A block that is never closed, or isn't valid YAML (or isn't a set of `key: value` pairs), fails the build, listing every offending file. That includes files in `partial/`, whose frontmatter is otherwise ignored.
 
 Keys are matched case-insensitively for every property below. The template, however, receives the raw `frontmatter` object. Only `title` and `permalink` are normalised into lowercase keys, and `title` only when no title key exists at all. So `Title: Foo` gives the page the title "Foo", but the template sees `frontmatter.title === undefined`.
 
