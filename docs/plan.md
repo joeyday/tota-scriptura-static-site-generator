@@ -139,14 +139,14 @@ Every top-level folder is a namespace, and each can have a `notes/` folder next 
 Old `/notes/…` URLs are not redirected, on purpose. The vault copy refreshed on 2026-10-02 has no aliases on notes pages and the migration script is a no-op on it. Still open: the `isEmbed` name is unchanged, and the `Topic` nav `li` keeps its `topic` CSS class.
 
 ### Per-namespace alphabetical indexes (done; live since v0.3.0)
-Each namespace (`topic`, `category`, `commentary`, `summary`, and `meta` for the root) has its own list at `/index/alphabetical/{namespace}`, with a menu to the others at the top. `/index/alphabetical` redirects to the Topic list. A namespace with nothing listed doesn't exist: no page, no menu entry. The nav tab says "Topic page", "Meta page" and so on. The random pool is every list except `category`.
+Each namespace (`topic`, `category`, `commentary`, `summary`, and `meta` for the root) has its own list at `/index/alphabetical/{namespace}`, with a menu to the others at the top. `/index/alphabetical` redirects to the Topic list. A namespace with nothing listed doesn't exist: no page, no menu entry. The nav tab says "Topic page", "Meta page" and so on. The random pool is every list except `category` and `meta`.
 
 The vault flags were migrated in v0.3.3: `unlisted` is gone from `About`, `Colophon`, `NTOT`, `OTNT`, `Home page` and the commentary pages, and kept on `404` and `Sandbox`. The `summary/` pages are still `hidden`; un-hide them as they become real and the Summaries list appears by itself.
 
 Open: the Scripture index and search include a namespace's pages whenever they're not unlisted. Check that's what you want for `commentary/` and `meta`. Whether `unlisted` should survive at all (it would cover only `404`, `Sandbox` and the auto-unlisted empty categories) is for later.
 
 ### Backlog: decouple the random pool from `unlisted` (Joey, 2026-10-02)
-Today the random pool is just the alphabetical lists (minus `category`), so `unlisted` controls it by accident. Joey has ideas for the random feature: the pool should stay controllable, but through its own mechanism, independent of `unlisted`. Not designed yet; ask Joey for the ideas before touching it.
+Today the random pool is just the alphabetical lists (minus `category` and `meta`), so `unlisted` controls it by accident. Joey has ideas for the random feature: the pool should stay controllable, but through its own mechanism, independent of `unlisted`. Not designed yet; ask Joey for the ideas before touching it.
 
 ### `reading/` is now `summary/` (done; live since v0.3.0)
 Menu label "Summaries", nav tab "Summary page". A summary page summarises the main arguments and Scripture citations of a book or article. Its notes page, like a commentary's, holds Joey's own observations and collected material. The `Book summaries` / `Article summaries` categories have no pages yet; their members are hidden, so the build is silent about it.
@@ -199,7 +199,7 @@ Documented as-is, not yet triaged. Joey is busy until his doctor appointments ar
   - Footnote back-links get an `aria-label` saying which footnote they return to.
   - Add a meta description. Question: where does the text come from (frontmatter, first paragraph, a site-wide default)?
 - **Dark-mode `mark`.** The highlight background is too dark. Copy how Logos does its yellow highlight in dark mode, and lighten the colors of text sitting on it.
-- **`Reference` namespace** for the `OTNT` and `NTOT` pages, ideally with better names. Question: names, and what happens to their current root URLs (redirects?).
+- **`reference/` namespace: waiting on the content move.** The code is done (the `reference/` folder, "Reference page" tab, "All reference pages" index, "Reference" menu label). Joey is moving `OTNT.md` and `NTOT.md` into `reference/` in the real vault himself, with the new `title`s ("Old Testament citations in New Testament", "New Testament citations of Old Testament"). Open: whether to rename the files for nicer URLs, and the old root URLs `/otnt` and `/ntot` (no redirects for now; see cross-namespace aliases below). Delete this item once the content repo has the move.
 
 ### Features Joey can develop himself
 - **Stylesheet tweaks:** the search box placeholder is very faint (maybe a hardcoded color); the search button border color is hardcoded; think about the Search page's style.
@@ -211,6 +211,7 @@ Documented as-is, not yet triaged. Joey is busy until his doctor appointments ar
 - **Statistics page.** Number of pages, Scripture citations, and what percent of the Bible is cited (possibly scarily low). Joey wants more ideas for what to include.
 - **Table of contents**, maybe only on notes pages. It could double as the full book outline on commentary pages.
 - **`aliases` parity with Obsidian.** Understand how Obsidian uses `aliases` and match it. Obsidian disallows wikilinks in `aliases`; tsgen optionally allows them. tsgen assumes all aliases sit in the same folder as the page; check whether Obsidian thinks about it that way or more subtly.
+- **Aliases that cross namespaces** (Joey, 2026-10-05; eventually, not urgent). Today an alias redirects only inside its page's own folder (`/{relDir}/{alias}`). It would be nice for an alias to point at another namespace, for example the old root URLs `/otnt` and `/ntot` redirecting to `/reference/…`. No design yet: the frontmatter syntax, how the alphabetical index and wikilinks should treat such an alias (which namespace lists it?), and collisions with real pages there are all open. The `reference/` move does not wait for this; those two old URLs will simply 404 for now.
 
 ### Crazypants future
 - **Static book generator.**
