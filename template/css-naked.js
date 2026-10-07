@@ -57,6 +57,14 @@ if (!isCSSNakedDay && cssNakedPreference === 'true' || isCSSNakedDay && cssNaked
     Array.from(document.querySelectorAll('[style]'))
         .forEach(($node) => { $node.setAttribute('style', '') })
 
+    // Font Awesome's kit loads late: it swaps each icon for an inline SVG that only
+    // its own <style> sizes, so without CSS they would fill the page. Drop both
+    // as they arrive.
+    const removeLateStyling = () => {
+        document.querySelectorAll('svg.svg-inline--fa, style').forEach(($node) => { $node.remove() })
+    }
+    new MutationObserver(removeLateStyling).observe(document.documentElement, { childList: true, subtree: true })
+
     // Embed a banner at the top indicating you are in "css-naked" mode
     const $alert = document.createElement('div')
     
