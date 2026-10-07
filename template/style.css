@@ -165,10 +165,10 @@ a:focus-visible {
     --color-quaternary: var(--color-teal);
     --color-quinary: var(--color-yellow);
 
-    --color-nav-background: var(--color-neutral-gray);
+    --color-nav-background: oklch(0.46 0 0); /* dark enough for muted text to clear 4.5:1 */
     --color-nav-text: var(--color-white);
     /* Derived from the text and background so they can never collapse into the background */
-    --color-nav-text-muted: color-mix(in oklch, var(--color-nav-text), var(--color-nav-background) 40%);
+    --color-nav-text-muted: color-mix(in oklch, var(--color-nav-text), var(--color-nav-background) 25%);
     --color-nav-field-background: oklch(from var(--color-nav-background) calc(l - 0.1) c h);
     
     --color-main-text-mark-background: oklch(from var(--color-quinary) 0.95 0.075 h);

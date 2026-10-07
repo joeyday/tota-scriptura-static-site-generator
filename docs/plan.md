@@ -176,26 +176,14 @@ Documented as-is, not yet triaged. Joey cleared work on 2026-10-06 (the colonosc
 - **Color system review (2026-10-06).** Fixed: muted nav text, the search field now derives from the nav text and background (`--color-nav-text-muted` and `--color-nav-field-background`); `color-scheme: light dark`; light/dark `theme-color`; dark `mark` lightened with lifted link colors inside it. Also done (0.6.0): `--c` is 0.16 as the sRGB fallback and 0.25 / 0.17 under `@media (color-gamut: p3)`. Several hues still exceed sRGB at 0.16 and rely on the browser's gamut mapping; checkable by setting the Mac's display profile to sRGB. Open: the stroke ladder has two identical steps (`stroke` and `thin-stroke`), and the brand-link `!important` rules.
 
 ### Improvements
-- **Markup accessibility** (ChatGPT's suggestions):
-  - Give the search input a real label (a placeholder isn't enough). The `.visually-hidden` snippets Joey pasted are the likely tool; keep the `:not(:focus):not(:active)` form.
-  - Footnote back-links get an `aria-label` saying which footnote they return to.
 - **Dark-mode `mark`.** The highlight background is too dark. Copy how Logos does its yellow highlight in dark mode, and lighten the colors of text sitting on it.
 - **`reference/` namespace: waiting on the content move.** The code is done (the `reference/` folder, "Reference page" tab, "All reference pages" index, "Reference" menu label). Joey is moving `OTNT.md` and `NTOT.md` into `reference/` in the real vault himself, with the new `title`s ("Old Testament citations in New Testament", "New Testament citations of Old Testament"). Open: whether to rename the files for nicer URLs, and the old root URLs `/otnt` and `/ntot` (no redirects for now; see cross-namespace aliases below). Delete this item once the content repo has the move.
 
 ### HTML/CSS review (Claude, 2026-10-06)
 Findings from a read of `template/` and the generated pages (plus a scan of all 523 built pages), listed in the order I'd do them. Joey wants all of it done eventually. Line numbers are as of 2026-10-06; verify before acting. The contrast figures are hand-computed from the oklch values, so confirm them in a checker. The "Markup accessibility" and "Stylesheet tweaks" items elsewhere in this section overlap with this list; fold them in when working on either.
 
-**A. Accessibility, small and mechanical**
-Done 2026-10-06 (unreleased): footnote roles and backlink labels, the featured star's text alternative, `aria-hidden` on decorative icons, `aria-current`, the search label and `type="search"`, empty alt text on the CSS separators, and `:focus-visible`. What remains in this group is the nav-text contrast item and the namespace-menu label.
-- Footnotes: the `↩︎` backrefs have no accessible name; the footnotes `<section>` has no label. Post-process markdown-it-footnote's output: `aria-label` ("Back to footnote N"), `role="doc-noteref"`, `doc-backlink`, `doc-endnotes`.
-- Featured star has no text alternative (`layout.ejs:50`, `lib/pages/indexes.js`): `role="img" aria-label="Featured"`, or a visually hidden "(featured)".
-- Decorative Font Awesome icons (logo, pencil, tags, magnifying glass): add `aria-hidden="true"`.
-- `aria-current="page"` on the selected page-actions tab and the selected namespace in `.namespace-menu`.
-- Search page: real label, drop `autofocus`, `type="search"`, `aria-live="polite"` on `#search-results`. Layout form: `role="search"`, `type="search"`.
-- Label the `.namespace-menu` (a `div`; making it a `nav` would pull in the white-on-gray nav styling). The quick-nav is labelled. **Keep the hidden `<h2>`s before the two navs** (Joey, 2026-10-06): the markup should make sense without CSS (CSS Naked Day), and a hidden heading is visible there while an `aria-label` is not.
-- Decorative CSS separators read aloud: `content: " · " / ""` (`style.css` quick-nav and namespace-menu); the `›` list marker; the literal `&nbsp;&rsaquo;` in `lib/pages/scripture.js`.
-- Add a `:focus-visible` rule matching the `a:hover` underline.
-- `--color-nav-text-muted` is about 3.2:1 (light) and 4.3:1 (dark) against the nav background; fix for the mobile "muted" tabs. (Related to the color-system item under Bugs.)
+**A. Accessibility, small and mechanical** (done; the namespace menu is a labelled `role="group"`, and the nav's muted text clears 4.5:1 in both schemes)
+- **Keep the hidden `<h2>`s before the two navs** (Joey, 2026-10-06): the markup should make sense without CSS (CSS Naked Day), and a hidden heading is visible there while an `aria-label` is not.
 
 **B. Accessibility, needs a decision from Joey**
 - **Links are underlined only on hover** (colour alone, about 3:1 against body text; dark mode weakest). Options: underline in running prose, or keep the bare style and accept the borderline WCAG 1.4.1 result.
