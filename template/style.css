@@ -17,11 +17,6 @@ body {
 	position: relative;
 }
 
-article, aside, details, figcaption, figure, 
-footer, header, hgroup, menu, nav, section {
-	display: block;
-}
-
 h1, h2, h3, h4, h5, h6 {
     text-wrap: pretty;
 }
@@ -36,7 +31,6 @@ blockquote, q {
 
 blockquote::before, blockquote::after,
 q::before, q::after {
-	content: '';
 	content: none;
 }
 
@@ -59,37 +53,11 @@ input, button, textarea, select {
     font: inherit;
 }
 
-a:hover,
-main .main-topic a:hover,
-main h3 + p a:hover,
-main h3 + .main-topic + p a:hover,
-main .quick-nav a:hover,
-main .namespace-menu a:hover,
-.categories a:hover,
-header:not(article *) a:hover,
-nav:not(article *) a:hover,
-footer a:hover,
-.index main a:hover {
-    text-decoration: underline;
-	text-decoration-thickness: 0.075rem;
-}
-
-a,
-main .main-topic a,
-main h3 + p a,
-main h3 + .main-topic + p a,
-main .quick-nav a,
-main .namespace-menu a,
-.categories a,
-header:not(article *) a,
-nav:not(article *) a,
-footer a,
-.index main a {
+a {
 	text-decoration: none;
 }
 
-
-
+a:hover,
 a:focus-visible {
 	text-decoration: underline;
 	text-decoration-thickness: 0.075rem;
@@ -104,13 +72,16 @@ a:focus-visible {
 
     /* max widths at the two different breakpoints */
     --main-small-max-width: 412px; /* iPhone Pro Max logical width */
-    --main-large-max-width: 500px; /* 22px * 100vw / 4.4 */
+    --main-large-max-width: 500px; /* where the root font size reaches its 22px cap (500px * 0.044) */
 
     /* At smallest (default) breakpoint, page is fixed single column
        As it widens, the text grows with a kind of zooming effect
        The text grows to a max font size of 18px
        Font size stays static until wide enough for next breakpoint */
     --main-width: clamp(0px, 100vw, var(--main-small-max-width));
+
+    /* secondary text (blockquotes, tables, footnotes, nav) is this much smaller than its parent */
+    --font-size-small: 0.857em;
 
     /* hardcoded fonts */
     --font-meta-serif: ff-meta-serif-web-pro, serif;
@@ -125,8 +96,7 @@ a:focus-visible {
     /* hardcoded colors */
     --color-white: oklch(1 0 0);
     --color-lighter-gray: oklch(0.65 0 0);
-    --color-light-gray: oklch(0.5 0 0);
-    --color-neutral-gray: oklch(0.5 0 0);
+    --color-gray: oklch(0.5 0 0);
     --color-dark-gray: oklch(0.4 0 0);
     --color-darker-gray: oklch(0.2 0 0);
     --color-black: oklch(0 0 0);
@@ -153,10 +123,10 @@ a:focus-visible {
     --color-main-background: var(--color-white);
     --color-main-tint-background: oklch(from var(--color-main-background) calc(l - 0.05) c h);
     --color-main-text: var(--color-black);
-    --color-main-text-muted: var(--color-light-gray);
+    --color-main-text-muted: var(--color-gray);
     --color-main-thick-stroke: var(--color-dark-gray);
-    --color-main-stroke: var(--color-neutral-gray);
-    --color-main-thin-stroke: var(--color-light-gray);
+    --color-main-stroke: var(--color-gray);
+    --color-main-thin-stroke: var(--color-gray);
     --color-main-thinner-stroke: var(--color-lighter-gray);
 
     --color-primary: var(--color-green);
@@ -198,8 +168,8 @@ a:focus-visible {
 		--color-main-text: var(--color-white);
 		--color-main-text-muted: var(--color-lighter-gray);
 		--color-main-thick-stroke: var(--color-lighter-gray);
-		--color-main-stroke: var(--color-light-gray);
-		--color-main-thin-stroke: var(--color-neutral-gray);
+		--color-main-stroke: var(--color-gray);
+		--color-main-thin-stroke: var(--color-gray);
 		--color-main-thinner-stroke: var(--color-dark-gray);
 	
         --l: 0.65;
@@ -222,15 +192,13 @@ a:focus-visible {
 }
 
 html {
-    /* font size is a ratio of the main column width, 14px / 320px  = 0.04375 */
+    /* font size is a fraction of the main column width (14px / 320px, rounded), capped at 22px */
     font-size: clamp(0px, calc(var(--main-width) * 0.044), 22px);
 }
 
 body {
     font-family: var(--font-primary);
-    -webkit-font-feature-settings: "kern", "liga", "onum";
-    -moz-font-feature-settings: "kern", "liga", "onum";
-    font-feature-settings: "kern", "liga", "onum";
+    font-variant-numeric: oldstyle-nums;
 }
 
 main {
@@ -271,37 +239,34 @@ main {
     h1 {
         font-family: var(--font-fancy);
         font-weight: normal;
-        font-size: 1.571em; /* 14px·1.375=22px */
-        margin: 0 0 1rem;
-        border-bottom: 1px solid var(--color-main-thin-stroke);
+        font-size: 1.571em;
     }
     
     h2 {
         font-family: var(--font-fancy);
         font-weight: normal;
-        font-size: 1.285em; /* 14px·1.285=18px */
-        margin: 1em 0 0.777em; /* 18px·0.777=14px */
+        font-size: 1.285em;
+        margin: 1em 0 0.777em;
         border-bottom: 1px solid var(--color-main-thinner-stroke);
     }
             
     h3 {
-        -webkit-font-feature-settings: "kern", "liga", "c2sc", "smcp";
-        -moz-font-feature-settings: "kern", "liga", "c2sc", "smcp";
-        font-feature-settings: "kern", "liga", "c2sc", "smcp";
+        font-variant-caps: all-small-caps;
+        font-variant-numeric: normal;
         font-weight: normal;
-        font-size: 1em; /* 14px·1=14px */
-        margin: 1em 0 0; /* 14px·1=14px */
+        font-size: 1em;
+        margin: 1em 0 0;
     }
     
     h4, h5, h6 {
-        font-size: 1em; /* 14px·1=14px */
-        margin: 1em 0 0; /* 14px·1=14px */
+        font-size: 1em;
+        margin: 1em 0 0;
     }
 
     .main-topic {
         font-family: var(--font-secondary);
         color: var(--color-main-text-muted);
-        font-size: 0.857em; /* 14px·0.857=12px */
+        font-size: var(--font-size-small);
         font-style: italic;
         
         margin: 0 0 0 1.4rem;
@@ -335,13 +300,6 @@ main {
         color: var(--color-tertiary);
     }
 
-    p, li, blockquote {
-        hyphens: auto;
-        -moz-hyphens: auto;
-        -webkit-hyphens: auto;
-        -ms-hyphens: auto;
-    }
-    
     p, figure, ul, ol, table {
         margin: 1rem 0;
     }
@@ -372,14 +330,14 @@ main {
     }
     
     blockquote {
-        font-size: 0.857em; /* 14px·0.857=12px */
+        font-size: var(--font-size-small);
         margin: 1rem 0.4rem;
         padding-left: 1rem;
         border-left: 1px solid var(--color-quaternary);
     }
     
     table {
-        font-size: 0.857em; /* 14px·0.857=12px */
+        font-size: var(--font-size-small);
         
         border: 1px solid var(--color-main-stroke);
         width: 100%;
@@ -420,7 +378,7 @@ main {
     
     sup.footnote-ref {
         font-family: var(--font-secondary);
-        font-size: 0.857em; /* 14px·0.857=12px */
+        font-size: var(--font-size-small);
         vertical-align: baseline;
         top: -0.2em;
         position: relative;
@@ -435,7 +393,7 @@ main {
     ol.footnotes-list {
         font-family: var(--font-secondary);
         color: var(--color-main-text-muted);
-        font-size: 0.857em; /* 14px·0.857=12px */
+        font-size: var(--font-size-small);
         margin: 0;
         
         p {
@@ -469,20 +427,14 @@ main {
     .roman-num:not(h1 *, h2 *, th *, .footnotes-list *),
     .divine-name:not(h1 *, h2 *, th *, .footnotes-list *) {
         font-variant-caps: all-small-caps;
-        -moz-font-feature-settings: "kern", "liga", "c2sc", "smcp";
-        -webkit-font-feature-settings: "kern", "liga", "c2sc", "smcp";
-        font-feature-settings: "kern", "liga", "c2sc", "smcp";
+        font-variant-numeric: normal;
         
         .divine-name-initial {
             font-variant-caps: normal;
-            -moz-font-feature-settings: "kern", "liga", "onum";
-            -webkit-font-feature-settings: "kern", "liga", "onum";
-            font-feature-settings: "kern", "liga", "onum";
         }
     }
     
-    /* callout boxes */
-    div:not([class], [id], [style]) p {
+    .callout p {
         text-align: center;
         text-wrap: balance;
     }
@@ -515,20 +467,6 @@ main {
 				margin: 0;
 				padding: 0;
 				list-style-type: none;
-                
-                a span {
-					/* visually hidden */
-					position: absolute !important;
-					width: 1px !important;
-					height: 1px !important;
-					margin: 0 !important;
-					padding: 0 !important;
-					-webkit-clip-path: inset(50%) !important;
-					clip-path: inset(50%) !important;
-					white-space: nowrap !important;
-					overflow: hidden !important;
-					border: 0 !important;
-				}
 				
 				&::after {
 					content: ' · ';
@@ -589,13 +527,14 @@ main {
         border: 1px solid var(--color-main-stroke);
         background-color: var(--color-main-tint-background);
         padding: 0.5rem 0.75rem;
-        font-size: 0.857rem;
+        font-size: var(--font-size-small);
         margin-bottom: 1rem;
         
         p {
             display: flex;
             align-items: center;
             gap: 0.4rem;
+            font-style: italic;
 
             margin: 0;
             padding: 0;
@@ -608,7 +547,7 @@ main {
     
     .categories {
         font-family: var(--font-secondary);
-        font-size: 0.857em; /* 14px·0.857=12px */
+        font-size: var(--font-size-small);
         background-color: var(--color-main-tint-background);
         
         display: block;
@@ -630,7 +569,7 @@ main {
         margin: auto;
         padding: 1em 1.4em;
         
-        font-size: 0.857em; /* 14px·0.857=12px */
+        font-size: var(--font-size-small);
         font-style: italic;
 
         text-align: center;
@@ -638,8 +577,8 @@ main {
     }
 }
 
-header:not(article *),
-nav:not(article *),
+body > header,
+body > nav,
 footer {
     width: calc(var(--main-width) - 2.8rem);
     margin: 1.4rem auto;
@@ -649,20 +588,21 @@ footer {
 
     font-family: var(--font-secondary);
     color: var(--color-nav-text);
-
-    a {
-    	color: var(--color-nav-text);
-    }
 }
 
-header:not(article *) {
+body > header a,
+body > nav a,
+footer a {
+    color: var(--color-nav-text);
+}
+
+body > header {
     a {
 		display: flex;
         width: fit-content;
         margin: 0 auto;
         align-items: center;
         gap: 0.2em;
-        text-decoration: none;
         border-bottom: 0.075rem solid transparent;
         
     	.site-logo {
@@ -671,7 +611,8 @@ header:not(article *) {
     
         .site-title {
 			font-family: var(--font-primary);
-			font-feature-settings: "smcp", "c2sc";
+			font-variant-caps: all-small-caps;
+			font-variant-numeric: normal;
 			font-weight: normal;
 			text-align: center;
         }
@@ -687,7 +628,7 @@ nav.page-actions {
     width: calc(var(--main-width) - 2.8rem);
     
     margin-top: 0;
-    font-size: 0.857em; /* 14px·0.857=12px */
+    font-size: var(--font-size-small);
     text-transform: lowercase;
     
     ul {
@@ -760,7 +701,7 @@ nav.page-actions {
 }
 
 nav.site-navigation {
-    font-size: 0.857em; /* 14px·0.857=12px */
+    font-size: var(--font-size-small);
 
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -831,7 +772,7 @@ nav.site-navigation {
 }
 
 footer {
-    font-size: 0.857em; /* 14px·0.857=12px */
+    font-size: var(--font-size-small);
     margin-bottom: 2rem;
     
     p {
@@ -855,13 +796,15 @@ footer {
     }
         
     html {
-        /* Is this the best way to do this? */
-        background: linear-gradient(to right, var(--color-main-background) 50%, var(--color-nav-background) 50%);
+        /* Two full-height color fields behind the centered body. The split sits in the
+           middle of the column gap: half the body's width (0.75 main + 1rem) left of
+           center, plus the main column and half the gap (main + 1rem). */
+        --split: calc(50% + var(--main-width) * 0.25);
+        background: linear-gradient(to right, var(--color-main-background) var(--split), var(--color-nav-background) var(--split));
     }
 
     body {
         width: calc(var(--main-width) * 1.5 + 2rem);
-        background: linear-gradient(to right, var(--color-main-background) calc(var(--main-width) + 1rem), var(--color-nav-background) calc(var(--main-width) + 1rem));
 
         display: grid;
         grid-template-columns: var(--main-width) calc(var(--main-width) * 0.5);
@@ -874,8 +817,6 @@ footer {
         column-gap: 2rem;
                         
         margin: 0 auto;
-        
-        min-height: 100svh; /* extend background to bottom of viewport */
     }
         
     main {
@@ -890,7 +831,7 @@ footer {
         }
     }
     
-    header:not(article *) {
+    body > header {
         grid-area: header;
         width: 100%;
         
@@ -978,18 +919,15 @@ footer {
     }
     
     footer {
-        height: 100%; /* stretch to fill space */
-
-        /* I don't know why I need these, why does the
-           body not extend all the way to the bottom?? */        
+        /* Runs to the middle of the column gap; the lopsided padding then
+           centers the text under the main column. */
         width: calc(var(--main-width) + 1rem);
         padding: 0 2.4rem 2rem 1.4rem;
         
         grid-area: footer;
-        background-color: var(--color-main-background);
         
         color: var(--color-main-text);
-        a { color: var(--color-main-text) !important; } /* why does this need !important? */
+        a { color: var(--color-main-text); }
         
         p {
             display: block;
@@ -1019,7 +957,6 @@ footer {
     height: 1px !important;
 	margin: 0 !important;
 	padding: 0 !important;
-	-webkit-clip-path: inset(50%) !important;
     clip-path: inset(50%) !important;
     white-space: nowrap !important;
     overflow: hidden !important;
@@ -1063,13 +1000,11 @@ footer {
 	}
 }
 
-[class="index scripture"] article {
-    ul {
+.index.scripture article {
+    > ul {
         columns: 2;
     }
-}
 
-.index.scripture:not([class="index scripture"]) article {
     dl {
         color: var(--color-main-text-muted);
 
@@ -1104,9 +1039,8 @@ footer {
 			}
 	
 			.section-title {
-				-webkit-font-feature-settings: "kern", "liga", "c2sc", "smcp";
-				-moz-font-feature-settings: "kern", "liga", "c2sc", "smcp";
-				font-feature-settings: "kern", "liga", "c2sc", "smcp";
+				font-variant-caps: all-small-caps;
+				font-variant-numeric: normal;
 			}
         }
 

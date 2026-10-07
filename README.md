@@ -94,7 +94,7 @@ For each non-hidden page, in order. Code (fenced blocks and inline code spans) i
 4. **Comments**: `%%…%%` is stripped right after the partials are expanded, before wikilinks and EJS, so a commented-out link or template tag does nothing.
 5. **Small text**: `~text~` becomes `<small>`.
 6. **Fenced-div attribute protection**: `::: {…}` attributes are protected from `markdown-it-attrs`.
-7. **markdown-it**: rendered with `html`, `linkify`, `typographer`, footnotes, `==mark==`, `~~strike~~`, tables (each wrapped in a `<div class="table-scroll">` that scrolls sideways), bracketed spans `[text]{.cls}`, generic attributes `{.cls #id k=v}`, and containers. Every `:::` fence becomes a `<div>`. `::: a b` produces `class="a b"`, and `:::{.a .b #id k=v}` sets the full attribute set.
+7. **markdown-it**: rendered with `html`, `linkify`, `typographer`, footnotes, `==mark==`, `~~strike~~`, tables (each wrapped in a `<div class="table-scroll">` that scrolls sideways), bracketed spans `[text]{.cls}`, generic attributes `{.cls #id k=v}`, and containers. Every `:::` fence becomes a `<div>`: a bare one is a callout (`<div class="callout">`, centred text), and `::: a b` produces `class="a b"`, and `:::{.a .b #id k=v}` sets the full attribute set.
 8. **Layout**: `template/layout.ejs` is rendered, then **link classification** runs on the whole page:
    - `http(s)` links get `external`. Everything else gets `internal`.
    - Absolute paths (`/…`) can also get `draft`, `category`, `notes`, `featured`, `planned` and `broken`. A path is `broken` when it is not a known URL and not under `/index/`.
@@ -143,7 +143,7 @@ Steps 1–6 are plain regex passes over the raw Markdown, outside code.
 4. **Abbreviations**: each `abbreviations.json` key becomes `<abbr title="…">`, or a plain `<abbr>` when the value is null. Matching is case-sensitive and longest-first. There is always a leading `\b`, and a trailing `\b` only when the key ends in a word character. Skipped inside `abbr`, `code`, `pre`, `script`, `style`. Anchors are *not* skipped.
 5. **Initials**: two or more consecutive `X.` (for example `C.S.`) become `<abbr>`. Same skip list as abbreviations.
 6. **Roman numerals**: valid uppercase numerals of two or more letters, and dotted pairs like `X.III`, become `<span class="roman-num">`. Same skip list.
-7. **Divine names**: `LORD`, `GOD`, `YHWH`, `I AM` (+ ` THAT/WHAT/WHO I AM`) and `I WILL BE` (+ the same suffixes) become `<span class="divine-name" data-name="…">`. In each, the letters `G`, `L` and a standalone `I` are wrapped in `<span class="divine-name-initial">`, so `YHWH` gets no initial span. Same skip list.
+7. **Divine names**: `LORD`, `GOD`, `YHWH`, `I AM` (+ ` THAT/WHAT/WHO I AM`) and `I WILL BE` (+ the same suffixes) become `<span class="divine-name">`. In each, the letters `G`, `L` and a standalone `I` are wrapped in `<span class="divine-name-initial">`, so `YHWH` gets no initial span. Same skip list.
 8. **Spaced ellipses**: `. . .` becomes `.&nbsp;.&nbsp;.` (with a leading `&nbsp;` when preceded by whitespace). This applies everywhere in the file, with no skip list.
 9. **Alt text**: an `<img>` whose `src` basename is a key in `alt-text.json` gets its `alt` set or replaced. Matching is case-sensitive.
 

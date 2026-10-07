@@ -204,19 +204,10 @@ Findings from a read of `template/` and the generated pages (plus a scan of all 
 - Trim the favicon block (`layout.ejs:13-29`): nine apple-touch sizes (iOS uses 180), five PNG favicons, `rel="shortcut icon"` and `msapplication-*` are obsolete. Replace with a 32px `.ico`, an SVG icon, one 180px touch icon and manifest 192/512; unify the `?` and `?v=` cache-bust forms. Saves about 2KB per page. Favicons are Joey's work (v0.5.0), so confirm the replacement set with him.
 - `preconnect` for the Typekit origins; check Typekit's `font-display` is `swap`; ask whether the Font Awesome kit supports subsetting (the site uses five glyphs).
 
-**E. CSS simplification (no visible change; verify with `compare-dist.mjs` where output is affected, by eye otherwise)**
-- Collapse the link reset (`style.css:58-85`) to `a { text-decoration: none }` and `a:hover { underline }`; every other selector in those lists is redundant, and some `text-decoration: none` rules later on can go too.
-- `style.css:981`'s `!important` (and its "why?" comment): `header:not(article *), nav:not(article *), footer { a {…} }` nests as `:is(…) a`, which takes the specificity of the most specific member, so `footer a` inherits `header:not(article *)`'s weight. Split footer out of the list or use `body > header` / `body > nav`, then remove the `!important`. Same fix retires `:not(article *)` everywhere.
-- Replace the `font-feature-settings` blocks (and their `-webkit-`/`-moz-` triplets) with `font-variant-caps: all-small-caps` and `font-variant-numeric: oldstyle-nums`; the divine-name initial then needs only `font-variant-caps: normal`.
-- Remove dead prefixes (`-moz-hyphens`, `-ms-hyphens`, `-webkit-clip-path`) and the duplicate `hyphens: auto`; remove the IE9-era `display: block` list and the `content: ''; content: none` pair.
-- One `.visually-hidden`: reuse it for the quick-nav spans instead of a second ten-line `!important` copy (ties into "Visually hidden snippets" below).
-- `data-name` on divine-name spans is read by no CSS or JS I found; drop it (changes output, so re-baseline).
-- Body-class hacks `[class="index scripture"]` and `.index.scripture:not([class="index scripture"])`: use a real class or `:has()`. Slugs like `home`/`index` can collide with `.home`/`.index`.
-- `div:not([class], [id], [style]) p` (callouts) also catches hand-written `<div><p>` on `/random` and the 404 page; use an explicit `.callout`.
-- Unused or duplicate tokens: `--color-red/orange/puke/violet/magenta/indigo/blue` (unused), `--color-neutral-gray` = `--color-light-gray`, `--color-main-thin-stroke` = `--color-main-stroke` in light mode (matches the open item under Bugs). Fix the stale `--main-large-max-width` comment and the "14px·0.857=12px" comments (the root size is fluid now); a single custom property for `0.857em` (used about 14 times).
-- The `h1` margin and border at `style.css:262-268` are overridden by `article header h1`; `.message` mixes `rem` among `em`, and wraps its text in a non-emphatic `<em>`.
-- The desktop layout rests on a double gradient hack (`html` and `body`) plus a fixed footer width ("why does the body not extend?" comment); a single full-height grid would be easier to reason about. Do this one carefully: it is the riskiest visual change here.
-- Head whitespace isn't minified; low value (gzip hides it).
+**E. CSS simplification** (done; checked by headless-Chrome screenshots, 3 widths × light/dark, against the baseline: pixel-identical apart from a half-pixel shift in one `h3` containing "I AM" and ±1 gradient dithering at the desktop column split)
+- Kept on purpose (Joey, 2026-10-07): every hue token in `:root`, used or not, so they are ready to use. The duplicate `neutral-gray` and `light-gray` tokens are merged into one `--color-gray`. `--color-main-thin-stroke` still equals `--color-main-stroke` in light mode (the open stroke-ladder item under Bugs).
+- Not done: head whitespace minification (gzip hides it).
+- Small caps and numerals now use `font-variant-*`. Old-style figures are switched off in small caps (`font-variant-numeric: normal`), as the old `font-feature-settings` did by accident; drop those lines if you'd rather have old-style figures there.
 
 ### Features Joey can develop himself
 - **Stylesheet tweaks:** the search box placeholder is very faint (maybe a hardcoded color); the search button border color is hardcoded; think about the Search page's style.

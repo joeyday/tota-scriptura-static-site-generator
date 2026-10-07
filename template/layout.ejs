@@ -52,15 +52,15 @@
                 <% if (frontmatter['quick nav']) { %>
                 <nav class="quick-nav" aria-label="Quick links">
                     <ul>
-                        <li><a href="/index/featured">Featured<span> topics</span></a></li>
-                        <li><a href="/index/alphabetical/topic">Alphabetical<span> index</span></a></li>
+                        <li><a href="/index/featured">Featured<span class="visually-hidden"> topics</span></a></li>
+                        <li><a href="/index/alphabetical/topic">Alphabetical<span class="visually-hidden"> index</span></a></li>
                     </ul>
                 </nav>
                 <% } else if (featured || featuredWith) { %><span class="featured-badge fa-sharp fa-solid fa-star" role="img" aria-label="Featured"></span><% } %>
             </header>
             
             <% if (frontmatter.draft) { %>
-            <div class="message"><p><span class="fa-sharp fa-solid fa-pencil" aria-hidden="true"></span> <em><%= view === "notes" ? "These notes are" : `This ${(nsLabel || "page").toLowerCase()} is` %> a working draft.</em></p></div>
+            <div class="message"><p><span class="fa-sharp fa-solid fa-pencil" aria-hidden="true"></span> <%= view === "notes" ? "These notes are" : `This ${(nsLabel || "page").toLowerCase()} is` %> a working draft.</p></div>
             <% } %>
             
             <%- content %>
