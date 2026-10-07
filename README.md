@@ -96,11 +96,19 @@ For each non-hidden page, in order. Code (fenced blocks and inline code spans) i
 6. **Fenced-div attribute protection**: `::: {…}` attributes are protected from `markdown-it-attrs`.
 7. **markdown-it**: rendered with `html`, `linkify`, `typographer`, footnotes, `==mark==`, `~~strike~~`, tables (each wrapped in a `<div class="table-scroll">` that scrolls sideways), bracketed spans `[text]{.cls}`, generic attributes `{.cls #id k=v}`, and containers. Every `:::` fence becomes a `<div>`: a bare one is a callout (`<div class="callout">`, centred text), and `::: a b` produces `class="a b"`, and `:::{.a .b #id k=v}` sets the full attribute set.
 8. **Layout**: `template/layout.ejs` is rendered, then **link classification** runs on the whole page:
-   - `http(s)` links get `external`. Everything else gets `internal`.
+   - `http(s)` links get `external`, plus `bare-url` when the link text is the address itself (ignoring the scheme, `www.`, case and a trailing slash). Everything else gets `internal`.
    - Absolute paths (`/…`) can also get `draft`, `category`, `notes`, `featured`, `planned` and `broken`. A path is `broken` when it is not a known URL and not under `/index/`.
    - Only double-quoted `href`s are classified.
 
 Steps 1–6 are plain regex passes over the raw Markdown, outside code.
+
+### Print
+
+`style.css` ends with a print stylesheet, and the layout's footer carries a print-only line, "Retrieved from {canonical URL} on {date}", above the copyright. `print.js` fills in the date when the page loads and again on `beforeprint`; without JavaScript the line leaves the date out. In print the page is the article and nothing else:
+- The logo, both navs, the quick nav, the namespace menu, the search form, the featured star, the footnote back-links and the tag icon are hidden, as is the footer's About/Colophon line.
+- Links are plain text. An `external` link spells out its address in parentheses, except `bible-ref` links (Scripture references stay bare) and `bare-url` links (their text already is the address).
+- Print is always light, even on a dark-mode machine (the dark colors apply to `screen` only). Colors are kept, and `print-color-adjust: exact` makes browsers print backgrounds (mark highlights, table headers) without the "background graphics" option.
+- The type is a fixed 11pt in a full-width column with 0.75in page margins and page numbers (where the browser supports `@page` margin boxes). Headings stay with the text after them, and figures, blockquotes and table rows don't split across pages.
 
 ### Layout template variables
 

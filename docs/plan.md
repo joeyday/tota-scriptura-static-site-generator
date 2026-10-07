@@ -195,7 +195,7 @@ Findings from a read of `template/` and the generated pages (plus a scan of all 
 - Visual order differs from DOM order on desktop (header and sidebar are right of `main` but first in the DOM). Probably acceptable.
 
 **C. Standards and correctness**
-- No print stylesheet: nav/footer text is white (invisible without background printing) and every `@media` rule is `screen`-only. Held off (Joey, 2026-10-07).
+- Done 2026-10-07: the print stylesheet (see README → Print), checked by printing pages to PDF in headless Chrome.
 - Decided not to change: the mobile footer's "· Colophon" middot is intentional (the two paragraphs inline, and the separator sets Colophon apart from the copyright). `img { width: 100% }` stays: no image in the vault is smaller than the column (checked 2026-10-07; the narrowest is 540px against a column of at most about 438px), and the home-page avatar is sized by its figure.
 - Done 2026-10-07: `article` and `.css-naked-alert` use `min(var(--main-width), 100%)`, because `100vw` includes a classic scrollbar and narrow desktop windows scrolled sideways. Checked in headless Chrome with a forced 15px scrollbar (iframes from 320 to 500px wide).
 

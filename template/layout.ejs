@@ -156,10 +156,12 @@
     </nav>
     
     <footer>
+        <p class="print-source">Retrieved from https://totascriptura.org<%= url %><span class="print-date"></span>.</p>
         <p>Copyright &copy; 2009–<%= new Date().getFullYear() %> Joey Day</p>
         <p><a href="/about">About</a> &middot; <a href="/colophon">Colophon</a></p>
     </footer>
 
 	<script type="module" src="/asset/css-naked.js?<%= cacheBust %>"></script>
+	<script type="module" src="/asset/print.js?<%= cacheBust %>"></script>
 </body>
 </html>
