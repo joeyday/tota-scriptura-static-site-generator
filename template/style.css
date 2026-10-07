@@ -209,7 +209,7 @@ main {
     background-color: var(--color-main-background);
     
     article {
-        width: var(--main-width);
+        width: min(var(--main-width), 100%); /* 100vw includes a classic scrollbar; 100% doesn't */
         margin: auto;
         padding: 1.4em;
 
@@ -568,7 +568,7 @@ main {
     }
     
     .css-naked-alert {
-        width: var(--main-width);
+        width: min(var(--main-width), 100%); /* 100vw includes a classic scrollbar; 100% doesn't */
         margin: auto;
         padding: 1em 1.4em;
         

@@ -195,10 +195,9 @@ Findings from a read of `template/` and the generated pages (plus a scan of all 
 - Visual order differs from DOM order on desktop (header and sidebar are right of `main` but first in the DOM). Probably acceptable.
 
 **C. Standards and correctness**
-- Footer on mobile shows a dangling "· Colophon" (`style.css:830` hides "About" but leaves the middot from `layout.ejs:154`).
-- `img { width: 100% }` upscales small images; the usual reset is `max-width: 100%`.
-- `--main-width: min(100vw, 412px)` includes the classic-scrollbar width, so narrow desktop windows scroll horizontally.
-- No print stylesheet: nav/footer text is white (invisible without background printing) and every `@media` rule is `screen`-only.
+- No print stylesheet: nav/footer text is white (invisible without background printing) and every `@media` rule is `screen`-only. Held off (Joey, 2026-10-07).
+- Decided not to change: the mobile footer's "· Colophon" middot is intentional (the two paragraphs inline, and the separator sets Colophon apart from the copyright). `img { width: 100% }` stays: no image in the vault is smaller than the column (checked 2026-10-07; the narrowest is 540px against a column of at most about 438px), and the home-page avatar is sized by its figure.
+- Done 2026-10-07: `article` and `.css-naked-alert` use `min(var(--main-width), 100%)`, because `100vw` includes a classic scrollbar and narrow desktop windows scrolled sideways. Checked in headless Chrome with a forced 15px scrollbar (iframes from 320 to 500px wide).
 
 **D. Head and load cost**
 - Trim the favicon block (`layout.ejs:13-29`): nine apple-touch sizes (iOS uses 180), five PNG favicons, `rel="shortcut icon"` and `msapplication-*` are obsolete. Replace with a 32px `.ico`, an SVG icon, one 180px touch icon and manifest 192/512; unify the `?` and `?v=` cache-bust forms. Saves about 2KB per page. Favicons are Joey's work (v0.5.0), so confirm the replacement set with him.
