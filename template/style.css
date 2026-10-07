@@ -177,8 +177,9 @@ a:focus-visible {
         		
 		--color-nav-background: var(--color-dark-gray);
 		
-		--color-main-text-mark-background: oklch(from var(--color-quinary) 0.45 0.1 h);
-		--mark-link-lift: 0.2;
+		/* Matches Logos's dark highlight: about 2:1 against the page, text on it at 8:1 or better */
+		--color-main-text-mark-background: oklch(from var(--color-quinary) 0.41 0.08 h);
+		--mark-link-lift: 0.25;
 
 		--color-link-mastodon: oklch(from var(--color-mastodon-purple) calc(l + 0.15) calc(c - 0.08) h);
 		--color-link-facebook: oklch(from var(--color-facebook-blue) calc(l + 0.15) calc(c - 0.08) h);
