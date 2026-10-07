@@ -33,7 +33,8 @@ node ../scripts/compare-dist.mjs ../baseline/dist dist      # must say IDENTICAL
 
 - All paths in `build.js` are relative to the cwd. From the repo root, the build would publish this repo's own Markdown.
 - Output goes to `./dist`, or to `$TSGEN_OUT` when set (an absolute or cwd-relative path). The build doesn't clean it, so always `rm -rf` it first.
-- `baseline/dist` (gitignored) is the reference output of the original `build.js` for the current `vault/` copy. Regenerate it whenever `vault/` is refreshed, or whenever an output change is accepted on purpose.
+- `baseline/dist` (gitignored) is the reference output of the generator as of the last baseline, built from the current `vault/` copy. Regenerate it whenever `vault/` is refreshed, or whenever an output change is accepted on purpose.
+- **At the start of any new development**, before changing code: commit or park pending work, `rsync` the content repo into `vault/` (command in `docs/plan.md`), then rebuild `baseline/dist` from the unchanged code (`TSGEN_OUT` pointing at `baseline/dist`, after `rm -rf`). When the work is done, `compare-dist.mjs` shows exactly what it changed, so every diff is attributable to the new work and not to content drift.
 - The layout's asset cache-buster is the content repo's short commit hash (`GITHUB_SHA` in CI, else `git rev-parse` in the cwd, else a build timestamp). Inside `vault/` that finds this repo's own HEAD. `compare-dist.mjs` normalises the buster, so use it rather than raw `diff -r`.
 - For edge cases the vault lacks, use a scratch vault in the scratchpad.
 
