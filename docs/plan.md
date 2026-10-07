@@ -209,6 +209,9 @@ Findings from a read of `template/` and the generated pages (plus a scan of all 
 - Not done: head whitespace minification (gzip hides it).
 - Small caps and numerals now use `font-variant-*`. Old-style figures are switched off in small caps (`font-variant-numeric: normal`), as the old `font-feature-settings` did by accident; drop those lines if you'd rather have old-style figures there.
 
+### Font Awesome kit (2026-10-07)
+Joey pruned the kit to a subset and the kit became an SVG-with-JavaScript kit (`"method":"js"`); its `.css` URL then returned a 19-byte stub and every icon disappeared. The layout now loads `kit.fontawesome.com/4a9f54cbf1.js` instead (hotfix 0.7.3, branched from v0.7.2). Watch for: icons appear a moment after the page paints (the script is deferred), and with JavaScript off the logo, search icon, star and the rest are absent (the search button is then an empty circle with its label). Icons in use: `feather-pointed`, `magnifying-glass`, `tags`, `star`, `pencil` and `person-digging` (Sharp Solid), and `mastodon` and `facebook` (Brands).
+
 ### Features Joey can develop himself
 - **Stylesheet tweaks:** the search box placeholder is very faint (maybe a hardcoded color); the search button border color is hardcoded; think about the Search page's style.
 - **`disambiguation` property.** Special handling, probably in the template only. The vault has one use (`topic/`).

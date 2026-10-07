@@ -28,7 +28,7 @@ Dependencies: `yaml` (frontmatter), `markdown-it`, `markdown-it-footnote`, `mark
 
 ## Inputs
 
-`template/` (in tsgen) holds `layout.ejs` and the site's CSS and JS. Icons come from a Font Awesome Pro kit loaded by the layout (the Pro licence forbids publishing standalone copies of the SVGs, so they aren't self-hosted), and text fonts from Typekit. The favicons and touch icons in `template/favicon/` are PNGs rasterized from the Pro feather-pointed icon. Its assets are copied to `dist/asset/` along with the vault's.
+`template/` (in tsgen) holds `layout.ejs` and the site's CSS and JS. Icons come from a Font Awesome Pro kit that the layout loads as a script (`kit.fontawesome.com/….js`, deferred): the kit swaps each `<span class="fa-…">` for an inline SVG, so the kit's own settings decide which icons exist. The Pro licence forbids publishing standalone copies of the SVGs, so they aren't self-hosted. `css-naked.js` removes the SVGs and the kit's `<style>` in naked mode, and text fonts from Typekit. The favicons and touch icons in `template/favicon/` are PNGs rasterized from the Pro feather-pointed icon. Its assets are copied to `dist/asset/` along with the vault's.
 
 The rest come from the vault:
 
