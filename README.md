@@ -109,6 +109,8 @@ Steps 1–6 are plain regex passes over the raw Markdown, outside code.
 - The logo, both navs, the quick nav, the namespace menu, the search form, the featured star, the footnote back-links and the categories line are hidden, as is the footer's About/Colophon line.
 - Links are plain text. An `external` link spells out its address in parentheses, except `bible-ref` links (Scripture references stay bare) and `bare-url` links (their text already is the address).
 - Print is always light, even on a dark-mode machine (the dark colors apply to `screen` only). Colors are kept, and `print-color-adjust: exact` makes browsers print backgrounds (mark highlights, table headers) without the "background graphics" option.
+- Headings follow a type scale: h3 keeps its size, h2 is one step up and h1 two, each step `--print-scale` (1.667) times the one below, so about 18pt and 31pt against the 11pt body.
+- Callouts keep their screen width (the screen column is 1/0.044 rem, less the article's padding), so their text wraps at the same words.
 - The type is a fixed 11pt in a full-width column with page margins of 1in above and below and 1.5in at the sides and page numbers (where the browser supports `@page` margin boxes). A heading stays with the text after it (including a "Main topic" line between them), and figures, blockquotes and table rows don't split across pages.
 
 ### Layout template variables

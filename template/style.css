@@ -1145,6 +1145,30 @@ footer .print-source {
         overflow-wrap: anywhere;
     }
 
+    /* Headings: a type scale with room to breathe. Body text is 11pt and h3 keeps
+       its size; h2 is one step up and h1 two, each step --print-scale times the
+       one below (about 18pt and 31pt). */
+    :root {
+        --print-scale: 1.667;
+    }
+
+    main h2 {
+        font-size: calc(1em * var(--print-scale));
+    }
+
+    main h1 {
+        font-size: calc(1em * var(--print-scale) * var(--print-scale));
+    }
+
+    /* Callouts wrap where they do on screen. The screen column is 1/0.044 rem wide
+       (the root font size is 0.044 of the column width) less 1.4em of padding on each
+       side, whatever the window; centered text in a box centered on the page keeps
+       its center. */
+    .callout {
+        width: calc((1 / 0.044 - 2.8) * 1rem);
+        margin-inline: auto;
+    }
+
     /* Page breaks */
     /* Each rule is doubled with the older page-break-* name, which Safari knows
        better than break-* */
