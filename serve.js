@@ -58,8 +58,11 @@ async function resolveRequest(root, urlPath) {
   return null;
 }
 
-async function send(req, res, status, file) {
-  const body = await fs.readFile(file);
+async function send(req, res, status, file, injectReload = false) {
+  let body = await fs.readFile(file);
+  if (injectReload && path.extname(file).toLowerCase() === ".html") {
+    body = Buffer.from(body.toString("utf-8").replace(/<\/body>/i, () => `${RELOAD_SCRIPT}</body>`));
+  }
   res.writeHead(status, {
     "Content-Type":
       CONTENT_TYPES[path.extname(file).toLowerCase()] ||
@@ -70,8 +73,16 @@ async function send(req, res, status, file) {
   res.end(req.method === "HEAD" ? undefined : body);
 }
 
-export function serve(dir, port = DEFAULT_PORT) {
+// Pages served while watching carry this script, which reloads the page when the
+// site is rebuilt (the server sends an event down /__tsgen/reload).
+const RELOAD_PATH = "/__tsgen/reload";
+const RELOAD_SCRIPT = `<script>new EventSource("${RELOAD_PATH}").onmessage = () => location.reload();</script>`;
+
+// Serves `dir` on `port`. With `watching`, pages also reload themselves; the
+// promise resolves to { reloadPages }, which tells every open page to reload.
+export function serve(dir, port = DEFAULT_PORT, { watching = false } = {}) {
   const root = path.resolve(dir);
+  const reloadClients = new Set();
   const server = http.createServer(async (req, res) => {
     try {
       if (req.method !== "GET" && req.method !== "HEAD") {
@@ -79,16 +90,27 @@ export function serve(dir, port = DEFAULT_PORT) {
         return res.end();
       }
       const { pathname, search } = new URL(req.url, "http://localhost");
+      if (watching && pathname === RELOAD_PATH) {
+        res.writeHead(200, {
+          "Content-Type": "text/event-stream",
+          "Cache-Control": "no-store",
+          Connection: "keep-alive",
+        });
+        res.write(": connected\n\n");
+        reloadClients.add(res);
+        req.on("close", () => reloadClients.delete(res));
+        return;
+      }
       const found = await resolveRequest(root, pathname);
       if (found?.redirect) {
         res.writeHead(301, { Location: found.redirect + search });
         return res.end();
       }
-      if (found?.file) return await send(req, res, 200, found.file);
+      if (found?.file) return await send(req, res, 200, found.file, watching);
 
       const notFound = path.join(root, "404.html");
       try {
-        await send(req, res, 404, notFound);
+        await send(req, res, 404, notFound, watching);
       } catch {
         res.writeHead(404, { "Content-Type": "text/plain; charset=utf-8" });
         res.end("404 Not Found");
@@ -109,8 +131,14 @@ export function serve(dir, port = DEFAULT_PORT) {
       );
     });
     server.listen(port, "127.0.0.1", () => {
-      console.log(`Serving ${root} at http://localhost:${port}/  (Ctrl-C to stop)`);
-      resolve(server);
+      console.log(
+        `Serving ${root} at http://localhost:${port}/  (${watching ? "rebuilding on changes; " : ""}Ctrl-C to stop)`,
+      );
+      resolve({
+        reloadPages: () => {
+          for (const client of reloadClients) client.write("data: reload\n\n");
+        },
+      });
     });
   });
 }

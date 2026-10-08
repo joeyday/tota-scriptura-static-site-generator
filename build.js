@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import { execFileSync } from "child_process";
+import fsSync from "fs";
 import fs from "fs/promises";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -18,7 +19,8 @@ import { writeScriptureIndex } from "./lib/pages/scripture.js";
 import { writeSearch } from "./lib/pages/search.js";
 import { describe, findHero } from "./lib/html/describe.js";
 import { renderBody } from "./lib/render.js";
-import { copyAssets, loadVault } from "./lib/vault.js";
+import { createWatcher } from "./lib/watch.js";
+import { ASSET_EXTENSIONS, NEVER_PAGES, copyAssets, loadVault } from "./lib/vault.js";
 
 // The vault (content) is the working directory; the template ships with tsgen.
 // Output goes to ./dist unless TSGEN_OUT names another directory (local use
@@ -58,26 +60,26 @@ const plannedNotice = (fileInfo) =>
 
 // Every build starts from an empty output directory, so pages deleted from the
 // vault don't linger. Refuses a directory that is the vault or holds it.
-async function cleanOutputDir() {
-  const rel = path.relative(path.resolve(OUTPUT_DIR), process.cwd());
+async function cleanOutputDir(dir) {
+  const rel = path.relative(path.resolve(dir), process.cwd());
   if (rel === "" || !(rel.startsWith("..") || path.isAbsolute(rel))) {
     throw new BuildError(
-      `Refusing to clear "${path.resolve(OUTPUT_DIR)}": it holds the vault. Point TSGEN_OUT somewhere else.`,
+      `Refusing to clear "${path.resolve(dir)}": it holds the vault. Point TSGEN_OUT somewhere else.`,
     );
   }
-  await fs.rm(OUTPUT_DIR, { recursive: true, force: true });
-  await fs.mkdir(OUTPUT_DIR, { recursive: true });
+  await fs.rm(dir, { recursive: true, force: true });
+  await fs.mkdir(dir, { recursive: true });
 }
 
-async function build({ showHidden = false } = {}) {
-  await cleanOutputDir();
+async function build({ showHidden = false, outputDir = OUTPUT_DIR } = {}) {
+  await cleanOutputDir(outputDir);
 
   const imageMap = await copyAssets({
-    outputDir: OUTPUT_DIR,
+    outputDir,
     templateDir: TEMPLATE_DIR,
   });
   const { fileMap, partials, filesToProcess, index, aliasRedirects } =
-    await loadVault({ outputDir: OUTPUT_DIR, showHidden });
+    await loadVault({ outputDir, showHidden });
 
   const {
     membersMap,
@@ -112,7 +114,7 @@ async function build({ showHidden = false } = {}) {
   const linkProblems = [];
   const draftLinkProblems = []; // from pages that --show-hidden shows: warnings only
 
-  const output = await createOutput({ outputDir: OUTPUT_DIR });
+  const output = await createOutput({ outputDir });
 
   // A hidden page that a published page links to builds as a placeholder: its
   // title and a notice, nothing else. It stays out of the Scripture index,
@@ -259,19 +261,98 @@ async function build({ showHidden = false } = {}) {
   await output.finish();
 }
 
+// ─── Watching ─────────────────────────────────────────────────────────────────
+// serve rebuilds (the whole site, which takes about half a second) when the vault
+// or the template changes. A rebuild goes into a staging directory and replaces the
+// served one only when it succeeds, so a mistake that fails the build leaves the
+// last good site up. Pages open in a browser then reload themselves.
+
+const STAGE_DIR = path.join(path.dirname(OUTPUT_DIR), `.${path.basename(OUTPUT_DIR)}-next`);
+const OLD_DIR = path.join(path.dirname(OUTPUT_DIR), `.${path.basename(OUTPUT_DIR)}-old`);
+
+// Files that can change the site: pages, data, assets (and the template's layout).
+const WATCHED_EXTENSIONS = new Set([".md", ".json", ".ejs", ...ASSET_EXTENSIONS]);
+
+function isSiteFile(relPath, skipNames) {
+  const parts = relPath.split("/");
+  if (parts.some((p) => p.startsWith(".") || skipNames.has(p))) return false;
+  if (NEVER_PAGES.has(parts[parts.length - 1].toLowerCase())) return false;
+  return WATCHED_EXTENSIONS.has(path.extname(relPath).toLowerCase());
+}
+
+function watchAndRebuild({ showHidden, reloadPages }) {
+  let building = false;
+
+  // A rebuild always says what started it and how long it took (the other build
+  // output is verbose-only), so a rebuild nobody asked for can be traced.
+  async function rebuild(files) {
+    if (building) {
+      // The quiet period ended while a build was still running: those changes wait
+      // out a fresh quiet period instead of starting a build the moment this one ends.
+      watcher.notify(files);
+      return;
+    }
+    const shown = files.slice(0, 5).join(", ");
+    console.log(`Changed: ${shown}${files.length > 5 ? ` and ${files.length - 5} more` : ""}`);
+    building = true;
+    const started = performance.now();
+    try {
+      await build({ showHidden, outputDir: STAGE_DIR });
+      await fs.rm(OLD_DIR, { recursive: true, force: true });
+      await fs.rename(OUTPUT_DIR, OLD_DIR);
+      await fs.rename(STAGE_DIR, OUTPUT_DIR);
+      await fs.rm(OLD_DIR, { recursive: true, force: true });
+      console.log(`Rebuilt in ${((performance.now() - started) / 1000).toFixed(2)} s.`);
+      reloadPages();
+    } catch (err) {
+      console.error(
+        "Build failed (still serving the last good build):",
+        err instanceof BuildError ? err.message : err,
+      );
+    } finally {
+      building = false;
+    }
+  }
+
+  const watcher = createWatcher({ onChange: rebuild });
+
+  const outputNames = new Set(["dist", "node_modules", path.basename(OUTPUT_DIR)]);
+  watcher.watch(".", (rel) => isSiteFile(rel, outputNames));
+  watcher.watch(TEMPLATE_DIR, (rel) => isSiteFile(rel, new Set()));
+
+  // The staging directories are dot-folders inside the vault; don't leave them behind.
+  const cleanUp = () => {
+    watcher.stop();
+    fsSync.rmSync(STAGE_DIR, { recursive: true, force: true });
+    fsSync.rmSync(OLD_DIR, { recursive: true, force: true });
+  };
+  process.on("SIGINT", () => {
+    cleanUp();
+    process.exit(0);
+  });
+  process.on("SIGTERM", () => {
+    cleanUp();
+    process.exit(0);
+  });
+}
+
 // ─── CLI ──────────────────────────────────────────────────────────────────────
 // tsgen [build]     build the site (what CI runs)
-// tsgen serve       build, then serve the output locally (see serve.js), with:
+// tsgen serve       build, then serve the output locally (see serve.js) and rebuild
+//                   whenever the vault or the template changes, with:
 //   --show-hidden   build pages marked `hidden` too, for previewing rough drafts.
 //                   Only serve takes it, so a deploy can't publish them by accident.
 //   --verbose       print every "Built …" line; without it serve prints only warnings,
 //                   errors and the address it serves at.
 //   --port <n>      serve on port n instead of 4000 (also --port=n).
+//   --no-watch      serve the first build without rebuilding on changes.
 
-const USAGE = "Usage: tsgen [build | serve [--show-hidden] [--verbose] [--port <n>]]";
+const USAGE =
+  "Usage: tsgen [build | serve [--show-hidden] [--verbose] [--no-watch] [--port <n>]]";
 const [command = "build", ...args] = process.argv.slice(2);
 let showHidden = false;
 let verbose = false;
+let watching = true;
 let port;
 let usageOk = command === "build" || command === "serve";
 for (let i = 0; usageOk && i < args.length; i++) {
@@ -279,6 +360,7 @@ for (let i = 0; usageOk && i < args.length; i++) {
   if (command !== "serve") usageOk = false;
   else if (flag === "--show-hidden" && inlineValue === undefined) showHidden = true;
   else if (flag === "--verbose" && inlineValue === undefined) verbose = true;
+  else if (flag === "--no-watch" && inlineValue === undefined) watching = false;
   else if (flag === "--port") {
     const value = inlineValue ?? args[++i];
     port = Number(value);
@@ -302,7 +384,8 @@ try {
 if (command === "serve") {
   try {
     const { serve } = await import("./serve.js");
-    await serve(OUTPUT_DIR, port);
+    const { reloadPages } = await serve(OUTPUT_DIR, port, { watching });
+    if (watching) watchAndRebuild({ showHidden, reloadPages });
   } catch (err) {
     console.error(err.message);
     process.exit(1);

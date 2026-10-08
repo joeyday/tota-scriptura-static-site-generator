@@ -18,7 +18,7 @@ The content repo is `joeyday/totascriptura.org`. Both repos are public, so no CI
 - Have `deploy.yml` run `npm ci && npm run build`, and bump Node 20 to 22, since 20 is end-of-life.
 - To bump tsgen later, change the tag and regenerate the lockfile (see `CLAUDE.md` → Releasing).
 
-**Added after v0.1.0:** the `TSGEN_OUT` environment variable (output directory; default `dist`). Not yet released or tagged, and CI doesn't need it. `tsgen serve` (a local preview server, `serve.js`) was added too. Planned next: possibly an incremental rebuild / watch mode, because Joey now expects to run builds locally.
+**Added after v0.1.0:** the `TSGEN_OUT` environment variable (output directory; default `dist`). Not yet released or tagged, and CI doesn't need it. `tsgen serve` (a local preview server, `serve.js`) was added too. `tsgen serve` now watches and rebuilds the whole site on change (2026-10-07); incremental builds were considered and rejected: the full build is about 0.5 s, and a page's HTML depends on the whole link graph and every listing, so invalidation would risk stale output.
 
 ## 1. Short-term goals (set 2026-10-01)
 
