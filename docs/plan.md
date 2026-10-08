@@ -133,7 +133,7 @@ Joey pruned the kit to a subset and the kit became an SVG-with-JavaScript kit (`
 `CLAUDE.md`, `PLAN.md` and `README.md` (any folder, any case) are never read as Markdown. `tsgen serve --show-hidden` ignores `hidden`; problems that only a shown-hidden page causes are warnings. `404.md` is always `unlisted` in code, so `unlisted: true` can go from its frontmatter (still there 2026-10-08; Joey's file). (The alias/notes clash found while testing was fixed in the vault by Joey on 2026-10-07; the vault now builds with `--show-hidden` and no warnings.)
 
 ### Hero images and Open Graph (Joey, 2026-10-08)
-Done (band-aid): every page without a hero of its own, every notes page and the home page share `image/Trees-and-buildings.png` as `og:image` with a `summary_large_image` card (`fallbackHero` in `lib/html/describe.js`; the build fails if the file is missing). The home page keeps its avatar on the page itself.
+Done (band-aid): every page without a hero of its own, and the home page, share `image/Trees-and-buildings.png` as `og:image` with a `summary_large_image` card (`fallbackHero` in `lib/html/describe.js`; the build fails if the file is missing). A notes page shares its page's hero (never its own opening image), else the fallback. The home page keeps its avatar on the page itself.
 
 Backlog, lower priority: **deterministic hero assignment from a larger pool**, for `og:image` and perhaps for the visible hero of the page itself. It would replace the single fallback. Assign deterministically (for example a hash of the page path) so a page's card doesn't change between builds. Open: where the pool lives, and whether every page should show a hero or only some (Joey is undecided; don't build the visible part until he decides).
 

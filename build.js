@@ -176,18 +176,20 @@ async function build({ showHidden = false, outputDir = OUTPUT_DIR } = {}) {
       ? pageByNotes[fileInfo.finalUrlPath]
       : fileInfo.finalUrlPath;
 
+    const heroOf = (page) =>
+      page && page.finalUrlPath !== "/"
+        ? findHero(page.parsed.content, imageMap)
+        : null;
+
     const finalHtml = renderLayout(htmlContent, {
       url: fileInfo.finalUrlPath,
       frontmatter: fileInfo.parsed.data,
       // The frontmatter's `description`, else the first paragraph with text.
       description:
         String(fileInfo.parsed.data.description || "").trim() || describe(htmlContent),
-      // Notes pages and the home page never share an image from their own body
-      // (a diagram, a map, the avatar); they get the fallback.
-      hero:
-        fileInfo.isNote || fileInfo.finalUrlPath === "/"
-          ? null
-          : findHero(fileInfo.parsed.content, imageMap),
+      // A notes page shares its page's hero, never its own opening image (a
+      // diagram, a map). The home page never shares its avatar. No hero: the fallback.
+      hero: heroOf(pageUrl && index.byUrl[pageUrl]),
       // The page's folder names its namespace: "topic" → "Topic page". Root pages: "Meta page".
       nsLabel: `${nsName(fileInfo.nsDir || "meta")} page`,
       view: fileInfo.isNote ? "notes" : "page",
