@@ -68,7 +68,7 @@ async function cleanOutputDir() {
   await fs.mkdir(OUTPUT_DIR, { recursive: true });
 }
 
-async function build() {
+async function build({ showHidden = false } = {}) {
   await cleanOutputDir();
 
   const imageMap = await copyAssets({
@@ -76,7 +76,7 @@ async function build() {
     templateDir: TEMPLATE_DIR,
   });
   const { fileMap, partials, filesToProcess, index, aliasRedirects } =
-    await loadVault({ outputDir: OUTPUT_DIR });
+    await loadVault({ outputDir: OUTPUT_DIR, showHidden });
 
   const {
     membersMap,
@@ -109,6 +109,7 @@ async function build() {
 
   const searchDocs = [];
   const linkProblems = [];
+  const draftLinkProblems = []; // from pages that --show-hidden shows: warnings only
 
   const output = await createOutput({ outputDir: OUTPUT_DIR });
 
@@ -142,7 +143,7 @@ async function build() {
       fileMap,
       index,
       imageMap,
-      problems: linkProblems,
+      problems: fileInfo.shownHidden ? draftLinkProblems : linkProblems,
     });
 
     const resolvedCategories = fileInfo.categories.map((catName) => {
@@ -222,7 +223,9 @@ async function build() {
     }
   }
 
-  // Hidden pages are never rendered, so a bad link there doesn't count.
+  // Hidden pages are never rendered, so a bad link there doesn't count. Shown ones
+  // (--show-hidden) only warn.
+  for (const problem of draftLinkProblems) console.warn(`Warning: ${problem}`);
   if (linkProblems.length > 0) {
     throw new BuildError(`Broken links in published pages:\n${linkProblems.join("\n")}`);
   }
@@ -255,17 +258,23 @@ async function build() {
 }
 
 // ─── CLI ──────────────────────────────────────────────────────────────────────
-// tsgen [build]  build the site (what CI runs)
-// tsgen serve    build, then serve the output locally (see serve.js)
+// tsgen [build]               build the site (what CI runs)
+// tsgen serve [--show-hidden] build, then serve the output locally (see serve.js);
+//                             --show-hidden builds pages marked `hidden` too, for
+//                             previewing rough drafts. Only serve takes it, so a
+//                             deploy can't publish them by accident.
 
-const command = process.argv[2] ?? "build";
-if (command !== "build" && command !== "serve") {
-  console.error("Usage: tsgen [build|serve]");
+const [command = "build", ...flags] = process.argv.slice(2);
+const showHidden = command === "serve" && flags.includes("--show-hidden");
+const unknownFlags = flags.filter((f) => !(command === "serve" && f === "--show-hidden"));
+if ((command !== "build" && command !== "serve") || unknownFlags.length > 0) {
+  console.error("Usage: tsgen [build | serve [--show-hidden]]");
   process.exit(1);
 }
+if (showHidden) console.log("Showing hidden pages (--show-hidden).");
 
 try {
-  await build();
+  await build({ showHidden });
 } catch (err) {
   console.error("Build failed:", err instanceof BuildError ? err.message : err);
   process.exit(1);

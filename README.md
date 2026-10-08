@@ -17,6 +17,7 @@ The content repo installs tsgen as a git dependency and runs its `tsgen` command
 Commands (run from the vault root):
 - `tsgen` or `tsgen build`: build the site (what CI runs).
 - `tsgen serve`: build, then serve the output at <http://localhost:4000/> until Ctrl-C. `serve.js` mimics GitHub Pages: `/foo/` serves `foo/index.html`, `/foo` redirects to `/foo/`, and unmatched URLs get `404.html` with a 404 status. It binds to localhost, the port is hardcoded, and it doesn't rebuild on changes.
+- `tsgen serve --show-hidden`: the same, but the `hidden` property is ignored, so hidden pages build like any others (rough drafts, the sandbox page). Only `serve` takes the flag, so a deploy can't publish hidden pages. Problems that only a shown-hidden page causes (a broken link, a URL or alias clash) are warnings, not build errors. In the content repo (which has no `serve` script), run `npx tsgen serve --show-hidden`.
 
 For a local `tsgen` command, run `npm link` once in the tsgen repo. During tsgen development you can also run `cd vault && node ../build.js` (see `CLAUDE.md`).
 
@@ -34,7 +35,7 @@ The rest come from the vault:
 
 | Path | Required | Purpose |
 |---|---|---|
-| `**/*.md` | | Pages. Skipped directories: `node_modules`, `dist`, `.git`, `.github`, `.local`, `template`, and any dot-prefixed directory. |
+| `**/*.md` | | Pages. Skipped directories: `node_modules`, `dist`, `.git`, `.github`, `.local`, `template`, and any dot-prefixed directory. Skipped files, in any folder and whatever their case: `CLAUDE.md`, `PLAN.md` and `README.md` (notes and docs that live beside the content; they are never pages, partials or errors). |
 | `**/*.{png,jpg,jpeg,gif,svg,webp,avif,ico,bmp,css,js,eot,otf,ttf,woff,woff2}` | | Copied flat into `dist/asset/`. Any `.js` file in the vault is copied too. If two files share a name (compared case-insensitively), the build warns and the last one copied wins. |
 | `abbreviations.json` | no | `{ "term": "expansion" \| null }` |
 | `alt-text.json` | no | `{ "image-basename.png": "alt text" }` |
@@ -46,7 +47,7 @@ The rest come from the vault:
 - **Folders**: Markdown may live only in the root, `topic/`, `category/`, `commentary/`, `summary/`, `reference/`, `partial/`, each of the others' `notes/` folders, and the root `notes/`. Markdown anywhere else fails the build. So does an iCloud placeholder (`.Name.md.icloud`), since the file isn't downloaded.
 - **Notes pages**: a file in `notes/` (root) or `<folder>/notes/` is the notes page for the page of the same name in the parent folder. Its URL is the page's URL plus `/notes`: `topic/notes/Foo.md` is `/topic/foo/notes`, and the home page's notes are `/notes`. A `permalink` on a notes page is ignored. A notes page needs no page: with none, it still builds, at the URL the page would have, and its "Topic" link is greyed out. It is left out of the alphabetical index, the random pool and the Scripture index. Hide it with `hidden: true` like any page. So `/topic/foo` and `/topic/foo/notes` are reached from each other by adding or removing `/notes`.
 - **Homepage**: a *root-level* file whose slug is `home` or `index` becomes `/`. In practice that means a file named `home.md`/`index.md` or `permalink: home`/`index`. (`permalink: ""` or `/` does **not** make a homepage: an empty permalink falls back to the slugified filename.)
-- **404**: the URL `/404` is written to `dist/404.html` instead of `dist/404/index.html`.
+- **404**: the URL `/404` is written to `dist/404.html` instead of `dist/404/index.html`. `404.md` is always `unlisted`, whatever its frontmatter says.
 - Each page is written to `dist/{url}/index.html`. An empty `dist/.nojekyll` is always written.
 
 ## Frontmatter

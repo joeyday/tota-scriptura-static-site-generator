@@ -213,6 +213,9 @@ Findings from a read of `template/` and the generated pages (plus a scan of all 
 ### Font Awesome kit (2026-10-07)
 Joey pruned the kit to a subset and the kit became an SVG-with-JavaScript kit (`"method":"js"`); its `.css` URL then returned a 19-byte stub and every icon disappeared. The layout now loads `kit.fontawesome.com/4a9f54cbf1.js` instead (hotfix 0.7.3, branched from v0.7.2). Watch for: icons appear a moment after the page paints (the script is deferred), and with JavaScript off the logo, search icon, star and the rest are absent (the search button is then an empty circle with its label). Icons in use: `feather-pointed`, `magnifying-glass`, `tags`, `star`, `pencil` and `person-digging` (Sharp Solid), and `mastodon` and `facebook` (Brands).
 
+### Blacklist, `serve --show-hidden`, 404 (2026-10-07)
+`CLAUDE.md`, `PLAN.md` and `README.md` (any folder, any case) are never read as Markdown. `tsgen serve --show-hidden` ignores `hidden`; problems that only a shown-hidden page causes are warnings. `404.md` is always `unlisted`, so that line can go from its frontmatter. Found while testing: the real vault currently has a clash that `--show-hidden` reports as a warning (and that would fail the build if the page were un-hidden): `topic/Scripture.md` has the alias "Perspicuity of Scripture", and the hidden `topic/notes/Perspicuity of Scripture.md` would build at the same URL as that alias's notes redirect.
+
 ### Features Joey can develop himself
 - **Stylesheet tweaks:** the search box placeholder is very faint (maybe a hardcoded color); the search button border color is hardcoded; think about the Search page's style.
 - **`disambiguation` property.** Special handling, probably in the template only. The vault has one use (`topic/`).
