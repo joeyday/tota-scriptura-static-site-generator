@@ -143,7 +143,7 @@ Steps 1–6 are plain regex passes over the raw Markdown, outside code.
 ## Post-processing (every `.html` under `dist/`, in order)
 
 1. **Heading IDs**: every `<h2>`/`<h3>` without an `id` gets one, using slugified text (HTML entities such as `&amp;` decoded first, so `Faith & Works` is `faith-and-works`) and `-2`, `-3`… for duplicates. Existing IDs are kept and reserved first.
-2. **Scripture collection and index generation**: see above. The index pages then get heading IDs and go through the remaining passes.
+2. **Scripture collection and index generation**: see above. The index pages then get heading IDs and go through the remaining passes. Collection and step 3 are one pass (`lib/bible/process.js`): each text run is scanned for references once (`scan.js`), then linked, and on content pages collected.
 3. **Bible reference linker**: turns references into `<a class="external bible-ref" href="https://ref.ly/{Abbr}{ch}[.{v}[-{v2}|-{ch2}.{v2}]|-{ch2}];{TRANS}">`.
    - Books are matched by full name or abbreviation, **case-sensitively** (`Ro 3:23`, not `ro 3:23`). The abbreviations come from the last entry of each book's `names` list in `BIBLE_BOOKS`.
    - Formats: `Book ch`, `Book ch–ch`, `Book ch:v`, `Book ch:v–v`, `Book ch:v–ch:v`.

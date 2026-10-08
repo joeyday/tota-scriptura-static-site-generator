@@ -58,7 +58,7 @@ To release:
 2. `buildModel` derives the relationships: aliases, categories (a category is a page in `category/`; an empty one is unlisted), featured, `featured with`, notes pairs, the per-namespace alphabetical lists, and backlinks.
 3. Renders each page (`renderBody`: partials → wikilinks → EJS → `%%` strip → `~small~` → markdown-it), wraps it in the layout (`classifyLinks` runs on the result), and hands it to `output.emitPage`.
 4. Writes the generated pages: alias redirects, backlinks pages, the indexes, search, random and the Scripture index.
-5. Every page, content or generated, goes through the same in-memory post-passes inside `output` before its single write: heading IDs → Scripture collection (content pages only) → Bible-ref linker → abbreviations → initials → Roman numerals → divine names → ellipses → alt text. The passes share one tag-splitter (`lib/html/walk.js`). They run over the whole file, including `<head>`, except `<title>`, which `output` sets aside first.
+5. Every page, content or generated, goes through the same in-memory post-passes inside `output` before its single write: heading IDs → Bible refs (one walk finds each reference once, links it and, on content pages, collects it for the Scripture index) → abbreviations → initials → Roman numerals → divine names → ellipses → alt text. The passes share one tag-splitter (`lib/html/walk.js`). They run over the whole file, including `<head>`, except `<title>`, which `output` sets aside first.
 
 Key helpers:
 - `resolveLink`: exact path matching for qualified links; bare names narrow to the source's folder, then `topic/`, then the root. A `notes/` folder next to a page is its notes page (`/…/foo/notes`).

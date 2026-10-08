@@ -36,7 +36,6 @@ rsync -a --delete --exclude='.git/' --exclude='.obsidian/' --exclude='.trash/' -
 
 ### Speed candidates still open
 The build is ~0.5 s and Node startup is a fixed ~50 ms, so these are small. Measure before committing to any.
-- **Bible refs, one pass:** the Scripture collector and the Bible-ref linker each walk the page's HTML (about 20 ms each). Fusing them into one walk would save about one walk. (The digit gate, done 2026-10-08, took ~27 ms off by skipping the ~99% of text runs with no digit.)
 - **`resolveFileMapKey` key scan:** every bare link that misses the exact key scans all keys for the hyphen-as-space match. Measured 2026-10-08: no wikilink in the vault relies on it, so the fuzzy match can go (and the README line about it).
 - **Possibly one tokenizer walk shared by all text transforms.** Only if profiling says so; ordering dependencies (abbr → roman/divine skip) make fusing harder.
 - Profile again for what's left (markdown-it ~80 ms, layout render, reading sources).
