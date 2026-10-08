@@ -144,7 +144,7 @@ Steps 1–6 are plain regex passes over the raw Markdown, outside code.
    - Books are matched by full name or abbreviation, **case-sensitively** (`Ro 3:23`, not `ro 3:23`). The abbreviations come from the last entry of each book's `names` list in `BIBLE_BOOKS`.
    - Formats: `Book ch`, `Book ch–ch`, `Book ch:v`, `Book ch:v–v`, `Book ch:v–ch:v`.
    - Continuations: after `;` or `,` with only whitespace in between, `ch:v` or a bare `v` carries the current book and chapter forward.
-   - Translation: the first `ESV|KJV|NASB|NIV|NKJV|NLT|NRSV` after a reference, up to the next named reference in the same text node, applies to the whole group. ESV is the default. A translation directly after `</a>` is moved inside the link.
+   - Translation: an `ESV|KJV|NASB|NIV|NKJV|NLT|NRSV` that directly follows a named reference and its continuations (only whitespace in between, as in `Jn 3:16; 5:24 KJV`) applies to all of them. Any word or punctuation in between, such as `Jn 3:16 (KJV)`, means it isn't about that reference. ESV is the default. The translation is moved inside the last link.
    - A reference prefixed with `!` is not linked.
    - Skipped inside `a`, `code`, `pre`, `script`, `style` and `h1`–`h6`. Context resets at block tags.
    - In the link text, spaces become non-breaking spaces and range dashes become en-dashes.

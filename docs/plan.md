@@ -156,12 +156,14 @@ Menu label "Summaries", nav tab "Summary page". A summary page summarises the ma
 Each item below was reproduced on 2026-10-01 in a scratch vault. The fixed ones are deleted. They are listed roughly by user impact.
 
 - **Bible-ref false positives.** Matching is now case-sensitive, so "I am 30 years old" no longer links. A capitalised word still does: "Job 2 years ago" links to Job 2, and it lands in the Scripture index.
-- **Distant translation capture.** In "Romans 3:23 is a great verse. Later the KJV renders it…", the KJV link applies to Romans 3:23. There is no adjacency requirement, unlike continuation refs.
 - **"Romans 3, 5"** is read as Romans 3:5, not chapters 3 and 5. The linker and the Scripture collector agree, so this is at least consistent.
 - **Uppercase words read as Roman numerals:** `MD`, `DC`, `MIX`, `CD`, `CV`, `LI`, …
 - **Path-qualified image wikilinks** (`[[topic/pic.png]]`) aren't resolved and emit a relative href.
 - **`[[Page#Heading]]` is unsupported** and renders as broken.
 - **Unescaped interpolation** in a few places: abbreviation `title`, image `alt` and fenced-div attributes. `$` in embed arguments is treated as a replacement pattern.
+
+### Backlog: stricter Scripture checks (Joey, 2026-10-07, deprioritized)
+Idea to chew on: fail the build on an impossible reference (a chapter beyond the book's last, found by a table of chapter counts), the way other content mistakes fail it. The corpus audit of 2026-10-07 found no false positives in the 22,901 auto-links; the one real mistake was `Pr 50:13–15` in `summary/The Pleasures of God.md` (probably Ps 50:13–15). Single-chapter books (Jude, Phm, Ob, 2Jn, 3Jn) read a lone number as a chapter, not a verse. False positives are handled with the `!` opt-out, so no heuristics.
 
 ### Open questions for Joey (from the 2026-10-02 code review)
 Delete a question once its answer has been acted on.
