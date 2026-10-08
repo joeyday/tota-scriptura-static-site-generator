@@ -6,8 +6,10 @@ A static site generator with a deliberately boring name. It turns an Obsidian-st
 - `lib/`: the generator, one concern per file: `vault.js` (file discovery, assets, page records), `links.js`, `partials.js`, `markdown.js`, `render.js` (Markdown → body HTML), `model.js` (categories, featured/draft, notes pairs, per-namespace lists, backlinks), `layout.js` (compiled layout, link classification), `output.js` (in-memory post-passes and the writer), `io.js`, `titles.js`, `html/` (the tag walker and the pure HTML passes), `bible/` (ref table, linker, Scripture collector) and `pages/` (one file per kind of generated page).
 - `serve.js`: the local preview server behind `tsgen serve`.
 - `README.md`: the feature reference, written from the code. Keep it in sync whenever behaviour changes.
-- `docs/plan.md`: roadmap, verified bugs, Joey's backlog, and the list of ways the Replit docs drifted.
-- `archive/` (`replit.md`, `replit.txt`, `project-documents/`): legacy Replit Agent docs, kept indefinitely (Joey, 2026-10-08): they show why Replit Agent built a feature the way it did. Never propose deleting them. **Don't trust them.** They have drifted from the code in many places (listed in `docs/plan.md`). Read them for intent or history only, and always check claims against the code.
+- `docs/plan.md`: open work only, bugs and features. When something is finished, delete it from the plan.
+- `docs/release-notes.md`: what shipped in each release (and what the generator did before tsgen), newest first. Add an entry for every release you tag, written from the commits since the previous tag.
+- `docs/decisions.md`: settled questions (who decided, when), so they aren't re-litigated. Record a new decision there, not in the plan.
+- `archive/` (`replit.md`, `replit.txt`, `project-documents/`): legacy Replit Agent docs, kept indefinitely (Joey, 2026-10-08): they show why Replit Agent built a feature the way it did. Never propose deleting them. **Don't trust them.** They have drifted from the code in many places. Read them for intent or history only, and always check claims against the code. Where they drifted is listed in `archive/README.md`.
 
 ## Working rules
 
@@ -21,7 +23,14 @@ A static site generator with a deliberately boring name. It turns an Obsidian-st
 
 ## Running and testing
 
-`vault/` (gitignored) holds a local **copy** of the real site content. It was copied from `~/Documents/Obsidian/Tota Scriptura` and excludes `.git`, `.obsidian`, `.github`, `build.js` and the package files. It is test data: never commit it, and never write to the real vault. Refresh it with the same `rsync` (see `docs/plan.md`).
+`vault/` (gitignored) holds a local **copy** of the real site content. It was copied from `~/Documents/Obsidian/Tota Scriptura` and excludes `.git`, `.obsidian`, `.github`, `build.js` and the package files. It is test data: never commit it, and never write to the real vault. Refresh it with:
+
+```sh
+rsync -a --delete --exclude='.git/' --exclude='.obsidian/' --exclude='.trash/' --exclude='.github/' \
+  --exclude='.DS_Store' --exclude='node_modules/' --exclude='dist/' \
+  --exclude='/build.js' --exclude='/package.json' --exclude='/package-lock.json' \
+  "$HOME/Documents/Obsidian/Tota Scriptura/" vault/
+```
 
 Search tools skip gitignored paths, so target `vault/` explicitly when searching it.
 
@@ -34,7 +43,7 @@ node ../scripts/compare-dist.mjs ../baseline/dist dist      # must say IDENTICAL
 - All paths in `build.js` are relative to the cwd. From the repo root, the build would publish this repo's own Markdown.
 - Output goes to `./dist`, or to `$TSGEN_OUT` when set (an absolute or cwd-relative path). The build doesn't clean it, so always `rm -rf` it first.
 - `baseline/dist` (gitignored) is the reference output of the generator as of the last baseline, built from the current `vault/` copy. Regenerate it whenever `vault/` is refreshed, or whenever an output change is accepted on purpose.
-- **At the start of any new development**, before changing code: commit or park pending work, `rsync` the content repo into `vault/` (command in `docs/plan.md`), then rebuild `baseline/dist` from the unchanged code (`TSGEN_OUT` pointing at `baseline/dist`, after `rm -rf`). When the work is done, `compare-dist.mjs` shows exactly what it changed, so every diff is attributable to the new work and not to content drift.
+- **At the start of any new development**, before changing code: commit or park pending work, `rsync` the content repo into `vault/` (the command is below), then rebuild `baseline/dist` from the unchanged code (`TSGEN_OUT` pointing at `baseline/dist`, after `rm -rf`). When the work is done, `compare-dist.mjs` shows exactly what it changed, so every diff is attributable to the new work and not to content drift.
 - The layout's asset cache-buster is the content repo's short commit hash (`GITHUB_SHA` in CI, else `git rev-parse` in the cwd, else a build timestamp). Inside `vault/` that finds this repo's own HEAD. `compare-dist.mjs` normalises the buster, so use it rather than raw `diff -r`.
 - For edge cases the vault lacks, use a scratch vault in the scratchpad.
 
@@ -43,7 +52,7 @@ node ../scripts/compare-dist.mjs ../baseline/dist dist      # must say IDENTICAL
 The content repo (`joeyday/totascriptura.org`, cloned at `~/Documents/Obsidian/Tota Scriptura`) depends on `github:joeyday/tota-scriptura-static-site-generator#vX.Y.Z` and runs `npm run build` → `tsgen` in CI. Nothing in tsgen reaches the live site until a tag is bumped there.
 
 To release:
-1. Bump `version` in `package.json`.
+1. Bump `version` in `package.json`, and add the release's entry to the top of `docs/release-notes.md` (date, what changed, output changes called out; leave "Live" for when the content repo bumps). Delete what the release finished from `docs/plan.md`.
 2. Commit, then tag `vX.Y.Z` and push the tag.
 3. In the content repo, run `npm run update-tsgen -- X.Y.Z` (`scripts/update-tsgen.sh`). It checks that the tag exists on GitHub, sets the tag in `package.json`, re-resolves the git dependency (`npm update tsgen --package-lock-only`; plain `npm install --package-lock-only` does **not** re-resolve a git dependency whose lock entry already exists, so CI would keep building with the old tsgen), runs `npm audit fix --package-lock-only` (the content repo's lockfile pins tsgen's nested dependencies, so patched versions only arrive when it is refreshed), and fails unless the lockfile's `node_modules/tsgen` entry shows the new version and the tag's commit. It edits only those two files. Never run a full `npm install` inside the iCloud vault. Content migrations and the tag bump go in one commit, since the push is what deploys.
 4. Commit and push. Only do this with Joey's go-ahead, since it deploys the live site.
