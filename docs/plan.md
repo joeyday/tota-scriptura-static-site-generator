@@ -215,6 +215,12 @@ Joey pruned the kit to a subset and the kit became an SVG-with-JavaScript kit (`
 ### Blacklist, `serve --show-hidden`, 404 (2026-10-07)
 `CLAUDE.md`, `PLAN.md` and `README.md` (any folder, any case) are never read as Markdown. `tsgen serve --show-hidden` ignores `hidden`; problems that only a shown-hidden page causes are warnings. `404.md` is always `unlisted`, so that line can go from its frontmatter. (The alias/notes clash found while testing was fixed in the vault by Joey on 2026-10-07; the vault now builds with `--show-hidden` and no warnings.)
 
+### Hero images and Open Graph fallback (Joey, 2026-10-08; not decided)
+Today only pages whose body opens with an image embed have a hero (`findHero` in `lib/html/describe.js`); that image becomes `og:image` and picks `summary_large_image` (`layout.ejs`). Pages without one get no `og:image` and a plain `summary` card.
+- **Priority (higher): every page gets an Open Graph image.** Either one default image used whenever a page has no hero, or an image assigned from a pool. Pool assignment could be random or procedural; if so, make it deterministic (for example a hash of the page path) so a page's card doesn't change between builds. Open: where the default or pool lives (vault `asset/`, or `template/`), and whether the card should be `summary_large_image` for the fallback.
+- **Home page: stop using the avatar as `og:image`** (Joey: "*wince*"). The home page's opening embed is the avatar, so it currently becomes the share image with a `summary` card. Give the home page a different image, probably by way of the default or pool above. Open: whether the avatar should stay on the page itself (only its role as `og:image` is disliked), and how to exempt it (a frontmatter key, or hardcode the home page, per the bespoke-generator rule).
+- **Lower priority, undecided: a visible hero on every page.** It might be more consistent, or it might be nicer that only some pages have one. Joey is also considering procedural assignment instead of hand-picking. Don't build this until he decides. If the OG fallback picks from a pool, the same mechanism could later feed visible heroes.
+
 ### Features Joey can develop himself
 - **Stylesheet tweaks:** the search box placeholder is very faint (maybe a hardcoded color); the search button border color is hardcoded; think about the Search page's style.
 - **`disambiguation` property.** Special handling, probably in the template only. The vault has one use (`topic/`).
