@@ -1049,12 +1049,14 @@ footer {
 	}
 }
 
-a[href^="https://mastodon.social/"] {
-    color: var(--color-link-mastodon) !important;
+/* Brand-colored links. The class and attribute together outrank every other link
+   color (main, footer, mark, muted) by specificity, so no !important is needed. */
+a.external[href^="https://mastodon.social/"] {
+    color: var(--color-link-mastodon);
 }
 
-a:is([href^="http://facebook.com/"], [href^="https://facebook.com/"], [href^="https://www.facebook.com/"]) {
-    color: var(--color-link-facebook) !important;
+a.external:is([href^="http://facebook.com/"], [href^="https://facebook.com/"], [href^="https://www.facebook.com/"]) {
+    color: var(--color-link-facebook);
 }
 
 /* The print-only "Retrieved from" line in the footer */
@@ -1105,7 +1107,8 @@ footer .print-source {
         padding: 0;
     }
 
-    /* Links are plain text (the !important beats the brand-link rules). An outside
+    /* Links are plain text (the !important beats every link color rule, the brand
+       colors included). An outside
        link also spells out where it goes, except Scripture references (they stay
        bare) and links whose text already is the address. */
     a {
