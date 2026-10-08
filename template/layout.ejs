@@ -49,8 +49,10 @@
                 <% } else if (featured || featuredWith) { %><span class="featured-badge fa-sharp fa-solid fa-star" role="img" aria-label="Featured"></span><% } %>
             </header>
             
-            <% if (frontmatter.draft) { %>
-            <div class="message"><p><span class="fa-sharp fa-solid fa-pencil" aria-hidden="true"></span> <%= view === "notes" ? "These notes are" : `This ${(nsLabel || "page").toLowerCase()} is` %> a working draft.</p></div>
+            <% if (shownHidden || frontmatter.draft) { %>
+            <%_ /* A page shown despite `hidden` (serve --show-hidden) says so; that notice stands in for the draft one. */ _%>
+            <%_ const subject = view === "notes" ? "These notes are" : `This ${(nsLabel || "page").toLowerCase()} is`; _%>
+            <div class="message"><p><span class="fa-sharp fa-solid <%= shownHidden ? "fa-eye-slash" : "fa-pencil" %>" aria-hidden="true"></span> <%= subject %> <%= shownHidden ? "hidden" : "a working draft" %>.</p></div>
             <% } %>
             
             <%- content %>

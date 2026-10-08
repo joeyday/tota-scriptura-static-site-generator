@@ -126,8 +126,7 @@ a:focus-visible {
     --color-main-text-muted: var(--color-gray);
     --color-main-thick-stroke: var(--color-dark-gray);
     --color-main-stroke: var(--color-gray);
-    --color-main-thin-stroke: var(--color-gray);
-    --color-main-thinner-stroke: var(--color-lighter-gray);
+    --color-main-thin-stroke: var(--color-lighter-gray);
 
     --color-primary: var(--color-green);
     --color-secondary: var(--color-slate);
@@ -169,8 +168,7 @@ a:focus-visible {
 		--color-main-text-muted: var(--color-lighter-gray);
 		--color-main-thick-stroke: var(--color-lighter-gray);
 		--color-main-stroke: var(--color-gray);
-		--color-main-thin-stroke: var(--color-gray);
-		--color-main-thinner-stroke: var(--color-dark-gray);
+		--color-main-thin-stroke: var(--color-dark-gray);
 	
         --l: 0.65;
         --c: 0.16;
@@ -222,7 +220,7 @@ main {
 
         header {
             margin: 0 0 1rem;
-            border-bottom: 1px solid var(--color-main-thin-stroke);
+            border-bottom: 1px solid var(--color-main-stroke);
             
             h1 {
                 margin: 0;
@@ -251,7 +249,7 @@ main {
         font-weight: normal;
         font-size: 1.285em;
         margin: 1em 0 0.777em;
-        border-bottom: 1px solid var(--color-main-thinner-stroke);
+        border-bottom: 1px solid var(--color-main-thin-stroke);
     }
             
     h3 {
@@ -369,7 +367,7 @@ main {
     hr {
         border: none;
         height: 1px;
-        border-top: 1px dashed var(--color-main-thinner-stroke);
+        border-top: 1px dashed var(--color-main-thin-stroke);
         margin: 0.5rem auto;
         
         &.footnotes-sep {
@@ -1126,7 +1124,7 @@ footer .print-source {
         width: auto;
         margin: 2rem 0 0;
         padding: 0.75rem 0 0;
-        border-top: 1px solid var(--color-main-thinner-stroke);
+        border-top: 1px solid var(--color-main-thin-stroke);
         color: var(--color-main-text-muted);
         text-align: left;
     }

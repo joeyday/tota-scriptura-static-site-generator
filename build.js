@@ -6,6 +6,7 @@ import { fileURLToPath } from "url";
 import slugify from "slugify";
 import { BuildError } from "./lib/errors.js";
 import { createLayout } from "./lib/layout.js";
+import { info, setVerbose } from "./lib/log.js";
 import { findCategory } from "./lib/links.js";
 import { backlinksUrlFor, buildModel, nsName } from "./lib/model.js";
 import { createOutput } from "./lib/output.js";
@@ -190,6 +191,7 @@ async function build({ showHidden = false } = {}) {
       pages,
       featuredWith: fileInfo.featuredWith || null,
       featured: fileInfo.featured || false,
+      shownHidden: fileInfo.shownHidden || false,
     });
 
     const outFilePath = output.fileFor(fileInfo.finalUrlPath);
@@ -205,7 +207,7 @@ async function build({ showHidden = false } = {}) {
         ? null
         : { url: fileInfo.finalUrlPath, title: fileInfo.title },
     );
-    console.log(
+    info(
       `Built: ${fileInfo.filePath} -> ${outFilePath} (URL: ${fileInfo.finalUrlPath})`,
     );
 
@@ -258,19 +260,36 @@ async function build({ showHidden = false } = {}) {
 }
 
 // ─── CLI ──────────────────────────────────────────────────────────────────────
-// tsgen [build]               build the site (what CI runs)
-// tsgen serve [--show-hidden] build, then serve the output locally (see serve.js);
-//                             --show-hidden builds pages marked `hidden` too, for
-//                             previewing rough drafts. Only serve takes it, so a
-//                             deploy can't publish them by accident.
+// tsgen [build]     build the site (what CI runs)
+// tsgen serve       build, then serve the output locally (see serve.js), with:
+//   --show-hidden   build pages marked `hidden` too, for previewing rough drafts.
+//                   Only serve takes it, so a deploy can't publish them by accident.
+//   --verbose       print every "Built …" line; without it serve prints only warnings,
+//                   errors and the address it serves at.
+//   --port <n>      serve on port n instead of 4000 (also --port=n).
 
-const [command = "build", ...flags] = process.argv.slice(2);
-const showHidden = command === "serve" && flags.includes("--show-hidden");
-const unknownFlags = flags.filter((f) => !(command === "serve" && f === "--show-hidden"));
-if ((command !== "build" && command !== "serve") || unknownFlags.length > 0) {
-  console.error("Usage: tsgen [build | serve [--show-hidden]]");
+const USAGE = "Usage: tsgen [build | serve [--show-hidden] [--verbose] [--port <n>]]";
+const [command = "build", ...args] = process.argv.slice(2);
+let showHidden = false;
+let verbose = false;
+let port;
+let usageOk = command === "build" || command === "serve";
+for (let i = 0; usageOk && i < args.length; i++) {
+  const [flag, inlineValue] = args[i].split(/=(.*)/s);
+  if (command !== "serve") usageOk = false;
+  else if (flag === "--show-hidden" && inlineValue === undefined) showHidden = true;
+  else if (flag === "--verbose" && inlineValue === undefined) verbose = true;
+  else if (flag === "--port") {
+    const value = inlineValue ?? args[++i];
+    port = Number(value);
+    if (!/^\d+$/.test(value ?? "") || port < 1 || port > 65535) usageOk = false;
+  } else usageOk = false;
+}
+if (!usageOk) {
+  console.error(USAGE);
   process.exit(1);
 }
+setVerbose(command === "build" || verbose);
 if (showHidden) console.log("Showing hidden pages (--show-hidden).");
 
 try {
@@ -283,7 +302,7 @@ try {
 if (command === "serve") {
   try {
     const { serve } = await import("./serve.js");
-    await serve(OUTPUT_DIR);
+    await serve(OUTPUT_DIR, port);
   } catch (err) {
     console.error(err.message);
     process.exit(1);

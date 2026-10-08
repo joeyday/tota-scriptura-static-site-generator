@@ -6,7 +6,7 @@ import path from "path";
 // /foo redirects to /foo/ when foo is a directory, and anything unmatched
 // serves 404.html with a 404 status. Bound to localhost only.
 
-const PORT = 4000;
+const DEFAULT_PORT = 4000;
 
 const CONTENT_TYPES = {
   ".html": "text/html; charset=utf-8",
@@ -70,7 +70,7 @@ async function send(req, res, status, file) {
   res.end(req.method === "HEAD" ? undefined : body);
 }
 
-export function serve(dir) {
+export function serve(dir, port = DEFAULT_PORT) {
   const root = path.resolve(dir);
   const server = http.createServer(async (req, res) => {
     try {
@@ -104,12 +104,12 @@ export function serve(dir) {
     server.once("error", (err) => {
       reject(
         err.code === "EADDRINUSE"
-          ? new Error(`Port ${PORT} is already in use (is another tsgen serve running?)`)
+          ? new Error(`Port ${port} is already in use (is another tsgen serve running? try --port)`)
           : err,
       );
     });
-    server.listen(PORT, "127.0.0.1", () => {
-      console.log(`Serving ${root} at http://localhost:${PORT}/  (Ctrl-C to stop)`);
+    server.listen(port, "127.0.0.1", () => {
+      console.log(`Serving ${root} at http://localhost:${port}/  (Ctrl-C to stop)`);
       resolve(server);
     });
   });
