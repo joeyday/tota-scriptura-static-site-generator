@@ -1071,7 +1071,7 @@ footer .print-source {
    header text can't land on white paper. */
 
 @page {
-    margin: 0.75in;
+    margin: 1in 1.5in; /* top and bottom, left and right */
 
     @bottom-center {
         content: counter(page);
@@ -1097,7 +1097,7 @@ footer .print-source {
     body form,
     body .featured-badge,
     body .footnote-backref,
-    body .categories-icon,
+    body .categories,
     body .css-naked-alert {
         display: none;
     }
@@ -1146,12 +1146,24 @@ footer .print-source {
     }
 
     /* Page breaks */
+    /* Each rule is doubled with the older page-break-* name, which Safari knows
+       better than break-* */
     h1, h2, h3, h4, h5, h6 {
         break-after: avoid;
+        page-break-after: avoid;
+    }
+
+    /* The "Main topic" line sits between a heading and its text; keep the three together */
+    .main-topic {
+        break-after: avoid;
+        page-break-after: avoid;
+        break-inside: avoid;
+        page-break-inside: avoid;
     }
 
     figure, img, blockquote, tr, .message {
         break-inside: avoid;
+        page-break-inside: avoid;
     }
 
     p {

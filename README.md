@@ -106,10 +106,10 @@ Steps 1–6 are plain regex passes over the raw Markdown, outside code.
 ### Print
 
 `style.css` ends with a print stylesheet, and the layout's footer carries a print-only line, "Retrieved from {canonical URL} on {date}", above the copyright. `print.js` fills in the date when the page loads and again on `beforeprint`; without JavaScript the line leaves the date out. In print the page is the article and nothing else:
-- The logo, both navs, the quick nav, the namespace menu, the search form, the featured star, the footnote back-links and the tag icon are hidden, as is the footer's About/Colophon line.
+- The logo, both navs, the quick nav, the namespace menu, the search form, the featured star, the footnote back-links and the categories line are hidden, as is the footer's About/Colophon line.
 - Links are plain text. An `external` link spells out its address in parentheses, except `bible-ref` links (Scripture references stay bare) and `bare-url` links (their text already is the address).
 - Print is always light, even on a dark-mode machine (the dark colors apply to `screen` only). Colors are kept, and `print-color-adjust: exact` makes browsers print backgrounds (mark highlights, table headers) without the "background graphics" option.
-- The type is a fixed 11pt in a full-width column with 0.75in page margins and page numbers (where the browser supports `@page` margin boxes). Headings stay with the text after them, and figures, blockquotes and table rows don't split across pages.
+- The type is a fixed 11pt in a full-width column with page margins of 1in above and below and 1.5in at the sides and page numbers (where the browser supports `@page` margin boxes). A heading stays with the text after it (including a "Main topic" line between them), and figures, blockquotes and table rows don't split across pages.
 
 ### Layout template variables
 
