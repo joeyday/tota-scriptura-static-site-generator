@@ -18,8 +18,10 @@
     <link rel="icon" href="/asset/favicon.ico?<%= cacheBust %>" sizes="16x16 32x32">
     <link rel="icon" type="image/png" href="/asset/favicon-96x96.png?<%= cacheBust %>" sizes="96x96">
     <link rel="apple-touch-icon" href="/asset/apple-touch-icon-180x180.png?<%= cacheBust %>">
-    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
-    <meta name="theme-color" content="#161616" media="(prefers-color-scheme: dark)">
+    <%# Browser chrome color: always the nav gray (#585858 light, #484848 dark: keep in step with
+        --color-nav-background), so the chrome matches the sidebar at every width. %>
+    <meta name="theme-color" content="#585858" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#484848" media="(prefers-color-scheme: dark)">
     <meta name="description" content="<%= description %>">
     <meta property="og:site_name" content="Tota Scriptura">
     <meta property="og:type" content="website">
