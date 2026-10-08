@@ -37,9 +37,9 @@ The rest come from the vault:
 | Path | Required | Purpose |
 |---|---|---|
 | `**/*.md` | | Pages. Skipped directories: `node_modules`, `dist`, `.git`, `.github`, `.local`, `template`, and any dot-prefixed directory. Skipped files, in any folder and whatever their case: `CLAUDE.md`, `PLAN.md` and `README.md` (notes and docs that live beside the content; they are never pages, partials or errors). |
-| `**/*.{png,jpg,jpeg,gif,svg,webp,avif,ico,bmp,css,js,eot,otf,ttf,woff,woff2}` | | Copied flat into `dist/asset/`. Any `.js` file in the vault is copied too. If two files share a name (compared case-insensitively), the build warns and the last one copied wins. |
-| `abbreviations.json` | no | `{ "term": "expansion" \| null }` |
-| `alt-text.json` | no | `{ "image-basename.png": "alt text" }` |
+| `image/**/*.{png,jpg,jpeg,gif,svg,webp,avif,ico,bmp,css,js,eot,otf,ttf,woff,woff2}` | | Copied flat into `dist/asset/`, together with tsgen's own `template/` assets. Assets anywhere else in the vault are ignored. If two files share a name (compared case-insensitively), the build warns and the last one copied wins. |
+| `abbreviations.json` | **yes** (a missing or malformed file fails the build) | `{ "term": "expansion" \| null }` |
+| `alt-text.json` | **yes** (same) | `{ "image-basename.png": "alt text" }` |
 
 ## URLs
 
@@ -77,7 +77,7 @@ For all page-name values, `[[Page|Display]]` is reduced to `Page`.
 `resolveLink` is used for wikilinks and `featured with`:
 
 1. If the target contains `/`, it is **path-qualified** and matches the file at exactly that path from the vault root, case-insensitively: `topic/Trinity`, `topic/notes/Trinity`. There is no suffix matching.
-2. Otherwise the target is looked up in `fileMap`, which is keyed by the lowercased basename, the permalink, the alias name and the alias slug. A key also matches when its hyphens are read as spaces (`[[foo bar]]` finds the key `foo-bar`).
+2. Otherwise the target is looked up in `fileMap`, which is keyed by the lowercased basename, the permalink, the alias name and the alias slug.
 3. When several candidates match, notes pages are dropped unless nothing else matches. Then the candidate in the source page's own folder wins (a notes page counts as in its page's folder), then the one in `topic/`, then the one at the vault root. When a tiebreak decides, a warning asks you to qualify the link. If none applies, the result is ambiguous: the build fails (see Wikilinks).
 
 

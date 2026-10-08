@@ -36,17 +36,14 @@ rsync -a --delete --exclude='.git/' --exclude='.obsidian/' --exclude='.trash/' -
 
 ### Speed candidates still open
 The build is ~0.5 s and Node startup is a fixed ~50 ms, so these are small. Measure before committing to any.
-- **`resolveFileMapKey` key scan:** every bare link that misses the exact key scans all keys for the hyphen-as-space match. Measured 2026-10-08: no wikilink in the vault relies on it, so the fuzzy match can go (and the README line about it).
 - **Possibly one tokenizer walk shared by all text transforms.** Only if profiling says so; ordering dependencies (abbr → roman/divine skip) make fusing harder.
 - Profile again for what's left (markdown-it ~80 ms, layout render, reading sources).
 
 ### Hardcoding candidates
-Done: fixed page folders (`PAGE_DIRS`/`KNOWN_DIRS` in `lib/vault.js`; Markdown anywhere else fails the build), `partial/` as partials-only, exact `folder/name` link lookup (`index.byPath`), lowercase frontmatter keys (a capital fails the build), body EJS only when the source contains `<%` (only `Colophon.md` and `partial/mt.md` use it).
+Done: assets from `image/` and `template/` only, `abbreviations.json` and `alt-text.json` required (a missing one fails the build), fixed page folders (`PAGE_DIRS`/`KNOWN_DIRS` in `lib/vault.js`; Markdown anywhere else fails the build), `partial/` as partials-only, exact `folder/name` link lookup (`index.byPath`), lowercase frontmatter keys (a capital fails the build), body EJS only when the source contains `<%` (only `Colophon.md` and `partial/mt.md` use it).
 
 Still open (Joey to confirm each):
-- **Homepage:** hardcode `Home page.md` and drop `permalink` and the home/index logic. `Home page.md` is the only file in the vault with a `permalink`.
-- **Assets only from `image/` and `template/`**, replacing the whole-tree scan and its skip list.
-- **`abbreviations.json` and `alt-text.json` required** (today a missing or malformed file warns and skips, in `loadJsonMap`; per "fail loudly" it should probably fail the build).
+- **Homepage:** keep `permalink` (Joey, 2026-10-08: it lets him rename the home page); `Home page.md` uses `permalink: home`. Not a candidate any more.
 - **Body EJS** could be retired in favour of partials; only two files use it.
 - **Keep partial arguments.** They are in real use.
 
@@ -58,7 +55,7 @@ The HTML comments for missing and circular partials say "partial" too (changed i
 ### Notes pages and namespaces (done; live since v0.3.0)
 Every top-level folder is a namespace, and each can have a `notes/` folder next to its pages (plus a root `notes/` for root pages). `<dir>/notes/X.md` is the notes page for `<dir>/X.md`, at the URL `<page url>/notes`. `aside of`, `asidesMap` and the "Could not find aside of target" warning are gone, and `resolveLink` matches qualified links by exact path and narrows bare names to the source's folder, then `topic/`, then the root. The layout's "Topic" label is the page's folder name ("Article" for root pages). Old `/notes/…` URLs are not redirected, on purpose.
 
-`scripts/migrate-vault.mjs` is a no-op on the current vault. Still open, cosmetic: the `Topic` nav `li` keeps its `topic` CSS class (`layout.ejs`). (`isEmbed` in `lib/render.js` is the `![[…]]` flag, so its name is right.)
+`scripts/migrate-vault.mjs` is a no-op on the current vault. (`isEmbed` in `lib/render.js` is the `![[…]]` flag, so its name is right.)
 
 ### Per-namespace alphabetical indexes (done; live since v0.3.0)
 Each namespace (`topic`, `commentary`, `summary`, `reference`, `meta` for the root, and `category`, in menu order) has its own list at `/index/alphabetical/{namespace}`, with a menu to the others at the top. `/index/alphabetical` redirects to the Topic list. A namespace with nothing listed doesn't exist: no page, no menu entry. The nav tab says "Topic page", "Meta page" and so on. The random pool is every list except `category`, `meta` and `reference`.
@@ -80,7 +77,7 @@ Each item below was reproduced in a scratch vault. The fixed ones are deleted. T
 - **Path-qualified image wikilinks** (`[[topic/pic.png]]`) aren't resolved and emit a relative href. Still true 2026-10-08, but the vault has no such link.
 - **`[[Page#Heading]]` is unsupported** and renders as broken. Still true 2026-10-08, but the vault has no such link.
 
-### Backlog: stricter Scripture checks (Joey, 2026-10-07, deprioritized)
+### Backlog: stricter Scripture checks (Joey, 2026-10-07; 2026-10-08: not wanted for now, one documented mistake in 22,901 refs)
 Idea to chew on: fail the build on an impossible reference (a chapter beyond the book's last, found by a table of chapter counts), the way other content mistakes fail it. The corpus audit of 2026-10-07 found no false positives in the 22,901 auto-links; the one real mistake, `Pr 50:13–15` in `summary/The Pleasures of God.md`, has since been fixed in the vault. Single-chapter books (Jude, Phm, Ob, 2Jn, 3Jn) read a lone number as a chapter, not a verse. False positives are handled with the `!` opt-out, so no heuristics.
 
 ### Open questions for Joey (from the 2026-10-02 code review)

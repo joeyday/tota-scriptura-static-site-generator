@@ -96,11 +96,11 @@
     <nav class="page-actions" aria-labelledby="page-actions">
         <ul>
             <%_ if (!view || view === "page") { _%>
-            <li class="topic selected" aria-current="page"><%= nsLabel %></li>
+            <li class="page selected" aria-current="page"><%= nsLabel %></li>
             <%_ } else if (!pageUrl) { _%>
-            <li class="topic muted"><%= nsLabel %></li>
+            <li class="page muted"><%= nsLabel %></li>
             <%_ } else { _%>
-            <li class="topic"><a href="<%= pageUrl %>"><%= nsLabel %></a></li>
+            <li class="page"><a href="<%= pageUrl %>"><%= nsLabel %></a></li>
             <%_ } _%>
 
             <%_ if (view) { _%>
