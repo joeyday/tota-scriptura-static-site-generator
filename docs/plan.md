@@ -62,7 +62,7 @@ These need measurement before we commit to them.
 - **In-memory post-processing, written once.** Removes about 9 reads and up to 9 writes per page, plus the re-read for Scripture collection. This is probably the biggest win.
 - **Compile `layout.ejs` once.** Today `ejs.render` recompiles it for every page, backlinks page and index.
 - **Skip body EJS when the source has no `<%`.** Better still, drop body EJS entirely if the only user is a partial.
-- **Expand partials and resolve wikilinks once per page.** The backlinks pre-pass currently repeats that work for the main render. Record outgoing links during the single pass.
+- **Expand partials and resolve wikilinks once per page** (looked at 2026-10-07, left alone): the backlinks pre-pass has to run before any page renders, because the hidden-page placeholders and the `planned` link class depend on every page's links. The duplicate expansion costs about 1.3 ms of a 0.5 s build, so only a render-all-bodies-first restructure would remove it, and it isn't worth it.
 - **Remove O(n) scans in link resolution.** That's the `resolveFileMapKey` key scan, the path-qualified filter, and the root tiebreaker's `.some`. Precomputed maps or hardcoded folders can replace them.
 - **Bible refs: skip text nodes that contain no digit.** Also share one parse between the linker and the collector, and fix the case-insensitive matching (`gi`) while we're there. The huge alternation regex currently runs twice per text node.
 - **Compile the abbreviation regex once** instead of once per file.
