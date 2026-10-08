@@ -6,8 +6,8 @@ A static site generator with a deliberately boring name. It turns an Obsidian-st
 - `lib/`: the generator, one concern per file: `vault.js` (file discovery, assets, page records), `links.js`, `partials.js`, `markdown.js`, `render.js` (Markdown → body HTML), `model.js` (categories, featured/draft, notes pairs, per-namespace lists, backlinks), `layout.js` (compiled layout, link classification), `output.js` (in-memory post-passes and the writer), `io.js`, `titles.js`, `html/` (the tag walker and the pure HTML passes), `bible/` (ref table, linker, Scripture collector) and `pages/` (one file per kind of generated page).
 - `serve.js`: the local preview server behind `tsgen serve`.
 - `README.md`: the feature reference, written from the code. Keep it in sync whenever behaviour changes.
-- `docs/plan.md`: roadmap, missing files, verified bugs, and the Replit-doc retirement list.
-- `archive/` (`replit.md`, `replit.txt`, `project-documents/`): legacy Replit Agent docs, kept until Joey decides whether to delete them. **Don't trust them.** They have drifted from the code in many places (listed in `docs/plan.md`). Read them for intent or history only, and always check claims against the code.
+- `docs/plan.md`: roadmap, verified bugs, Joey's backlog, and the list of ways the Replit docs drifted.
+- `archive/` (`replit.md`, `replit.txt`, `project-documents/`): legacy Replit Agent docs, kept indefinitely (Joey, 2026-10-08): they show why Replit Agent built a feature the way it did. Never propose deleting them. **Don't trust them.** They have drifted from the code in many places (listed in `docs/plan.md`). Read them for intent or history only, and always check claims against the code.
 
 ## Working rules
 

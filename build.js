@@ -17,7 +17,7 @@ import { writeRandom } from "./lib/pages/random.js";
 import { writeAliasRedirects } from "./lib/pages/redirects.js";
 import { writeScriptureIndex } from "./lib/pages/scripture.js";
 import { writeSearch } from "./lib/pages/search.js";
-import { describe, findHero } from "./lib/html/describe.js";
+import { describe, fallbackHero, findHero } from "./lib/html/describe.js";
 import { renderBody } from "./lib/render.js";
 import { createWatcher } from "./lib/watch.js";
 import { ASSET_EXTENSIONS, NEVER_PAGES, copyAssets, loadVault } from "./lib/vault.js";
@@ -107,6 +107,7 @@ async function build({ showHidden = false, outputDir = OUTPUT_DIR } = {}) {
     featuredUrls,
     plannedUrls,
     allKnownUrls,
+    fallbackHero: fallbackHero(imageMap),
     cacheBust: cacheBuster(),
   });
 
@@ -181,7 +182,12 @@ async function build({ showHidden = false, outputDir = OUTPUT_DIR } = {}) {
       // The frontmatter's `description`, else the first paragraph with text.
       description:
         String(fileInfo.parsed.data.description || "").trim() || describe(htmlContent),
-      hero: findHero(fileInfo.parsed.content, imageMap),
+      // Notes pages and the home page never share an image from their own body
+      // (a diagram, a map, the avatar); they get the fallback.
+      hero:
+        fileInfo.isNote || fileInfo.finalUrlPath === "/"
+          ? null
+          : findHero(fileInfo.parsed.content, imageMap),
       // The page's folder names its namespace: "topic" → "Topic page". Root pages: "Meta page".
       nsLabel: `${nsName(fileInfo.nsDir || "meta")} page`,
       view: fileInfo.isNote ? "notes" : "page",

@@ -18,22 +18,15 @@ The content repo is `joeyday/totascriptura.org`. Both repos are public, so no CI
 - Have `deploy.yml` run `npm ci && npm run build`, and bump Node 20 to 22, since 20 is end-of-life.
 - To bump tsgen later, change the tag and regenerate the lockfile (see `CLAUDE.md` → Releasing).
 
-**Added after v0.1.0:** the `TSGEN_OUT` environment variable (output directory; default `dist`). Not yet released or tagged, and CI doesn't need it. `tsgen serve` (a local preview server, `serve.js`) was added too. `tsgen serve` now watches and rebuilds the whole site on change (2026-10-07); incremental builds were considered and rejected: the full build is about 0.5 s, and a page's HTML depends on the whole link graph and every listing, so invalidation would risk stale output.
+**Since then:** `TSGEN_OUT` (output directory; default `dist`) and `tsgen serve` (a local preview server, `serve.js`) shipped. `serve` watches the vault and template and rebuilds the whole site on change (v0.9.0); incremental builds were considered and rejected: the full build is about 0.5 s, and a page's HTML depends on the whole link graph and every listing, so invalidation would risk stale output.
 
-## 1. Short-term goals (set 2026-10-01)
+## 1. Short-term goals (set 2026-10-01; audited 2026-10-08)
 
-tsgen is a bespoke, single-site tool. There are three goals: **(a)** split `build.js` into modules, **(b)** make the build much faster (aim for about half the current time), and **(c)** hardcode folder roles and other decisions that are currently generic.
+tsgen is a bespoke, single-site tool. Goals: **(a)** split `build.js` into modules (done), **(b)** make the build much faster (done: ~0.97 s to ~0.48 s, byte-identical), **(c)** hardcode folder roles and other generic decisions (partly done; see below).
 
-### Safety net (in place 2026-10-01)
-- `vault/` is a copy of the real vault: 318 `.md` files, 222 built pages, 616 output files.
-- `baseline/dist` is the original script's output.
-- `scripts/compare-dist.mjs` checks a new build against it. The build is deterministic apart from the layout's cache-buster (the content commit's short hash, or a timestamp when there is no repo), which the script normalises.
-
-Every refactor step must leave `dist/` **byte-identical**. Bug fixes and hardcoding changes that alter output go in separate commits, and each one's diff is reviewed on its own.
-
-The real vault was migrated to the namespace layout (notes folders, `summary/`, listed meta pages) as of v0.3.3, and `vault/` copies it. A fresh `rsync` needs no migration, apart from the `aliases` on two notes pages (the next item); `scripts/migrate-vault.mjs` is a no-op otherwise.
-
-Refresh `vault/` with:
+### Safety net
+- `vault/` is a local copy of the real vault; `baseline/dist` is the reference output; `scripts/compare-dist.mjs` checks a new build against it (see `CLAUDE.md` → Running and testing). Refactors must leave `dist/` **byte-identical**; output-changing fixes go in separate commits whose diffs are reviewed on their own.
+- Refresh `vault/` with:
 ```sh
 rsync -a --delete --exclude='.git/' --exclude='.obsidian/' --exclude='.trash/' --exclude='.github/' \
   --exclude='.DS_Store' --exclude='node_modules/' --exclude='dist/' \
@@ -41,128 +34,55 @@ rsync -a --delete --exclude='.git/' --exclude='.obsidian/' --exclude='.trash/' -
   "$HOME/Documents/Obsidian/Tota Scriptura/" vault/
 ```
 
-### Baseline timing (M-series Mac, Node 22, 2026-10-01)
-A clean build takes **~0.97 s** (5 runs: 0.957–1.002 s).
-
-`--cpu-prof` breakdown of the ~950 ms:
-- **312 ms idle**: waiting on strictly sequential file I/O.
-- ~68 ms "(program)".
-- ~90 ms in buffer/file-handle reads, opens and writes.
-- ~70+ ms in EJS compilation, because the layout is recompiled for every page.
-- The post-pass transforms take 10–17 ms each: initials, abbreviations, Roman numerals, divine names, Bible refs.
-- ~21 ms in GC.
-
-Node startup and module load are a fixed ~50 ms floor. Halving the total looks realistic, because I/O and EJS alone account for roughly half.
-
-### Why (a) and (b) aren't really at odds
-The features are already mostly pure `html → html` / `text → text` functions. What's slow is not the features but the **orchestration**. Each post-pass reads every file from disk, rewrites it, and writes it back: about 9 read/write round trips per page. The fix is to put each feature in its own module, exposing a pure per-page function, and have one orchestrator own the loop. Each page then flows through every stage in memory and is written once. With more modules, the corpus gets *fewer* passes, not more.
-
-### Speed candidates
-These need measurement before we commit to them.
-- **In-memory post-processing, written once.** Removes about 9 reads and up to 9 writes per page, plus the re-read for Scripture collection. This is probably the biggest win.
-- **Compile `layout.ejs` once.** Today `ejs.render` recompiles it for every page, backlinks page and index.
-- **Skip body EJS when the source has no `<%`.** Better still, drop body EJS entirely if the only user is a partial.
-- **Expand partials and resolve wikilinks once per page** (looked at 2026-10-07, left alone): the backlinks pre-pass has to run before any page renders, because the hidden-page placeholders and the `planned` link class depend on every page's links. The duplicate expansion costs about 1.3 ms of a 0.5 s build, so only a render-all-bodies-first restructure would remove it, and it isn't worth it.
-- **Remove O(n) scans in link resolution.** That's the `resolveFileMapKey` key scan, the path-qualified filter, and the root tiebreaker's `.some`. Precomputed maps or hardcoded folders can replace them.
-- **Bible refs: skip text nodes that contain no digit.** Also share one parse between the linker and the collector, and fix the case-insensitive matching (`gi`) while we're there. The huge alternation regex currently runs twice per text node.
-- **Compile the abbreviation regex once** instead of once per file.
-- **Parallel I/O** for reading sources, copying assets and writing output, instead of strictly sequential `await`s. Replace `ensureDir`'s access+mkdir with `mkdir({recursive})`.
-- **Possibly a single tokenizer walk shared by all text transforms.** Only worth doing if profiling says so, because ordering dependencies (abbr → roman/divine skip) make fusing harder.
-
-### Proposed module layout (draft)
-```
-build.js                orchestrator: load → model → resolve → render+post → generated pages
-lib/vault.js            fixed folders → page records (frontmatter, urls)
-lib/links.js            link resolution, wikilinks
-lib/partials.js
-lib/markdown.js         markdown-it setup, %%, ~small~, fenced attrs
-lib/model.js            aliases, asides, categories, featured, backlinks
-lib/layout.js           compiled layout, classifyLinks
-lib/html/walk.js        one tag-tokenizer/skip-stack helper (replaces 6 copies)
-lib/html/*.js           heading-ids, abbreviations, initials, roman, divine-names, ellipses, alt-text
-lib/bible/              books table, ref parser, linker, scripture-index collector
-lib/pages/*.js          indexes, search, random, backlinks, redirects, scripture
-```
-
-**Progress (2026-10-02):** the clean build went from **~0.97 s to ~0.48 s** (5 runs each, same machine), byte-identical to the baseline and to the previous `build.js` on edge-case scratch vaults. Done: `lib/html/walk.js` (one tag walker), `lib/html/passes.js` (the pure HTML passes, abbreviation regex built once), `lib/bible/{refs,link,collect}.js`, `lib/markdown.js`, `lib/partials.js`, `lib/links.js`, `lib/io.js` (capped-concurrency reads, copies and writes; same-path writes stay ordered), `lib/layout.js` (compiled layout and link classification), `lib/output.js` (the in-memory post-passes and the writer), `lib/vault.js` (file discovery, asset copying, page records), `lib/model.js` (categories, featured/draft, notes pairs, per-namespace lists, backlinks), `lib/titles.js` (one title comparator instead of ten pasted copies), one `loadJsonMap`, the layout compiled once, and the post-passes folded into `emitHtml`: every page flows through heading IDs → Scripture collection → the other passes in memory and is written once. Asset name collisions now keep only the later file (as on a case-insensitive filesystem). `build.js` is now a 190-line orchestrator; `lib/render.js` renders a body and `lib/pages/{redirects,backlinks,indexes,search,random,scripture}.js` write the generated pages, all addressed by URL through `output.emit`. The split (goal a) is done apart from tidying. Next: pull those apart (`lib/vault.js`, `lib/model.js`, `lib/layout.js`, `lib/pages/*`), then re-profile for what's left (markdown-it ~80 ms, Bible-ref linker ~50 ms, layout render, reading sources).
-
-### What the vault actually uses (survey 2026-10-01)
-
-| Folder | Files | Frontmatter seen |
-|---|---|---|
-| root | 7 | `unlisted` ×7, `quick nav` ×3, `title`, `permalink`, `hidden` |
-| `topic/` | 141 | `categories` 89, `draft` 49, `hidden` 34, `stub` 27, `aliases` 21, `featured` 12, `featured with` 2, `disambiguation` 1, `title` 1 |
-| `notes/` | 96 | **`aside of` 96**, `hidden` 15, `aliases` 2, `title` 1 |
-| `partial/` | 44 | `hidden` 42 (the two without it, `god-eternity` and `spirit-eternity`, are published at `/partial/…`, probably by mistake) |
-| `category/` | 21 | `categories` 16 |
-| `reading/` | 5 | `hidden` 5, `categories` 5, `draft` 1 |
-| `commentary/` | 4 | `unlisted` 4, `categories` 4 |
-| `image/` | 43 | images and favicons (the only asset folder besides `template/`) |
-| `template/` | | `layout.ejs`, `style.css`, `css-naked.js`, Font Awesome + Fontello CSS, `fonts/`, and a dead `embed.ejs` |
-
-Other root files that aren't site content: `NTOT.md`, `OTNT.md` and `Sandbox.md` (built as pages), `Topics.base` (Obsidian Bases), and the tooling leftovers `convert-wiki.py`, `do-pandoc.sh`, `ts-filter.lua` and `example-page.html`.
-
-Usage counts:
-- **Duplicate basenames:** 92 pairs, almost all `notes/X` ↔ `topic/X`. That is why **239 of 522 wikilinks are path-qualified**.
-- **No `[[…#heading]]` links.**
-- **EJS appears only in `Colophon.md` and `partial/mt.md`.**
-- **228 partial uses.** 44 files use arguments or placeholders, so the argument machinery is in real use.
-- **`permalink`** is used once (`Home page.md → home`).
-- Small text `~x~` appears in 139 files, `:::` containers in 16, and `%%` comments in 4.
-- `quick nav` and `disambiguation` are presumably read by `layout.ejs`. `stub` is read by nothing (checked 2026-10-06); the 27 pages that carry it are all also `hidden` and `draft`, so they become placeholders as soon as a published page links to them.
-
-**Notes for topics that don't exist yet are a feature.** Joey sometimes writes notes before the topic page exists. One current example: `notes/Doubt.md` → `topic/Doubt`. Such a note should be treated as draft and/or hidden even without the flag, and shouldn't produce a warning. The exact behaviour is still to be decided.
-
-Fixed in the vault on 2026-10-01: the stray `{{lds}}` embed, and the two unhidden partials. `baseline/` was regenerated afterwards (612 files).
+### Speed candidates still open
+The build is ~0.5 s and Node startup is a fixed ~50 ms, so these are small. Measure before committing to any.
+- **Bible refs:** skip text nodes that contain no digit, and share one parse between the linker and the collector (the big alternation regex runs twice per text node). Roughly 50 ms of the build.
+- **`resolveFileMapKey` key scan:** every bare link that misses the exact key scans all keys for the hyphen-as-space match. Measured 2026-10-08: no wikilink in the vault relies on it, so the fuzzy match can go (and the README line about it).
+- **Possibly one tokenizer walk shared by all text transforms.** Only if profiling says so; ordering dependencies (abbr → roman/divine skip) make fusing harder.
+- Profile again for what's left (markdown-it ~80 ms, layout render, reading sources).
 
 ### Hardcoding candidates
-Joey to confirm each. The evidence comes from the survey above.
-- **Fixed folder roles.** Scan only `topic/`, `notes/`, `category/`, `summary/`, `commentary/`, `partial/` and the root, plus the assets in `image/` and `template/`. This replaces the whole-tree walk and its skip lists.
-- **`hidden` outside `partial/`.** It is still used in `topic/` (34), `notes/` (15) and `reading/` (5, to become `summary/`), so we need to decide what it means there. (`partial/` is now hardcoded as partials-only; see the next section.)
-- **Resolve folder-qualified links via a `folder/name` map**, replacing suffix matching. Bare names resolve to `topic/` (or the root) before `notes/`. The root-file tiebreaker and generic ambiguity logic can probably go.
-- **Hardcode the homepage** as `Home page.md`, and drop `permalink` and the home/index logic.
-- **Canonical lowercase frontmatter keys.** This drops `getFrontmatterValue` and fixes the `Title:` bug.
-- **Assets only from `image/` and `template/`**, which drops the whole-vault scan.
-- **`abbreviations.json` and `alt-text.json` become required** and are simply imported.
-- **Body EJS** could be replaced or retired, since only `Colophon.md` and `mt.md` use it.
+Done: fixed page folders (`PAGE_DIRS`/`KNOWN_DIRS` in `lib/vault.js`; Markdown anywhere else fails the build), `partial/` as partials-only, exact `folder/name` link lookup (`index.byPath`), lowercase frontmatter keys (a capital fails the build), body EJS only when the source contains `<%` (only `Colophon.md` and `partial/mt.md` use it).
+
+Still open (Joey to confirm each):
+- **Homepage:** hardcode `Home page.md` and drop `permalink` and the home/index logic. `Home page.md` is the only file in the vault with a `permalink`.
+- **Assets only from `image/` and `template/`**, replacing the whole-tree scan and its skip list.
+- **`abbreviations.json` and `alt-text.json` required** (today a missing or malformed file warns and skips, in `loadJsonMap`; per "fail loudly" it should probably fail the build).
+- **Body EJS** could be retired in favour of partials; only two files use it.
 - **Keep partial arguments.** They are in real use.
-- **Unknown:** whether the fuzzy hyphen-as-space link matching is used. Measure it before removing.
 
 ### Partials (done 2026-10-02)
 The feature is called **partials** everywhere in the code (`expandPartials`, `splitPartialArgs`, the `partials` map). Only `partial/` is consulted, by basename; everything in it is a partial and never a page, and its frontmatter is ignored, so the vault can drop it gradually. Verified byte-identical against the baseline.
 
-The HTML comments for missing and circular partials say "partial" too (changed in a separate commit after the refactor tied out). `![[image]]` is Obsidian's image embed, a different feature, and keeps its name. The vault still has seven `{{[[violation-goals]]}}`/`{{[[draft]]}}` references to partials that don't exist; they sit in hidden pages, so they are silent.
+The HTML comments for missing and circular partials say "partial" too (changed in a separate commit after the refactor tied out). `![[image]]` is Obsidian's image embed, a different feature, and keeps its name.
 
 ### Notes pages and namespaces (done; live since v0.3.0)
 Every top-level folder is a namespace, and each can have a `notes/` folder next to its pages (plus a root `notes/` for root pages). `<dir>/notes/X.md` is the notes page for `<dir>/X.md`, at the URL `<page url>/notes`. `aside of`, `asidesMap` and the "Could not find aside of target" warning are gone, and `resolveLink` matches qualified links by exact path and narrows bare names to the source's folder, then `topic/`, then the root. The layout's "Topic" label is the page's folder name ("Article" for root pages). Old `/notes/…` URLs are not redirected, on purpose.
 
-Old `/notes/…` URLs are not redirected, on purpose. The vault copy refreshed on 2026-10-02 has no aliases on notes pages and the migration script is a no-op on it. Still open: the `isEmbed` name is unchanged, and the `Topic` nav `li` keeps its `topic` CSS class.
+`scripts/migrate-vault.mjs` is a no-op on the current vault. Still open, cosmetic: the `Topic` nav `li` keeps its `topic` CSS class (`layout.ejs`). (`isEmbed` in `lib/render.js` is the `![[…]]` flag, so its name is right.)
 
 ### Per-namespace alphabetical indexes (done; live since v0.3.0)
 Each namespace (`topic`, `commentary`, `summary`, `reference`, `meta` for the root, and `category`, in menu order) has its own list at `/index/alphabetical/{namespace}`, with a menu to the others at the top. `/index/alphabetical` redirects to the Topic list. A namespace with nothing listed doesn't exist: no page, no menu entry. The nav tab says "Topic page", "Meta page" and so on. The random pool is every list except `category`, `meta` and `reference`.
 
-The vault flags were migrated in v0.3.3: `unlisted` is gone from `About`, `Colophon`, `NTOT`, `OTNT`, `Home page` and the commentary pages, and kept on `404` and `Sandbox`. The `summary/` pages are still `hidden`; un-hide them as they become real and the Summaries list appears by itself.
+The vault flags were migrated in v0.3.3; `unlisted` survives only on `404` and `Sandbox` (checked 2026-10-08). The `summary/` pages are no longer hidden, so the Summaries list exists.
 
 The Scripture index includes every namespace's pages except `category`, `reference` and notes pages (Joey, 2026-10-05: `meta` stays in, even though it is out of the random pool). Search includes a namespace's pages whenever they're not unlisted. Whether `unlisted` should survive at all (it would cover only `404`, `Sandbox` and the auto-unlisted empty categories) is for later.
 
 ### `reading/` is now `summary/` (done; live since v0.3.0)
-Menu label "Summaries", nav tab "Summary page". A summary page summarises the main arguments and Scripture citations of a book or article. Its notes page, like a commentary's, holds Joey's own observations and collected material. The `Book summaries` / `Article summaries` categories have no pages yet; their members are hidden, so the build is silent about it.
-
-### Template: stays in the vault or moves here?
-`template/` holds the layout, CSS, JS and fonts. Content editors probably shouldn't need to touch it. If it moves to tsgen, the vault becomes pure content.
+Menu label "Summaries", nav tab "Summary page". A summary page summarises the main arguments and Scripture citations of a book or article. Its notes page, like a commentary's, holds Joey's own observations and collected material.
 
 ## 2. Verified bugs and surprises
 
-Each item below was reproduced on 2026-10-01 in a scratch vault. The fixed ones are deleted. They are listed roughly by user impact.
+Each item below was reproduced in a scratch vault. The fixed ones are deleted. They are listed roughly by user impact.
 
 - **Bible-ref false positives.** Matching is now case-sensitive, so "I am 30 years old" no longer links. A capitalised word still does: "Job 2 years ago" links to Job 2, and it lands in the Scripture index.
 - **"Romans 3, 5"** is read as Romans 3:5, not chapters 3 and 5. The linker and the Scripture collector agree, so this is at least consistent.
 - **Uppercase words read as Roman numerals** (`MD`, `DC`, `CD`, `CV`, `LI`, `MIX`, …): audited 2026-10-07, and the corpus has none. All 16 `roman-num` spans are genuine (WCF chapter.section such as `XXX.I`, Institutes `II.XVI`, plain numerals). Escapes today: a term in `abbreviations.json` wins (the abbreviation pass runs first and the Roman pass skips `<abbr>`, so `MD` listed as Maryland is an abbreviation, not a numeral), as does an `<abbr>MD</abbr>` or a code span. Joey (2026-10-07): deprioritized; he only expects numerals for the WCF and the Institutes. If a collision ever comes up, the cheap fix is to stop the numeral range at 99 (no `D`, `C` or `M`, which removes `MD`, `DC`, `CD`, `CV`, `MIX`, `DIV`), or a deny list.
-- **Path-qualified image wikilinks** (`[[topic/pic.png]]`) aren't resolved and emit a relative href.
-- **`[[Page#Heading]]` is unsupported** and renders as broken.
+- **Path-qualified image wikilinks** (`[[topic/pic.png]]`) aren't resolved and emit a relative href. Still true 2026-10-08, but the vault has no such link.
+- **`[[Page#Heading]]` is unsupported** and renders as broken. Still true 2026-10-08, but the vault has no such link.
 
 ### Backlog: stricter Scripture checks (Joey, 2026-10-07, deprioritized)
-Idea to chew on: fail the build on an impossible reference (a chapter beyond the book's last, found by a table of chapter counts), the way other content mistakes fail it. The corpus audit of 2026-10-07 found no false positives in the 22,901 auto-links; the one real mistake was `Pr 50:13–15` in `summary/The Pleasures of God.md` (probably Ps 50:13–15). Single-chapter books (Jude, Phm, Ob, 2Jn, 3Jn) read a lone number as a chapter, not a verse. False positives are handled with the `!` opt-out, so no heuristics.
+Idea to chew on: fail the build on an impossible reference (a chapter beyond the book's last, found by a table of chapter counts), the way other content mistakes fail it. The corpus audit of 2026-10-07 found no false positives in the 22,901 auto-links; the one real mistake, `Pr 50:13–15` in `summary/The Pleasures of God.md`, has since been fixed in the vault. Single-chapter books (Jude, Phm, Ob, 2Jn, 3Jn) read a lone number as a chapter, not a verse. False positives are handled with the `!` opt-out, so no heuristics.
 
 ### Open questions for Joey (from the 2026-10-02 code review)
 Delete a question once its answer has been acted on.
@@ -171,13 +91,10 @@ Delete a question once its answer has been acted on.
 
 ## 3. Joey's backlog (pasted 2026-10-05)
 
-Documented as-is, not yet triaged. Joey cleared work on 2026-10-06 (the colonoscopy gate starts on 2026-10-10; it is a start date for the check-in, not a deadline). Some items may be stale, so verify each against the code before acting, and ask Joey the listed questions first. Already done and left out: the new feather favicons (v0.5.0) and the `build.js` split.
+Pasted 2026-10-05; audited against the code and the content repo on 2026-10-08 (finished items deleted). The colonoscopy gate starts on 2026-10-10; it is a start date for the check-in, not a deadline.
 
 ### Bugs
-- **Color system review (2026-10-06).** Fixed: muted nav text, the search field now derives from the nav text and background (`--color-nav-text-muted` and `--color-nav-field-background`); `color-scheme: light dark`; light/dark `theme-color`; dark `mark` lightened with lifted link colors inside it. Also done (0.6.0): `--c` is 0.16 as the sRGB fallback and 0.25 / 0.17 under `@media (color-gamut: p3)`. Several hues still exceed sRGB at 0.16 and rely on the browser's gamut mapping; checkable by setting the Mac's display profile to sRGB. The stroke ladder is now three steps (`thick`, `stroke`, `thin`; the duplicate step is gone, no visual change). The brand-link rules no longer use `!important` (they win on specificity: `a.external[href^=…]`). The only `!important`s left are the `.visually-hidden` utility and the print stylesheet's plain-text links, on purpose.
-
-### Improvements
-- **`reference/` namespace: waiting on the content move.** The code is done (the `reference/` folder, "Reference page" tab, "All reference pages" index, "Reference" menu label). Joey is moving `OTNT.md` and `NTOT.md` into `reference/` in the real vault himself, with the new `title`s ("Old Testament citations in New Testament", "New Testament citations of Old Testament"). Open: whether to rename the files for nicer URLs, and the old root URLs `/otnt` and `/ntot` (no redirects for now; see cross-namespace aliases below). Delete this item once the content repo has the move.
+- **Color system review (2026-10-06).** Fixed: muted nav text, the search field now derives from the nav text and background (`--color-nav-text-muted` and `--color-nav-field-background`); `color-scheme: light dark`; light/dark `theme-color`; dark `mark` lightened with lifted link colors inside it. Also done (0.6.0): `--c` is 0.16 as the sRGB fallback and 0.25 / 0.17 under `@media (color-gamut: p3)`. Several hues still exceed sRGB at 0.16 and rely on the browser's gamut mapping; checkable by setting the Mac's display profile to sRGB. The stroke ladder is three steps (`thick`, `stroke`, `thin`). The brand-link rules no longer use `!important` (they win on specificity: `a.external[href^=…]`). The only `!important`s left are the `.visually-hidden` utility and the print stylesheet's plain-text links, on purpose.
 
 ### HTML/CSS review (Claude, 2026-10-06)
 Findings from a read of `template/` and the generated pages (plus a scan of all 523 built pages), listed in the order I'd do them. Joey wants all of it done eventually. Line numbers are as of 2026-10-06; verify before acting. The contrast figures are hand-computed from the oklch values, so confirm them in a checker. The "Markup accessibility" and "Stylesheet tweaks" items elsewhere in this section overlap with this list; fold them in when working on either.
@@ -188,7 +105,7 @@ Findings from a read of `template/` and the generated pages (plus a scan of all 
 **B. Accessibility, needs a decision from Joey**
 - **Links are underlined only on hover** (colour alone, about 3:1 against body text; dark mode weakest). Options: underline in running prose, or keep the bare style and accept the borderline WCAG 1.4.1 result.
 - **Root font size is viewport-derived** (`html { font-size: clamp(0px, …, 22px) }`): ignores the user's default font size; at 200% browser zoom text grows only about 1.65×. A deliberate design, so it's a tradeoff. A percentage base plus a `vw` term would respect the preference. Also `clamp(0px, x, 22px)` is `min(x, 22px)`, and `-webkit-text-size-adjust: none` should be `100%`.
-- `abbr { text-decoration: none }` hides the only cue that a title exists, and `title` doesn't work on touch. 11 pages have bare `<abbr>` (used purely as a styling hook; a span class would be more honest).
+- `abbr { text-decoration: none }` hides the only cue that a title exists, and `title` doesn't work on touch. 11 pages had bare `<abbr>` on 2026-10-06 (recheck: the vault sources now contain only one) (used purely as a styling hook; a span class would be more honest).
 - Tables: add captions (9 pages have an authored one; there's no syntax for it yet), and look at `th { width: 20% }`, which applies per cell. Each table now scrolls sideways in a `.table-scroll` wrapper (not keyboard-focusable, to avoid dozens of tab stops on the citation pages).
 - CSS Naked: the deferred module script flashes styled content before it strips it; fixing that means a blocking script in the head.
 - Heading levels skip on 101 pages (h1 → h3); authored content, since h3 carries the small-caps look. Decide whether to fix in content or style by class.
@@ -205,7 +122,7 @@ Findings from a read of `template/` and the generated pages (plus a scan of all 
 - **Joey's to do:** Typekit's CSS declares `font-display: auto` (the browser's default, often invisible text for up to three seconds); I can't change that from here, so check the Adobe Fonts project's settings for a `swap` option. The Font Awesome kit uses `font-display: block`, which is right for icons. Font Awesome now offers limiting a kit to a subset of icons (the site uses five glyphs); pruning the kit needs no change in tsgen.
 
 **E. CSS simplification** (done; checked by headless-Chrome screenshots, 3 widths × light/dark, against the baseline: pixel-identical apart from a half-pixel shift in one `h3` containing "I AM" and ±1 gradient dithering at the desktop column split)
-- Kept on purpose (Joey, 2026-10-07): every hue token in `:root`, used or not, so they are ready to use. The duplicate `neutral-gray` and `light-gray` tokens are merged into one `--color-gray`. `--color-main-thin-stroke` still equals `--color-main-stroke` in light mode (the open stroke-ladder item under Bugs).
+- Kept on purpose (Joey, 2026-10-07): every hue token in `:root`, used or not, so they are ready to use. 
 - Not done: head whitespace minification (gzip hides it).
 - Small caps and numerals now use `font-variant-*`. Old-style figures are switched off in small caps (`font-variant-numeric: normal`), as the old `font-feature-settings` did by accident; drop those lines if you'd rather have old-style figures there.
 
@@ -213,34 +130,30 @@ Findings from a read of `template/` and the generated pages (plus a scan of all 
 Joey pruned the kit to a subset and the kit became an SVG-with-JavaScript kit (`"method":"js"`); its `.css` URL then returned a 19-byte stub and every icon disappeared. The layout now loads `kit.fontawesome.com/4a9f54cbf1.js` instead (hotfix 0.7.3, branched from v0.7.2). Watch for: icons appear a moment after the page paints (the script is deferred), and with JavaScript off the logo, search icon, star and the rest are absent (the search button is then an empty circle with its label). Icons in use: `feather-pointed`, `magnifying-glass`, `tags`, `star`, `pencil` and `person-digging` (Sharp Solid), and `mastodon` and `facebook` (Brands).
 
 ### Blacklist, `serve --show-hidden`, 404 (2026-10-07)
-`CLAUDE.md`, `PLAN.md` and `README.md` (any folder, any case) are never read as Markdown. `tsgen serve --show-hidden` ignores `hidden`; problems that only a shown-hidden page causes are warnings. `404.md` is always `unlisted`, so that line can go from its frontmatter. (The alias/notes clash found while testing was fixed in the vault by Joey on 2026-10-07; the vault now builds with `--show-hidden` and no warnings.)
+`CLAUDE.md`, `PLAN.md` and `README.md` (any folder, any case) are never read as Markdown. `tsgen serve --show-hidden` ignores `hidden`; problems that only a shown-hidden page causes are warnings. `404.md` is always `unlisted` in code, so `unlisted: true` can go from its frontmatter (still there 2026-10-08; Joey's file). (The alias/notes clash found while testing was fixed in the vault by Joey on 2026-10-07; the vault now builds with `--show-hidden` and no warnings.)
 
-### Hero images and Open Graph fallback (Joey, 2026-10-08; not decided)
-Today only pages whose body opens with an image embed have a hero (`findHero` in `lib/html/describe.js`); that image becomes `og:image` and picks `summary_large_image` (`layout.ejs`). Pages without one get no `og:image` and a plain `summary` card.
-- **Priority (higher): every page gets an Open Graph image.** Either one default image used whenever a page has no hero, or an image assigned from a pool. Pool assignment could be random or procedural; if so, make it deterministic (for example a hash of the page path) so a page's card doesn't change between builds. Open: where the default or pool lives (vault `asset/`, or `template/`), and whether the card should be `summary_large_image` for the fallback.
-- **Home page: stop using the avatar as `og:image`** (Joey: "*wince*"). The home page's opening embed is the avatar, so it currently becomes the share image with a `summary` card. Give the home page a different image, probably by way of the default or pool above. Open: whether the avatar should stay on the page itself (only its role as `og:image` is disliked), and how to exempt it (a frontmatter key, or hardcode the home page, per the bespoke-generator rule).
-- **Lower priority, undecided: a visible hero on every page.** It might be more consistent, or it might be nicer that only some pages have one. Joey is also considering procedural assignment instead of hand-picking. Don't build this until he decides. If the OG fallback picks from a pool, the same mechanism could later feed visible heroes.
+### Hero images and Open Graph (Joey, 2026-10-08)
+Done (band-aid): every page without a hero of its own, every notes page and the home page share `image/Trees-and-buildings.png` as `og:image` with a `summary_large_image` card (`fallbackHero` in `lib/html/describe.js`; the build fails if the file is missing). The home page keeps its avatar on the page itself.
+
+Backlog, lower priority: **deterministic hero assignment from a larger pool**, for `og:image` and perhaps for the visible hero of the page itself. It would replace the single fallback. Assign deterministically (for example a hash of the page path) so a page's card doesn't change between builds. Open: where the pool lives, and whether every page should show a hero or only some (Joey is undecided; don't build the visible part until he decides).
 
 ### Features Joey can develop himself
-- **Stylesheet tweaks:** the search box placeholder is very faint (maybe a hardcoded color); the search button border color is hardcoded; think about the Search page's style.
-- **`disambiguation` property.** Special handling, probably in the template only. The vault has one use (`topic/`).
-- **Social media links** in the sidebar or footer.
+- **Stylesheet tweaks:** the search placeholder color is now derived from the nav tokens (done); still open to check: the search button's border color and the Search page's style.
+- **`disambiguation` property.** Special handling, probably in the template only. Not implemented (nothing in `lib/` or `layout.ejs` reads it); the vault has one use (`topic/Sacrament.md`).
+- **Social media links** in the sidebar or footer. (The Mastodon and Facebook icons are already used in `Home page.md`; the layout has none.)
 
 ### Features that might be easier with Claude
 - **Statistics page.** Number of pages, Scripture citations, and what percent of the Bible is cited (possibly scarily low). Joey wants more ideas for what to include.
 - **Table of contents**, maybe only on notes pages. It could double as the full book outline on commentary pages.
 - **`aliases` parity with Obsidian.** Understand how Obsidian uses `aliases` and match it. Obsidian disallows wikilinks in `aliases`; tsgen optionally allows them. tsgen assumes all aliases sit in the same folder as the page; check whether Obsidian thinks about it that way or more subtly.
-- **Aliases that cross namespaces** (Joey, 2026-10-05; eventually, not urgent). Today an alias redirects only inside its page's own folder (`/{relDir}/{alias}`). It would be nice for an alias to point at another namespace, for example the old root URLs `/otnt` and `/ntot` redirecting to `/reference/…`. No design yet: the frontmatter syntax, how the alphabetical index and wikilinks should treat such an alias (which namespace lists it?), and collisions with real pages there are all open. The `reference/` move does not wait for this; those two old URLs will simply 404 for now.
+- **Aliases that cross namespaces** (Joey, 2026-10-05; eventually, not urgent). Today an alias redirects only inside its page's own folder (`/{relDir}/{alias}`). It would be nice for an alias to point at another namespace, for example the old root URLs `/otnt` and `/ntot` redirecting to `/reference/…`. No design yet: the frontmatter syntax, how the alphabetical index and wikilinks should treat such an alias (which namespace lists it?), and collisions with real pages there are all open. `OTNT` and `NTOT` have moved to `reference/` (titles set, files not renamed), and the old root URLs `/otnt` and `/ntot` simply 404 now, with no redirects.
 
 ### Crazypants future
 - **Static book generator.**
 
-### Visually hidden snippets
-Joey's four variants (`.visually-hidden` ×3 with slightly different property sets, and the `.sr-only` form with `!important`) are not copied here. The `template/style.css` should get exactly one; ask Joey which, or pick the modern `clip-path` form without `clip`, since the `ie9+` fallback is unneeded.
+## 4. The Replit docs (kept in `archive/`)
 
-## 4. Retire the Replit docs
-
-`README.md` now carries the accurate reference. The Replit docs were moved to `archive/` on 2026-10-01. Joey will decide whether and when to delete them:
+`README.md` carries the accurate reference. The Replit docs live in `archive/` **indefinitely** (Joey, 2026-10-08: they have proven useful for understanding why Replit Agent built a feature the way it did). Don't propose deleting them. Don't trust them either. The contents:
 - `replit.md`
 - `replit.txt` (a copy of `.replit`). It describes a Postgres/`npm run dev` template that never matched this project. The only real content is the dev loop `node build.js && npx serve -l 5000 dist`.
 - `project-documents/`. Its task briefs are useful only as design history. Its README wrongly says the files are under `.agents`.
