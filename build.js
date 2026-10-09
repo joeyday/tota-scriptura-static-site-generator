@@ -224,6 +224,7 @@ async function build({ showHidden = false, outputDir = OUTPUT_DIR } = {}) {
       fileInfo.finalUrlPath,
       finalHtml,
       collected ? { url: fileInfo.finalUrlPath, title: fileInfo.title } : null,
+      { name: fileInfo.filePath, warnOnly: !!fileInfo.shownHidden },
     );
     info(
       `Built: ${fileInfo.filePath} -> ${outFilePath} (URL: ${fileInfo.finalUrlPath})`,
@@ -260,9 +261,19 @@ async function build({ showHidden = false, outputDir = OUTPUT_DIR } = {}) {
   // Hidden pages are never rendered, so a bad link there doesn't count. Shown ones
   // (--show-hidden) only warn.
   for (const problem of draftLinkProblems) console.warn(`Warning: ${problem}`);
+  for (const problem of output.referenceWarnings) console.warn(`Warning: ${problem}`);
+  // A reference to a chapter or verse its book doesn't have (a typo, or a number
+  // read as a verse) fails the build like a broken link; `!` opts a reference out.
+  const failures = [];
   if (linkProblems.length > 0) {
-    throw new BuildError(`Broken links in published pages:\n${linkProblems.join("\n")}`);
+    failures.push(`Broken links in published pages:\n${linkProblems.join("\n")}`);
   }
+  if (output.referenceProblems.length > 0) {
+    failures.push(
+      `Scripture references that can't exist (write a ! before one to opt it out):\n${output.referenceProblems.join("\n")}`,
+    );
+  }
+  if (failures.length > 0) throw new BuildError(failures.join("\n\n"));
 
   await writeAliasRedirects({ output, aliasRedirects });
 
@@ -307,6 +318,14 @@ async function build({ showHidden = false, outputDir = OUTPUT_DIR } = {}) {
       commit: /^[0-9a-f]{7,}$/.test(commit) ? commit : "a local build",
     }),
   });
+
+  // Generated pages are written after the check above; they hold only references
+  // that came from checked pages, so this should never fire.
+  if (output.referenceProblems.length > 0) {
+    throw new BuildError(
+      `Scripture references that can't exist:\n${output.referenceProblems.join("\n")}`,
+    );
+  }
 
   await output.finish();
 }

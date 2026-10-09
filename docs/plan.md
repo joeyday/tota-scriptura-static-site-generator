@@ -10,8 +10,7 @@ Open work only: bugs to fix and features to build. When something is finished, d
 - **Joey's to do:**
   - Typekit's CSS declares `font-display: auto`, often invisible text for up to three seconds. Check the Adobe Fonts project's settings for a `swap` option; it can't be changed from tsgen.
   - `404.md` still has `unlisted: true`; the generator now forces it, so the line can go.
-  - `Philemon 1` in `topic/notes/Slavery.md` (the last item in a list of whole chapters) now reads as verse 1 of Philemon; if it means the whole letter, write `Philemon 1–25`.
-  - `/statistics` lists the citations that point past the end of their chapter (19 on 2026-10-08, such as a `1Ch` meant as `2Ch`, or `Isaiah 16:40`): probably typos in the notes.
+  - **Fix the 41 references that now fail the build** before bumping the content repo to this release (22 lone numbers in books of one chapter, such as `Jude 25` for `Jude 1:25`, and 19 that can't exist, such as a `1Ch` meant as `2Ch` or `Isaiah 16:40`). The build lists each with its page and the reason.
 
 ## Accessibility and standards (each needs a decision from Joey)
 
@@ -44,8 +43,9 @@ Open work only: bugs to fix and features to build. When something is finished, d
 
 ## Code
 
+- **Check the verse table against the ESV.** `lib/bible/versification.js` is the KJV numbering, which the ESV mostly follows, but now that a verse past the end fails the build a difference would be a false failure: 3 John may have 15 verses in the ESV (14 in the KJV). Unverified; check when it first fails.
 - **An automated test suite.** The repo has none; what guards it today is `scripts/compare-dist.mjs` against a baseline build, plus differential and fuzz checks run by hand. Use Node's built-in runner (`node --test`, no new dependency) with an `npm test` script, and put in the repo the checks that have paid for themselves:
-  - the Bible-reference scanner: books of one chapter (`Phm 3` and `Phm 1:3` are the same reference), continuations (`John 3:16, 18`), chapter-level continuations (`Romans 3, 5`, `Romans 3–5, 7`), numbered-book spacing (`1Jn 2:2` links, `1 Jn 2:2` doesn't), the digit-after-year case, single-chapter books, `!` opt-outs, translations (`Jn 3:16; 5:24 KJV`), and that the linker and the collector agree on every reference
+  - the Bible-reference scanner: books of one chapter (`Phm 1:3` reads `Phm 3`, `Phm 1` reads `Phm`, a lone `Phm 3` fails), continuations (`John 3:16, 18`), chapter-level continuations (`Romans 3, 5`, `Romans 3–5, 7`), numbered-book spacing (`1Jn 2:2` links, `1 Jn 2:2` doesn't), the digit-after-year case, single-chapter books, `!` opt-outs, translations (`Jn 3:16; 5:24 KJV`), and that the linker and the collector agree on every reference
   - link resolution (bare names narrowing to the source's folder, then `topic/`, then the root; qualified paths) and image links (`image/<file>`, bare names, failures)
   - the checks that fail a build (a collision, bad frontmatter, a broken wikilink), each against a tiny scratch vault
   - the statistics: the verse table totals 31,102 verses and matches every book's known total, and coverage numbers come out right on a small hand-made set of references
