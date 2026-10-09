@@ -211,19 +211,19 @@ async function build({ showHidden = false, outputDir = OUTPUT_DIR } = {}) {
     });
 
     const outFilePath = output.fileFor(fileInfo.finalUrlPath);
-    // References are collected from every listed page except category pages and
-    // reference pages (long citation tables, which would swamp the counts). Only
-    // the pages that are not also notes pages go in the Scripture index.
+    // Notes pages, category pages, reference pages (long citation tables) and
+    // unlisted pages stay out of the Scripture index, and out of the Scripture
+    // statistics, which count the same references.
     const collected = !(
       fileInfo.unlisted ||
       fileInfo.relDir === "reference" ||
-      categoryUrls.has(fileInfo.finalUrlPath)
+      categoryUrls.has(fileInfo.finalUrlPath) ||
+      notesUrls.has(fileInfo.finalUrlPath)
     );
-    const indexed = collected && !notesUrls.has(fileInfo.finalUrlPath);
     await output.emitPage(
       fileInfo.finalUrlPath,
       finalHtml,
-      collected ? { url: fileInfo.finalUrlPath, title: fileInfo.title, indexed } : null,
+      collected ? { url: fileInfo.finalUrlPath, title: fileInfo.title } : null,
     );
     info(
       `Built: ${fileInfo.filePath} -> ${outFilePath} (URL: ${fileInfo.finalUrlPath})`,
@@ -300,10 +300,7 @@ async function build({ showHidden = false, outputDir = OUTPUT_DIR } = {}) {
       alphabeticalByNs,
       notesByPage,
       pageByNotes,
-      plannedUrls,
       imageMap,
-      partialCount: Object.keys(partials).length,
-      aliasRedirects,
       version: JSON.parse(
         await fs.readFile(new URL("./package.json", import.meta.url), "utf-8"),
       ).version,
