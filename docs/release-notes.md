@@ -7,9 +7,21 @@ What changed in each tsgen release, newest first, and (at the end) what the gene
 - Output changes are called out. Unless a release says otherwise, a refactor or speed-up left the built site byte-identical to the previous release, which `scripts/compare-dist.mjs` checks.
 - "The vault" is the content repo. Its own side of each change (migrations, files edited) is Joey's and lives in that repo's history.
 
-Contents: [0.11](#0110--2026-10-08) · [0.10](#0102--2026-10-08) · [0.9](#090--2026-10-07) · [0.8](#080--2026-10-07) · [0.7](#070--2026-10-06) · [0.6](#060--2026-10-06) · [0.5](#050--2026-10-02) · [0.4](#040--2026-10-02) · [0.3](#030--2026-10-02) · [0.2](#020--2026-10-02) · [0.1](#010--2026-10-01) · [Before tsgen](#before-tsgen-buildjs-in-the-content-repo-2026-02-28--2026-10-01)
+Contents: [0.11](#0111--2026-10-08) · [0.10](#0102--2026-10-08) · [0.9](#090--2026-10-07) · [0.8](#080--2026-10-07) · [0.7](#070--2026-10-06) · [0.6](#060--2026-10-06) · [0.5](#050--2026-10-02) · [0.4](#040--2026-10-02) · [0.3](#030--2026-10-02) · [0.2](#020--2026-10-02) · [0.1](#010--2026-10-01) · [Before tsgen](#before-tsgen-buildjs-in-the-content-repo-2026-02-28--2026-10-01)
 
 ---
+
+## 0.11.1 — 2026-10-08
+Live: not yet deployed · Commits `git log v0.11.0..v0.11.1`
+
+- **Changed:** books of one chapter (Obadiah, Philemon, 2 John, 3 John, Jude). A lone number is a verse, so `Phm 3` is Philemon 1:3 and `Phm 3–5` is verses 3–5, and `Phm 1:3` is the same reference. Both forms link to the same explicit URL (`Phm1.3`; a lone number used to link as a chapter, `Phm3`), both read `Phm 3` in the link text (the chapter is dropped), and both are one entry in the Scripture index, which shows `3`. `Phm 1` is verse 1, not the whole letter: write `Phm 1–25` for that. `Phm 2:3` stays as written, since chapter 2 doesn't exist. After such a reference a bare number is a verse (`Jude 3, 5`). On the vault, 85 link texts on 46 pages change, and no link is added or lost.
+- **Changed (statistics):** the Scripture figures count exactly the references the Scripture index lists, so notes pages, reference pages and categories are left out; counting notes had inflated the coverage.
+- **Changed (statistics):** two ideas instead of four. A chapter is cited when any citation touches it; a verse is cited only when a citation names it, alone or in a range, so `Romans 5` cites the chapter but none of its verses, and `Romans 5:1` cites both. The covered/named split is gone, and the coverage and book tables have one verse column. On the vault: 913 of 1,189 chapters and 8,125 of 31,102 verses (26.1%) are cited, where 0.11.0 said 40.9% of verses were covered.
+- **Changed (statistics):** hidden and unlisted pages are not counted anywhere on the page, and it has no figures of their own about them (the hidden, placeholder, unlisted and empty-category counts are gone). Pages, the Meta count, links and page weight no longer include the 404 page and other unlisted pages. The "Redirects from aliases" tile is now "Aliases" and counts aliases (32), not redirect pages (59, which included each alias's notes mirror).
+- **Removed (statistics):** the partials count, an implementation detail.
+- **Fixed:** the Philemon coverage read 100%, because `Philemon 1` (the last item in a list of whole chapters in the Slavery notes) was read as chapter 1, which in a one-chapter book is every verse. It reads as verse 1 now (52%, before the verse rule below), so that line should say `Philemon 1–25` if it means the whole letter.
+- **Cost:** the statistics page adds about 26 ms to a build of about 500 ms (+5.3%).
+- **Checked:** the Scripture figures were recounted independently from the `ref.ly` links in the built HTML (8,961 links, 65 books, 913 chapters, 8,125 verses, 8 impossible citations), and the one-chapter change against the previous code on every page and 30,000 fuzzed inputs.
 
 ## 0.11.0 — 2026-10-08
 Live: not yet deployed · Commits `git log v0.10.2..v0.11.0`
