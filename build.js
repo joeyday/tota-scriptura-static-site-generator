@@ -17,6 +17,8 @@ import { writeRandom } from "./lib/pages/random.js";
 import { writeAliasRedirects } from "./lib/pages/redirects.js";
 import { writeScriptureIndex } from "./lib/pages/scripture.js";
 import { writeSearch } from "./lib/pages/search.js";
+import { writeStatistics } from "./lib/pages/statistics.js";
+import { computeStatistics, countWords, measureHtml } from "./lib/stats.js";
 import { describe, fallbackHero, findHero } from "./lib/html/describe.js";
 import { renderBody } from "./lib/render.js";
 import { createWatcher } from "./lib/watch.js";
@@ -99,6 +101,7 @@ async function build({ showHidden = false, outputDir = OUTPUT_DIR } = {}) {
     plannedUrls,
   } = buildModel({ filesToProcess, index, fileMap, partials, imageMap, aliasRedirects });
 
+  const commit = cacheBuster();
   const renderLayout = createLayout({
     template: await fs.readFile(TEMPLATE_PATH, "utf-8"),
     draftUrls,
@@ -108,10 +111,11 @@ async function build({ showHidden = false, outputDir = OUTPUT_DIR } = {}) {
     plannedUrls,
     allKnownUrls,
     fallbackHero: fallbackHero(imageMap),
-    cacheBust: cacheBuster(),
+    cacheBust: commit,
   });
 
   const searchDocs = [];
+  const pageStats = []; // per published page, for /statistics
   const linkProblems = [];
   const draftLinkProblems = []; // from pages that --show-hidden shows: warnings only
 
@@ -181,15 +185,17 @@ async function build({ showHidden = false, outputDir = OUTPUT_DIR } = {}) {
         ? findHero(page.parsed.content, imageMap)
         : null;
 
+    // A notes page shares its page's hero, never its own opening image (a diagram,
+    // a map). The home page never shares its avatar. No hero: the fallback.
+    const hero = heroOf(pageUrl && index.byUrl[pageUrl]);
+
     const finalHtml = renderLayout(htmlContent, {
       url: fileInfo.finalUrlPath,
       frontmatter: fileInfo.parsed.data,
       // The frontmatter's `description`, else the first paragraph with text.
       description:
         String(fileInfo.parsed.data.description || "").trim() || describe(htmlContent),
-      // A notes page shares its page's hero, never its own opening image (a
-      // diagram, a map). The home page never shares its avatar. No hero: the fallback.
-      hero: heroOf(pageUrl && index.byUrl[pageUrl]),
+      hero,
       // The page's folder names its namespace: "topic" → "Topic page". Root pages: "Meta page".
       nsLabel: `${nsName(fileInfo.nsDir || "meta")} page`,
       view: fileInfo.isNote ? "notes" : "page",
@@ -205,27 +211,31 @@ async function build({ showHidden = false, outputDir = OUTPUT_DIR } = {}) {
     });
 
     const outFilePath = output.fileFor(fileInfo.finalUrlPath);
-    // Notes pages, category pages, reference pages (long citation tables) and
-    // unlisted pages stay out of the Scripture index.
+    // References are collected from every listed page except category pages and
+    // reference pages (long citation tables, which would swamp the counts). Only
+    // the pages that are not also notes pages go in the Scripture index.
+    const collected = !(
+      fileInfo.unlisted ||
+      fileInfo.relDir === "reference" ||
+      categoryUrls.has(fileInfo.finalUrlPath)
+    );
+    const indexed = collected && !notesUrls.has(fileInfo.finalUrlPath);
     await output.emitPage(
       fileInfo.finalUrlPath,
       finalHtml,
-      fileInfo.unlisted ||
-        fileInfo.relDir === "reference" ||
-        categoryUrls.has(fileInfo.finalUrlPath) ||
-        notesUrls.has(fileInfo.finalUrlPath)
-        ? null
-        : { url: fileInfo.finalUrlPath, title: fileInfo.title },
+      collected ? { url: fileInfo.finalUrlPath, title: fileInfo.title, indexed } : null,
     );
     info(
       `Built: ${fileInfo.filePath} -> ${outFilePath} (URL: ${fileInfo.finalUrlPath})`,
     );
 
+    let words = 0;
     if (!fileInfo.unlisted) {
       const bodyText = htmlContent
         .replace(/<[^>]*>/g, " ")
         .replace(/\s+/g, " ")
         .trim();
+      words = countWords(bodyText);
       searchDocs.push({
         id: fileInfo.finalUrlPath,
         title: fileInfo.title,
@@ -233,6 +243,18 @@ async function build({ showHidden = false, outputDir = OUTPUT_DIR } = {}) {
         body: bodyText,
       });
     }
+    pageStats.push({
+      title: fileInfo.title,
+      url: fileInfo.finalUrlPath,
+      ns: fileInfo.nsDir || "meta",
+      isNote: !!fileInfo.isNote,
+      listed: !fileInfo.unlisted,
+      collected,
+      words,
+      bytes: Buffer.byteLength(finalHtml),
+      ownHero: hero !== null,
+      ...measureHtml(htmlContent),
+    });
   }
 
   // Hidden pages are never rendered, so a bad link there doesn't count. Shown ones
@@ -265,6 +287,29 @@ async function build({ showHidden = false, outputDir = OUTPUT_DIR } = {}) {
   await writeRandom({ output, renderLayout, listedNamespaces, alphabeticalByNs });
   await output.writeFile(".nojekyll", "");
   await writeScriptureIndex({ output, renderLayout });
+  await writeStatistics({
+    output,
+    renderLayout,
+    stats: computeStatistics({
+      pages: pageStats,
+      bodies: searchDocs,
+      filesToProcess,
+      refs: output.refs,
+      backlinksMap,
+      membersMap,
+      alphabeticalByNs,
+      notesByPage,
+      pageByNotes,
+      plannedUrls,
+      imageMap,
+      partialCount: Object.keys(partials).length,
+      aliasRedirects,
+      version: JSON.parse(
+        await fs.readFile(new URL("./package.json", import.meta.url), "utf-8"),
+      ).version,
+      commit: /^[0-9a-f]{7,}$/.test(commit) ? commit : "a local build",
+    }),
+  });
 
   await output.finish();
 }

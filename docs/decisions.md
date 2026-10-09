@@ -21,6 +21,13 @@ Settled questions, so they aren't re-litigated. Each says who decided and when. 
 - **Roman numerals:** Joey expects them only for the WCF and the Institutes. If an all-caps word ever collides (`MD`, `DC`, `MIX`…), the cheap fix is to stop the numeral range at 99 or add a deny list. The corpus has no collision today (audited 2026-10-07), and a term in `abbreviations.json` already wins.
 - **Hidden `<h2>`s before the two navs stay** (Joey, 2026-10-06): the markup should make sense without CSS (CSS Naked Day), and a hidden heading is visible there while an `aria-label` is not.
 
+## Statistics
+- **`/statistics` is a generated page in the `meta` namespace**, the first one there: listed in `/index/alphabetical/meta`, linked from the sidebar, and kept out of search, the random pool and the Scripture index. (Joey, 2026-10-08)
+- **Deterministic output.** No dates, no timings: the page shows the tsgen version and the content commit and is otherwise a function of the content, so builds still compare byte-for-byte.
+- **What it counts.** Listed pages and their notes; hidden and unlisted pages are out. Scripture figures leave out reference pages and categories, whose long citation tables would swamp everything else. Notes pages are counted (most of the Scripture work is in them), though they stay out of the Scripture index.
+- **A verse is covered when a citation includes it** (a whole-chapter citation covers every verse in it) and **named** only when cited as a verse. Versification is the Protestant numbering (1,189 chapters, 31,102 verses), from a public-domain KJV text checked against every book's known verse total; the ESV follows it.
+- **Cost, measured 2026-10-08:** about 28 ms on a 500 ms build (+5.6%): roughly 9 ms for words (tokenizing and ranking), 7 ms for the Scripture coverage, 4.5 ms to render and emit the page, and the rest per-page bookkeeping. If it ever needs trimming, the most used words and the Greek, Hebrew and punctuation counts are the cheapest things to drop for the least loss.
+
 ## Template and CSS
 - **The mobile footer's "· Colophon" middot is intentional**: it sets Colophon apart from the copyright. (2026-10-07)
 - **`img { width: 100% }` stays**: no image in the vault is smaller than the column (the narrowest is 540px against a column of at most about 438px), and the home-page avatar is sized by its figure. (2026-10-07)
