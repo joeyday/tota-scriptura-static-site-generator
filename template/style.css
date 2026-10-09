@@ -133,7 +133,7 @@ a:focus-visible {
     --color-link-broken: var(--color-pink);
     --color-quote: var(--color-teal);
     --color-highlight: var(--color-yellow);
-    --color-table: var(--color-violet);
+    --color-table: var(--color-indigo);
 
     --color-nav-background: oklch(0.46 0 0); /* dark enough for muted text to clear 4.5:1 */
     --color-nav-text: var(--color-white);

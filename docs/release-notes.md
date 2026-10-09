@@ -7,9 +7,15 @@ What changed in each tsgen release, newest first, and (at the end) what the gene
 - Output changes are called out. Unless a release says otherwise, a refactor or speed-up left the built site byte-identical to the previous release, which `scripts/compare-dist.mjs` checks.
 - "The vault" is the content repo. Its own side of each change (migrations, files edited) is Joey's and lives in that repo's history.
 
-Contents: [0.11](#0116--2026-10-09) · [0.10](#0102--2026-10-08) · [0.9](#090--2026-10-07) · [0.8](#080--2026-10-07) · [0.7](#070--2026-10-06) · [0.6](#060--2026-10-06) · [0.5](#050--2026-10-02) · [0.4](#040--2026-10-02) · [0.3](#030--2026-10-02) · [0.2](#020--2026-10-02) · [0.1](#010--2026-10-01) · [Before tsgen](#before-tsgen-buildjs-in-the-content-repo-2026-02-28--2026-10-01)
+Contents: [0.11](#0117--2026-10-09) · [0.10](#0102--2026-10-08) · [0.9](#090--2026-10-07) · [0.8](#080--2026-10-07) · [0.7](#070--2026-10-06) · [0.6](#060--2026-10-06) · [0.5](#050--2026-10-02) · [0.4](#040--2026-10-02) · [0.3](#030--2026-10-02) · [0.2](#020--2026-10-02) · [0.1](#010--2026-10-01) · [Before tsgen](#before-tsgen-buildjs-in-the-content-repo-2026-02-28--2026-10-01)
 
 ---
+
+## 0.11.7 — 2026-10-09
+Live: not yet deployed · Commits `git log v0.11.6..v0.11.7`
+
+- **Changed (output, every page with a table):** the table color is indigo instead of violet (`--color-table` in the stylesheet). Everything else about the tables is as in 0.11.6. Indigo has the most contrast against the white header text of the theme colors tried (about 6.3 to 6.7:1 against the 4.5:1 minimum).
+- Only the stylesheet changes; every page's HTML is byte-identical to 0.11.6, apart from the tsgen version and commit that `/statistics` prints.
 
 ## 0.11.6 — 2026-10-09
 Live: not yet deployed · Commits `git log v0.11.5..v0.11.6`
