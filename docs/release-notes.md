@@ -7,9 +7,15 @@ What changed in each tsgen release, newest first, and (at the end) what the gene
 - Output changes are called out. Unless a release says otherwise, a refactor or speed-up left the built site byte-identical to the previous release, which `scripts/compare-dist.mjs` checks.
 - "The vault" is the content repo. Its own side of each change (migrations, files edited) is Joey's and lives in that repo's history.
 
-Contents: [0.11](#0111--2026-10-08) · [0.10](#0102--2026-10-08) · [0.9](#090--2026-10-07) · [0.8](#080--2026-10-07) · [0.7](#070--2026-10-06) · [0.6](#060--2026-10-06) · [0.5](#050--2026-10-02) · [0.4](#040--2026-10-02) · [0.3](#030--2026-10-02) · [0.2](#020--2026-10-02) · [0.1](#010--2026-10-01) · [Before tsgen](#before-tsgen-buildjs-in-the-content-repo-2026-02-28--2026-10-01)
+Contents: [0.11](#0112--2026-10-08) · [0.10](#0102--2026-10-08) · [0.9](#090--2026-10-07) · [0.8](#080--2026-10-07) · [0.7](#070--2026-10-06) · [0.6](#060--2026-10-06) · [0.5](#050--2026-10-02) · [0.4](#040--2026-10-02) · [0.3](#030--2026-10-02) · [0.2](#020--2026-10-02) · [0.1](#010--2026-10-01) · [Before tsgen](#before-tsgen-buildjs-in-the-content-repo-2026-02-28--2026-10-01)
 
 ---
+
+## 0.11.2 — 2026-10-08
+Live: not yet deployed · Commits `git log v0.11.1..v0.11.2`
+
+- **Fixed (statistics):** two false Scripture links on the page itself. The linker read a number after a reference as a continuation, so "Romans 12:1–15:13, 71 verses" linked the 71 as Romans 12:71 (a verse that doesn't exist) and "Romans 1–4, 4 chapters" linked the 4 as Romans 4. The records now put the number before the reference ("The longest passage cited, at 71 verses, is Romans 12:1–15:13…"), and the example in the explanation is opted out. The page has no Scripture link it shouldn't.
+- **Changed (statistics):** a verse range of more than 15 verses cites its chapters but not its verses, so an outline that cites whole sections can't "cite" most of a book. On the vault, Romans goes from 97.7% of its verses to 80.8%, and the whole Bible from 26.1% to **23.5%** (7,304 of 31,102 verses); chapters are unchanged at 913 of 1,189. 62 passages are affected, 8 of them over 40 verses (seven in the Romans commentary's outline, plus two long Ezekiel chapters). The longest-passage record still shows them. The limit is `MAX_CITED_RANGE` in `lib/stats.js`; 10 and 20 were tried first.
 
 ## 0.11.1 — 2026-10-08
 Live: not yet deployed · Commits `git log v0.11.0..v0.11.1`
