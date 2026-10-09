@@ -211,19 +211,24 @@ async function build({ showHidden = false, outputDir = OUTPUT_DIR } = {}) {
     });
 
     const outFilePath = output.fileFor(fileInfo.finalUrlPath);
-    // Notes pages, category pages, reference pages (long citation tables) and
-    // unlisted pages stay out of the Scripture index, and out of the Scripture
-    // statistics, which count the same references.
+    // Notes pages, reference pages (long citation tables) and unlisted pages stay out
+    // of the Scripture index; category pages and Meta pages are in it. The references on
+    // the pages left out (notes included) are counted apart: the site's total and a
+    // table by namespace. The statistics' cited figures count only topic, commentary
+    // and summary pages, so they leave out the index's category and Meta pages too.
     const collected = !(
       fileInfo.unlisted ||
       fileInfo.relDir === "reference" ||
-      categoryUrls.has(fileInfo.finalUrlPath) ||
       notesUrls.has(fileInfo.finalUrlPath)
     );
     await output.emitPage(
       fileInfo.finalUrlPath,
       finalHtml,
-      collected ? { url: fileInfo.finalUrlPath, title: fileInfo.title } : null,
+      collected
+        ? { url: fileInfo.finalUrlPath, title: fileInfo.title }
+        : fileInfo.unlisted
+          ? null
+          : { url: fileInfo.finalUrlPath, title: fileInfo.title, countOnly: true },
       { name: fileInfo.filePath, warnOnly: !!fileInfo.shownHidden },
     );
     info(
@@ -304,6 +309,7 @@ async function build({ showHidden = false, outputDir = OUTPUT_DIR } = {}) {
       bodies: searchDocs,
       filesToProcess,
       refs: output.refs,
+      otherRefs: output.otherRefs,
       backlinksMap,
       membersMap,
       alphabeticalByNs,
@@ -405,7 +411,8 @@ function watchAndRebuild({ showHidden, reloadPages }) {
 // ─── CLI ──────────────────────────────────────────────────────────────────────
 // tsgen [build]     build the site (what CI runs)
 // tsgen serve       build, then serve the output locally (see serve.js) and rebuild
-//                   whenever the vault or the template changes, with:
+//                   whenever the vault or the template changes (and restart itself
+//                   whenever tsgen's own code changes, see lib/supervise.js), with:
 //   --show-hidden   build pages marked `hidden` too, for previewing rough drafts.
 //                   Only serve takes it, so a deploy can't publish them by accident.
 //   --verbose       print every "Built …" line; without it serve prints only warnings,
@@ -437,6 +444,14 @@ if (!usageOk) {
   console.error(USAGE);
   process.exit(1);
 }
+// `serve` that watches runs under a supervisor, which restarts it when tsgen's own code
+// changes (a rebuild can't pick that up). The supervised copy carries on below.
+if (command === "serve" && watching && !process.env.TSGEN_SUPERVISED) {
+  const { supervise } = await import("./lib/supervise.js");
+  supervise();
+  await new Promise(() => {}); // the supervisor exits the process when the server stops
+}
+
 setVerbose(command === "build" || verbose);
 if (showHidden) console.log("Showing hidden pages (--show-hidden).");
 

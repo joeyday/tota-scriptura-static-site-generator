@@ -29,6 +29,11 @@ blockquote, q {
 	quotes: none;
 }
 
+code {
+    font-family: var(--font-mono);
+    font-size: var(--font-size-mono);
+}
+
 blockquote::before, blockquote::after,
 q::before, q::after {
 	content: none;
@@ -83,6 +88,10 @@ a:focus-visible {
     /* secondary text (blockquotes, tables, footnotes, nav) is this much smaller than its parent */
     --font-size-small: 0.857em;
 
+    /* monospace runs a little smaller than the serif text around them: Fira Mono's digits are
+       full-height lining figures, against Meta's old-style ones */
+    --font-size-mono: 0.9em;
+
     /* hardcoded fonts */
     --font-meta-serif: ff-meta-serif-web-pro, serif;
     --font-meta-condensed: ff-meta-web-pro-condensed, sans-serif;
@@ -92,6 +101,7 @@ a:focus-visible {
     --font-primary: var(--font-meta-serif);
     --font-secondary: var(--font-meta-condensed);
     --font-fancy: var(--font-meta-headline);
+    --font-mono: fira-mono, monospace;
 
     /* hardcoded colors */
     --color-white: oklch(1 0 0);
@@ -338,11 +348,16 @@ main {
         border-left: 1px solid var(--color-quote);
     }
     
-    /* No lines: a gray header row (the nav gray) over rows alternating the page
-       background and a light tint of it. */
+    /* A gray header row (the nav gray) over rows alternating the page background and a
+       light tint of it, with a thin horizontal line under each body row, the same as the rule
+       under an h2 (no vertical lines, and none under the header). */
     table {
         font-size: var(--font-size-small);
         width: 100%;
+
+        caption {
+            font-family: var(--font-fancy);
+        }
 
         th {
             width: 20%;
@@ -356,6 +371,10 @@ main {
         th, td {
             padding: 0.3em 0.5em;
             vertical-align: top;
+        }
+
+        td {
+            border-bottom: 1px solid var(--color-main-thin-stroke);
         }
 
         tr:nth-child(even) td {
@@ -1046,6 +1065,22 @@ footer {
         }
 
 	}
+}
+
+/* Brand-colored links. The class and attribute together outrank every other link
+   color (main, footer, mark, muted) by specificity, so no !important is needed. */
+a.external[href^="https://mastodon.social/"] {
+    color: var(--color-link-mastodon);
+}
+
+a.external:is([href^="http://facebook.com/"], [href^="https://facebook.com/"], [href^="https://www.facebook.com/"]) {
+    color: var(--color-link-facebook);
+}
+
+/* A mark in the pink for an asterisk (or two) that points to a footnote or a key, in a table
+   or a line of text: <span class="asterisk">*</span> */
+.asterisk {
+    color: #d70060;
 }
 
 /* The print-only "Retrieved from" line in the footer */

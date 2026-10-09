@@ -7,18 +7,48 @@ What changed in each tsgen release, newest first, and (at the end) what the gene
 - Output changes are called out. Unless a release says otherwise, a refactor or speed-up left the built site byte-identical to the previous release, which `scripts/compare-dist.mjs` checks.
 - "The vault" is the content repo. Its own side of each change (migrations, files edited) is Joey's and lives in that repo's history.
 
-Contents: [0.11](#0119--2026-10-09) · [0.10](#0102--2026-10-08) · [0.9](#090--2026-10-07) · [0.8](#080--2026-10-07) · [0.7](#070--2026-10-06) · [0.6](#060--2026-10-06) · [0.5](#050--2026-10-02) · [0.4](#040--2026-10-02) · [0.3](#030--2026-10-02) · [0.2](#020--2026-10-02) · [0.1](#010--2026-10-01) · [Before tsgen](#before-tsgen-buildjs-in-the-content-repo-2026-02-28--2026-10-01)
+Contents: [0.11](#01110--2026-10-09) · [0.10](#0102--2026-10-08) · [0.9](#090--2026-10-07) · [0.8](#080--2026-10-07) · [0.7](#070--2026-10-06) · [0.6](#060--2026-10-06) · [0.5](#050--2026-10-02) · [0.4](#040--2026-10-02) · [0.3](#030--2026-10-02) · [0.2](#020--2026-10-02) · [0.1](#010--2026-10-01) · [Before tsgen](#before-tsgen-buildjs-in-the-content-repo-2026-02-28--2026-10-01)
 
 ---
 
+## 0.11.10 — 2026-10-09
+Live: not yet deployed · Commits `git log v0.11.9..v0.11.10`
+
+Mostly the statistics page, plus a few site-wide changes and a better `serve`. Joey's own work in it is organizing and editing: the tiles reordered and relabeled, icons chosen for most of them (some from the kit's own custom icons), and the page's prose copy-edited by hand.
+
+**Every page**
+- **Changed (output):** tables have a thin horizontal line under each body row, in the same gray as the rule under an h2, and none under the header row or between columns. Table captions are set in the headline face.
+- **Changed (output):** `code` is set in Fira Mono (`--font-mono`; the Typekit web project has to include `fira-mono`) at 0.9em (`--font-size-mono`).
+- **Added:** an `.asterisk` class, `<span class="asterisk">*</span>`, for a pink asterisk that points to a footnote or a key.
+- **Fixed (output):** the Mastodon and Facebook link colors only applied on `/statistics`. 0.11.5 moved them into `statistics.css` along with the rest of the statistics block; they are back in `style.css`.
+- **Changed (output):** the redirect stubs (alias redirects and the alphabetical-index redirect) say "Redirecting to …" with a real ellipsis, not three dots. Generated pages never go through markdown-it, so they have to be typed with proper punctuation; an audit of every generated page found no other straight quotes, dots or double hyphens.
+
+**The Scripture index**
+- **Changed:** category pages' Bible references are listed in the index, like Meta pages'. Only reference pages, notes pages and unlisted pages are left out. No category page has a reference yet, so the index is unchanged today.
+
+**`/statistics`**
+- **Changed (output):** the tiles are laid out three across, on a 15-column grid so the first row can split 3:5 and 2:5 (the headline tile and its neighbor, bottom-aligned with each other) and the rows below stay in thirds; every other tile sits at the top. Each takes the next of the twelve theme colors, and its number is bottom-aligned to the baseline (`text-box-trim`). The icon is a faint tilted watermark, the same size and position in every tile, clipped by the rule on top. Labels are in Meta Condensed. A tile names its icon in the page code; `kit:name` picks one of the kit's custom icons (`fa-kit`).
+- **Changed (output):** a tile that is a fraction shows its percentage in the label ("Chapters cited (77%)", computed, not typed), and "Words in notes" and "Links from notes" show counts instead of percentages.
+- **Changed (output):** every table sits under an h3 of its own, in place of a caption, and the table is labelled by it. Explainer paragraphs with no figures of their own are fine print (`.note`: Meta Condensed, small, muted), the lists of titles are small, and the counts after them are italic.
+- **Changed (output):** the heatmap legend is in Meta Condensed, book names are right-aligned and centered on the first row of squares, and there is more room between books.
+- **Added (output):** a "Scripture references by namespace" table at the top of the Scripture section: references on pages and in notes, for all six namespaces, with reference pages and categories included. An asterisk marks the counts that the rest of the section uses. The site group's total now counts references on notes pages too.
+- **Changed (output):** the cited figures (verses, chapters, books, references, unique references, the rankings and the coverage table) count topic, commentary and summary pages only. Meta and category pages are in the Scripture index but not in them. On the vault, that is 8,954 references against 8,960 before.
+- **Changed (output):** the most-used-words list leaves out Bible book names and abbreviations (including numbered ones, so "co" and "pe" are gone), the translations, LXX, OT, NT and the author's name. A book name that is also a word ("Job", "Mark", "Acts") is left out too.
+- **Internal:** the references on pages the index leaves out are collected apart (`output.otherRefs`) so the table can count them; the index never reads them. The translations are a `TRANSLATIONS` list in `lib/bible/refs.js`.
+
+**`serve`**
+- **Changed:** `tsgen serve` restarts itself when tsgen's own code changes, which a rebuild can't pick up. A small supervisor (`lib/supervise.js`) watches `lib/`, `build.js` and `serve.js`, and the open pages reload when it is back. A build never loads it. An edit that breaks startup is reported, and the supervisor waits for the next change.
+
+**Checked:** every other page is byte-identical to 0.11.9 apart from the redirect stubs' ellipsis (60 pages), which `scripts/compare-dist.mjs` shows against a build of the 0.11.9 tag, along with `/statistics` and the two stylesheets. The `serve` change was tried against a scratch server: a code change restarts it and reloads a connected client once, a rebuild still reloads once, a syntax error is survived, and Ctrl-C stops both processes.
+
 ## 0.11.9 — 2026-10-09
-Live: not yet deployed · Commits `git log v0.11.8..v0.11.9`
+Live: 2026-10-09 · Commits `git log v0.11.8..v0.11.9`
 
 - **Fixed (output, every page but `/statistics`):** the print-only "Retrieved from" line in the footer showed on screen. 0.11.5 moved the rule that hides it from `style.css` into `statistics.css`, which only the statistics page loads. The rule is back in `style.css`, and print still shows the line.
 - Only the stylesheets change; every page's HTML is byte-identical to 0.11.8, apart from the tsgen version and commit that `/statistics` prints.
 
 ## 0.11.8 — 2026-10-09
-Live: not yet deployed · Commits `git log v0.11.7..v0.11.8`
+Live: 2026-10-09 · Commits `git log v0.11.7..v0.11.8`
 
 - **Changed (output, every page with a table):** tables are gray again, in the lineless layout of 0.11.6: a header row in the nav gray with white text, over rows alternating the page background and a light tint of it. The table color (`--color-table`, violet in 0.11.6 and indigo in 0.11.7) is gone.
 - Only the stylesheet changes; every page's HTML is byte-identical to 0.11.7, apart from the tsgen version and commit that `/statistics` prints.

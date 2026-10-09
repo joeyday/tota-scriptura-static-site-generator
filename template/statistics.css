@@ -2,6 +2,14 @@
    override the site's defaults (the paragraph after an h3) on this one page. */
 
 .statistics article {
+    /* Fine print: an explainer paragraph with no figures of its own, set like the tile
+       labels. It follows the h3 rule below on specificity, so it wins over it. */
+    .note {
+        font-family: var(--font-secondary);
+        font-size: var(--font-size-small);
+        color: var(--color-main-text-muted);
+    }
+
     /* The paragraph after an h3 is plain body text here, not muted or indented. */
     h3 + p,
     h3 + .main-topic + p {
@@ -25,24 +33,28 @@
         }
     }
 
-    /* Tiles, three across. Each takes its hue from --tile (set inline): a rule on top, the
+    /* Tiles, three across (on a grid of fifteen columns, so the first row can split 3:2 and
+       the rows below thirds). Each takes its hue from --tile (set inline): a rule on top, the
        number in the hue, a muted label, and the icon as a big tilted watermark that the
        tile clips along the top only (the rule cuts it off); it is sized and placed to clear the
-       other edges even tilted. The first tile of a group is its headline
-       and spans two columns; a last row left short is stretched to fill it. */
+       other edges even tilted. The first tile of a group is its headline, three fifths of
+       the first row, with the second tile beside it; a last row left short is stretched to fill it. */
     .facts {
         display: grid;
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(15, 1fr);
         gap: 1rem;
         margin: 1rem 0 1.25rem;
 
         > div {
+            grid-column: span 5;
             position: relative;
             overflow: hidden;
             display: grid;
             grid-template-areas:
                 "number"
                 "label";
+            align-content: start;
+            row-gap: 0.3rem;
             padding-top: 0.5rem;
             border-top: 2px solid var(--tile);
             color: var(--tile);
@@ -61,36 +73,44 @@
         }
 
         > div:first-child {
-            grid-column: span 2;
+            grid-column: span 9;
 
             dd {
-                font-size: 3em;
+                font-size: 2.6em;
             }
 
             /* This tile has the room for body size; the small ones don't ("1,189 / 1,189"). */
             .of {
                 font-size: 1rem;
             }
+        }
 
-            > :is(span, svg) {
-                top: -0.75rem;
-                right: 0.6rem;
-                width: 5rem;
-                height: 5rem;
-            }
+        /* The headline and its neighbor sit on their bottom edges, so the neighbor's number
+           and label line up with the headline's; every other tile sits at the top. */
+        > div:first-child,
+        > div:nth-child(2) {
+            align-content: end;
+        }
+
+        > div:nth-child(2) {
+            grid-column: span 6;
         }
 
         > div:last-child:nth-child(3n) {
-            grid-column: span 3;
+            grid-column: span 15;
         }
 
         > div:last-child:nth-child(3n + 1) {
-            grid-column: span 2;
+            grid-column: span 10;
         }
 
         dd {
             position: relative; /* above the watermark */
             grid-area: number;
+            /* End the box on the baseline, so numbers of different sizes share one bottom edge
+               (browsers without text-box-trim just keep each number's own descender space). */
+            text-box-trim: trim-end;
+            text-box-edge: text alphabetic;
             white-space: nowrap;
             font-family: var(--font-fancy);
             font-size: 1.8em;
@@ -107,6 +127,7 @@
         dt {
             position: relative;
             grid-area: label;
+            font-family: var(--font-secondary);
             font-size: var(--font-size-small);
             line-height: 1.3;
             color: var(--color-main-text-muted);
@@ -115,6 +136,7 @@
 
     .count {
         font-size: var(--font-size-small);
+        font-style: italic;
         color: var(--color-main-text-muted);
         white-space: nowrap;
     }
@@ -127,6 +149,10 @@
     .titles,
     .cloud {
         line-height: 1.7;
+    }
+
+    .titles {
+        font-size: var(--font-size-small);
     }
 
     /* A bar whose filled part is --p of its width. */
@@ -196,11 +222,15 @@
             grid-template-columns: 7.5rem 1fr;
             gap: 0.5rem;
             align-items: start;
-            margin-bottom: 0.3rem;
+            margin-bottom: 0.75rem;
         }
 
+        /* One line as tall as a square, so the name lines up with a book's first row of squares
+           (a one-row book like Ruth has no other row to hide a misalignment). */
         .name {
             font-size: var(--font-size-small);
+            line-height: 0.7rem;
+            text-align: right;
         }
 
         .chapters {
@@ -219,6 +249,7 @@
     }
 
     .legend {
+        font-family: var(--font-secondary);
         font-size: var(--font-size-small);
         color: var(--color-main-text-muted);
 
@@ -249,14 +280,4 @@
         &.hue-magenta { --heat: var(--color-magenta); }
         &.hue-pink { --heat: var(--color-pink); }
     }
-}
-
-/* Brand-colored links. The class and attribute together outrank every other link
-   color (main, footer, mark, muted) by specificity, so no !important is needed. */
-a.external[href^="https://mastodon.social/"] {
-    color: var(--color-link-mastodon);
-}
-
-a.external:is([href^="http://facebook.com/"], [href^="https://facebook.com/"], [href^="https://www.facebook.com/"]) {
-    color: var(--color-link-facebook);
 }

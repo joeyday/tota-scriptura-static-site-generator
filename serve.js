@@ -74,9 +74,24 @@ async function send(req, res, status, file, injectReload = false) {
 }
 
 // Pages served while watching carry this script, which reloads the page when the
-// site is rebuilt (the server sends an event down /__tsgen/reload).
+// site is rebuilt (the server sends "reload" down /__tsgen/reload). The server also
+// says which run it is (a boot id) on connecting: a page that reconnects to a different
+// one has seen the server restart (tsgen's own code changed), and reloads too. Browsers
+// differ on whether an EventSource retries while the server is down, so the script
+// reconnects itself until the server is back.
 const RELOAD_PATH = "/__tsgen/reload";
-const RELOAD_SCRIPT = `<script>new EventSource("${RELOAD_PATH}").onmessage = () => location.reload();</script>`;
+const RELOAD_SCRIPT = `<script>{let boot;const connect = () => {
+  const source = new EventSource("${RELOAD_PATH}");
+  source.onmessage = (e) => {
+    if (e.data === "reload" || (boot && e.data !== boot)) location.reload();
+    else boot = e.data;
+  };
+  source.onerror = () => {
+    source.close();
+    setTimeout(connect, 500);
+  };
+};connect();}</script>`;
+const BOOT_ID = Date.now().toString(36);
 
 // Serves `dir` on `port`. With `watching`, pages also reload themselves; the
 // promise resolves to { reloadPages }, which tells every open page to reload.
@@ -96,7 +111,7 @@ export function serve(dir, port = DEFAULT_PORT, { watching = false } = {}) {
           "Cache-Control": "no-store",
           Connection: "keep-alive",
         });
-        res.write(": connected\n\n");
+        res.write(`data: ${BOOT_ID}\n\n`);
         reloadClients.add(res);
         req.on("close", () => reloadClients.delete(res));
         return;
