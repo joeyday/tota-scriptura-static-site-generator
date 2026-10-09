@@ -43,7 +43,6 @@ Open work only: bugs to fix and features to build. When something is finished, d
 
 ## Code
 
-- **Check the verse table against the ESV.** `lib/bible/versification.js` is the KJV numbering, which the ESV mostly follows, but now that a verse past the end fails the build a difference would be a false failure: 3 John may have 15 verses in the ESV (14 in the KJV). Unverified; check when it first fails.
 - **An automated test suite.** The repo has none; what guards it today is `scripts/compare-dist.mjs` against a baseline build, plus differential and fuzz checks run by hand. Use Node's built-in runner (`node --test`, no new dependency) with an `npm test` script, and put in the repo the checks that have paid for themselves:
   - the Bible-reference scanner: books of one chapter (`Phm 1:3` reads `Phm 3`, `Phm 1` reads `Phm`, a lone `Phm 3` fails), continuations (`John 3:16, 18`), chapter-level continuations (`Romans 3, 5`, `Romans 3–5, 7`), numbered-book spacing (`1Jn 2:2` links, `1 Jn 2:2` doesn't), the digit-after-year case, single-chapter books, `!` opt-outs, translations (`Jn 3:16; 5:24 KJV`), and that the linker and the collector agree on every reference
   - link resolution (bare names narrowing to the source's folder, then `topic/`, then the root; qualified paths) and image links (`image/<file>`, bare names, failures)
