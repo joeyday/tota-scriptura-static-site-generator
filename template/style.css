@@ -128,11 +128,12 @@ a:focus-visible {
     --color-main-stroke: var(--color-gray);
     --color-main-thin-stroke: var(--color-lighter-gray);
 
-    --color-primary: var(--color-green);
-    --color-secondary: var(--color-slate);
-    --color-tertiary: var(--color-pink);
-    --color-quaternary: var(--color-teal);
-    --color-quinary: var(--color-yellow);
+    --color-link: var(--color-green);
+    --color-link-external: var(--color-slate);
+    --color-link-broken: var(--color-pink);
+    --color-quote: var(--color-teal);
+    --color-highlight: var(--color-yellow);
+    --color-table: var(--color-violet);
 
     --color-nav-background: oklch(0.46 0 0); /* dark enough for muted text to clear 4.5:1 */
     --color-nav-text: var(--color-white);
@@ -140,7 +141,7 @@ a:focus-visible {
     --color-nav-text-muted: color-mix(in oklch, var(--color-nav-text), var(--color-nav-background) 25%);
     --color-nav-field-background: oklch(from var(--color-nav-background) calc(l - 0.1) c h);
     
-    --color-main-text-mark-background: oklch(from var(--color-quinary) 0.95 0.075 h);
+    --color-main-text-mark-background: oklch(from var(--color-highlight) 0.95 0.075 h);
     --mark-link-lift: 0; /* how much lighter links get inside <mark> */
     
     --color-link-mastodon: var(--color-mastodon-purple);
@@ -176,7 +177,7 @@ a:focus-visible {
 		--color-nav-background: var(--color-dark-gray);
 		
 		/* Matches Logos's dark highlight: about 2:1 against the page, text on it at 8:1 or better */
-		--color-main-text-mark-background: oklch(from var(--color-quinary) 0.41 0.08 h);
+		--color-main-text-mark-background: oklch(from var(--color-highlight) 0.41 0.08 h);
 		--mark-link-lift: 0.25;
 
 		--color-link-mastodon: oklch(from var(--color-mastodon-purple) calc(l + 0.15) calc(c - 0.08) h);
@@ -289,17 +290,17 @@ main {
     }
             
     a {
-        color: var(--color-primary);
+        color: var(--color-link);
     }
     
     a.external {
-        color: var(--color-secondary);
+        color: var(--color-link-external);
     }
     
     a.planned,
     a.broken,
     span.broken {
-        color: var(--color-tertiary);
+        color: var(--color-link-broken);
     }
 
     p, figure, ul, ol, table {
@@ -335,32 +336,31 @@ main {
         font-size: var(--font-size-small);
         margin: 1rem 0.4rem;
         padding-left: 1rem;
-        border-left: 1px solid var(--color-quaternary);
+        border-left: 1px solid var(--color-quote);
     }
     
+    /* No lines: a header row in a dark shade of the table color (never lighter than 0.5,
+       so white text holds up in dark mode) over rows alternating plain and a light tint. */
     table {
         font-size: var(--font-size-small);
-        
-        border: 1px solid var(--color-main-stroke);
         width: 100%;
-        
+
         th {
             width: 20%;
             font-family: var(--font-fancy);
-            color: var(--color-nav-text);
-            background-color: var(--color-nav-background);
             font-weight: normal;
+            text-align: left;
+            color: var(--color-white);
+            background-color: oklch(from var(--color-table) min(l, 0.5) c h);
         }
-        
+
         th, td {
-            padding-left: 0.5em;
-            padding-right: 0.5em;
-            border: 1px solid var(--color-main-stroke);
+            padding: 0.3em 0.5em;
             vertical-align: top;
         }
-        
+
         tr:nth-child(even) td {
-            background-color: var(--color-main-tint-background);
+            background-color: color-mix(in oklab, var(--color-table) 12%, var(--color-main-background));
         }
     }
             
@@ -415,10 +415,10 @@ main {
     	color: inherit;
         background-color: var(--color-main-text-mark-background);
 
-        a { color: oklch(from var(--color-primary) calc(l + var(--mark-link-lift)) c h); }
-        a.external { color: oklch(from var(--color-secondary) calc(l + var(--mark-link-lift)) c h); }
+        a { color: oklch(from var(--color-link) calc(l + var(--mark-link-lift)) c h); }
+        a.external { color: oklch(from var(--color-link-external) calc(l + var(--mark-link-lift)) c h); }
         a.planned,
-        a.broken { color: oklch(from var(--color-tertiary) calc(l + var(--mark-link-lift)) c h); }
+        a.broken { color: oklch(from var(--color-link-broken) calc(l + var(--mark-link-lift)) c h); }
     }
     
     abbr {

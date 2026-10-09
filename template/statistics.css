@@ -1,14 +1,8 @@
 /* The /statistics page's own styles. The layout links this after style.css, so it can
-   override the site's defaults (headings, the paragraph after an h3) on this one page. */
+   override the site's defaults (the paragraph after an h3) on this one page. */
 
 .statistics article {
-    /* This page breaks from the site's style: h3 joins h1 and h2 in the headline face
-       (no small caps), and the paragraph after it is plain body text. */
-    h3 {
-        font-family: var(--font-fancy);
-        font-variant-caps: normal;
-    }
-
+    /* The paragraph after an h3 is plain body text here, not muted or indented. */
     h3 + p,
     h3 + .main-topic + p {
         color: inherit;
@@ -31,7 +25,6 @@
         }
     }
 
-    /* A row of big-number tiles: the number on top, its label below. */
     /* Tiles, three across. Each takes its hue from --tile (set inline): a rule on top, the
        number in the hue, a muted label, and the icon as a big tilted watermark that the
        tile clips along the top only (the rule cuts it off); it is sized and placed to clear the
@@ -152,7 +145,7 @@
             inset: 0 auto 0 0;
             width: var(--p);
             border-radius: inherit;
-            background-color: var(--heat, var(--color-primary));
+            background-color: var(--heat, var(--color-green));
         }
     }
 
@@ -236,12 +229,12 @@
     }
 
     .c0 { background-color: var(--color-main-tint-background); }
-    .c1 { background-color: color-mix(in oklab, var(--heat, var(--color-primary)) 30%, var(--color-main-background)); }
-    .c2 { background-color: color-mix(in oklab, var(--heat, var(--color-primary)) 52%, var(--color-main-background)); }
-    .c3 { background-color: color-mix(in oklab, var(--heat, var(--color-primary)) 76%, var(--color-main-background)); }
-    .c4 { background-color: var(--heat, var(--color-primary)); }
+    .c1 { background-color: color-mix(in oklab, var(--heat, var(--color-green)) 30%, var(--color-main-background)); }
+    .c2 { background-color: color-mix(in oklab, var(--heat, var(--color-green)) 52%, var(--color-main-background)); }
+    .c3 { background-color: color-mix(in oklab, var(--heat, var(--color-green)) 76%, var(--color-main-background)); }
+    .c4 { background-color: var(--heat, var(--color-green)); }
 
-    /* Each book takes the next theme color, in its heatmap row and its bar; the legend keeps the primary. */
+    /* Each book takes the next theme color, in its heatmap row and its bar; the legend keeps the green. */
     :is(.book, .bar) {
         &.hue-red { --heat: var(--color-red); }
         &.hue-orange { --heat: var(--color-orange); }
