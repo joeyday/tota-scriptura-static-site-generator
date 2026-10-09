@@ -7,9 +7,25 @@ What changed in each tsgen release, newest first, and (at the end) what the gene
 - Output changes are called out. Unless a release says otherwise, a refactor or speed-up left the built site byte-identical to the previous release, which `scripts/compare-dist.mjs` checks.
 - "The vault" is the content repo. Its own side of each change (migrations, files edited) is Joey's and lives in that repo's history.
 
-Contents: [0.10](#0102--2026-10-08) · [0.9](#090--2026-10-07) · [0.8](#080--2026-10-07) · [0.7](#070--2026-10-06) · [0.6](#060--2026-10-06) · [0.5](#050--2026-10-02) · [0.4](#040--2026-10-02) · [0.3](#030--2026-10-02) · [0.2](#020--2026-10-02) · [0.1](#010--2026-10-01) · [Before tsgen](#before-tsgen-buildjs-in-the-content-repo-2026-02-28--2026-10-01)
+Contents: [0.11](#0110--2026-10-08) · [0.10](#0102--2026-10-08) · [0.9](#090--2026-10-07) · [0.8](#080--2026-10-07) · [0.7](#070--2026-10-06) · [0.6](#060--2026-10-06) · [0.5](#050--2026-10-02) · [0.4](#040--2026-10-02) · [0.3](#030--2026-10-02) · [0.2](#020--2026-10-02) · [0.1](#010--2026-10-01) · [Before tsgen](#before-tsgen-buildjs-in-the-content-repo-2026-02-28--2026-10-01)
 
 ---
+
+## 0.11.0 — 2026-10-08
+Live: not yet deployed · Commits `git log v0.10.2..v0.11.0`
+
+- **Added:** a statistics page at `/statistics`, the first generated page in the `meta` namespace. It is in `/index/alphabetical/meta` and linked from the sidebar under "About this project", and stays out of search, the random pool and the Scripture index. Everything on it is counted from structures the build already holds, with no new pass over the files, and the output is deterministic (no dates or timings; it shows the tsgen version and the content commit):
+  - **The site:** pages and notes by namespace, drafts, featured, aliases, images, partials, and how many pages carry their own share image.
+  - **Words:** totals, the median page, longest and shortest pages, a length histogram, the most used words (citation abbreviations left out), the divine names, questions, exclamation marks, Greek and Hebrew words, title records, and reading time.
+  - **Links:** the most linked-to pages, the pages that link out most, and the pages nothing links to.
+  - **Categories:** sizes, depth, pages in several categories and pages in none.
+  - **What is on the pages:** headings, images, tables, footnotes, quotations and callouts, with the page that has the most of each, and page weight.
+  - **Scripture:** references, different references, books, chapters and verses cited (a verse is *covered* when a citation includes it, a whole-chapter citation covering every verse in it, and *named* when cited as a verse), the most cited books, chapters and verses, the longest passage cited, the longest uncited stretch of the canon, translations used, the pages that cite the most, a table by book, and a heatmap of all 1,189 chapters. Citations that name a chapter or verse their book does not have (19 on the vault, probably typos) are listed in a collapsed section.
+- **Added:** `lib/bible/versification.js`, the number of verses in every chapter (the Protestant numbering the ESV follows: 1,189 chapters, 31,102 verses), taken from a public-domain KJV text and checked against the known verse total of all 66 books. In a book of one chapter (Jude, Philemon…) a lone number counts as a verse.
+- **Changed:** the Scripture collector also gathers the references on notes pages, which hold most of the citations. Each reference is tagged, and the Scripture index still lists only the pages that are not notes, so the index is unchanged.
+- **Changed:** `scripts/compare-dist.mjs` ignores the build hash shown on the statistics page.
+- **Cost:** about 28 ms on a build of about 500 ms (+5.6%): roughly 9 ms for words, 7 ms for the Scripture coverage and 4.5 ms to write the page. The rest of the site is byte-identical apart from the new sidebar link, the Meta list entry and the new CSS.
+- **Checked:** the Scripture figures were recomputed independently in Python from the `ref.ly` links in the built HTML, and match: 66 of 66 books, 1,088 of 1,189 chapters, 40.9% of verses covered.
 
 ## 0.10.2 — 2026-10-08
 Live: not yet deployed · Commits `git log v0.10.1..v0.10.2`
