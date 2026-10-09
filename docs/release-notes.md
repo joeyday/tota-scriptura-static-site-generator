@@ -7,9 +7,18 @@ What changed in each tsgen release, newest first, and (at the end) what the gene
 - Output changes are called out. Unless a release says otherwise, a refactor or speed-up left the built site byte-identical to the previous release, which `scripts/compare-dist.mjs` checks.
 - "The vault" is the content repo. Its own side of each change (migrations, files edited) is Joey's and lives in that repo's history.
 
-Contents: [0.11](#0113--2026-10-09) · [0.10](#0102--2026-10-08) · [0.9](#090--2026-10-07) · [0.8](#080--2026-10-07) · [0.7](#070--2026-10-06) · [0.6](#060--2026-10-06) · [0.5](#050--2026-10-02) · [0.4](#040--2026-10-02) · [0.3](#030--2026-10-02) · [0.2](#020--2026-10-02) · [0.1](#010--2026-10-01) · [Before tsgen](#before-tsgen-buildjs-in-the-content-repo-2026-02-28--2026-10-01)
+Contents: [0.11](#0114--2026-10-09) · [0.10](#0102--2026-10-08) · [0.9](#090--2026-10-07) · [0.8](#080--2026-10-07) · [0.7](#070--2026-10-06) · [0.6](#060--2026-10-06) · [0.5](#050--2026-10-02) · [0.4](#040--2026-10-02) · [0.3](#030--2026-10-02) · [0.2](#020--2026-10-02) · [0.1](#010--2026-10-01) · [Before tsgen](#before-tsgen-buildjs-in-the-content-repo-2026-02-28--2026-10-01)
 
 ---
+
+## 0.11.4 — 2026-10-09
+Live: not yet deployed · Commits `git log v0.11.3..v0.11.4`
+
+- **Changed (output, statistics):** the chapter heatmap gives each book its own theme color, taking the colors in turn in hue order (red, orange, yellow, puke, green, teal, slate, blue, indigo, violet, magenta, pink last) and starting over after twelve, so Genesis is red, Exodus orange, and 1 Chronicles red again. The legend stays the primary green.
+- **Changed (output, statistics):** the percentage bar for each book in the "Book by book" table takes the same color as its heatmap row. The Old Testament, New Testament and Whole Bible bars stay green.
+- **Changed (output, statistics):** the bars in the topic titles by first letter take the same twelve colors by place in the alphabet (A red, B orange, … M red again), so a letter keeps its color whatever letters are missing. The grid is two columns that read down, A–L on the left and M–V on the right, where it used to alternate across.
+- **Docs:** the decision log records that the verse table uses the KJV numbering.
+- Only `/statistics` and the stylesheet change; every other file is byte-identical to 0.11.3.
 
 ## 0.11.3 — 2026-10-09
 Live: not yet deployed · Commits `git log v0.11.2..v0.11.3`
