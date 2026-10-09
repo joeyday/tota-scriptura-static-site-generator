@@ -7,18 +7,24 @@ What changed in each tsgen release, newest first, and (at the end) what the gene
 - Output changes are called out. Unless a release says otherwise, a refactor or speed-up left the built site byte-identical to the previous release, which `scripts/compare-dist.mjs` checks.
 - "The vault" is the content repo. Its own side of each change (migrations, files edited) is Joey's and lives in that repo's history.
 
-Contents: [0.11](#0117--2026-10-09) · [0.10](#0102--2026-10-08) · [0.9](#090--2026-10-07) · [0.8](#080--2026-10-07) · [0.7](#070--2026-10-06) · [0.6](#060--2026-10-06) · [0.5](#050--2026-10-02) · [0.4](#040--2026-10-02) · [0.3](#030--2026-10-02) · [0.2](#020--2026-10-02) · [0.1](#010--2026-10-01) · [Before tsgen](#before-tsgen-buildjs-in-the-content-repo-2026-02-28--2026-10-01)
+Contents: [0.11](#0118--2026-10-09) · [0.10](#0102--2026-10-08) · [0.9](#090--2026-10-07) · [0.8](#080--2026-10-07) · [0.7](#070--2026-10-06) · [0.6](#060--2026-10-06) · [0.5](#050--2026-10-02) · [0.4](#040--2026-10-02) · [0.3](#030--2026-10-02) · [0.2](#020--2026-10-02) · [0.1](#010--2026-10-01) · [Before tsgen](#before-tsgen-buildjs-in-the-content-repo-2026-02-28--2026-10-01)
 
 ---
 
+## 0.11.8 — 2026-10-09
+Live: not yet deployed · Commits `git log v0.11.7..v0.11.8`
+
+- **Changed (output, every page with a table):** tables are gray again, in the lineless layout of 0.11.6: a header row in the nav gray with white text, over rows alternating the page background and a light tint of it. The table color (`--color-table`, violet in 0.11.6 and indigo in 0.11.7) is gone.
+- Only the stylesheet changes; every page's HTML is byte-identical to 0.11.7, apart from the tsgen version and commit that `/statistics` prints.
+
 ## 0.11.7 — 2026-10-09
-Live: not yet deployed · Commits `git log v0.11.6..v0.11.7`
+Live: 2026-10-09 · Commits `git log v0.11.6..v0.11.7`
 
 - **Changed (output, every page with a table):** the table color is indigo instead of violet (`--color-table` in the stylesheet). Everything else about the tables is as in 0.11.6. Indigo has the most contrast against the white header text of the theme colors tried (about 6.3 to 6.7:1 against the 4.5:1 minimum).
 - Only the stylesheet changes; every page's HTML is byte-identical to 0.11.6, apart from the tsgen version and commit that `/statistics` prints.
 
 ## 0.11.6 — 2026-10-09
-Live: not yet deployed · Commits `git log v0.11.5..v0.11.6`
+Live: 2026-10-09 · Commits `git log v0.11.5..v0.11.6`
 
 - **Changed (output, every page with a table):** tables have no lines. The header row is white text on a dark shade of violet (never lighter than 0.5 in lightness, so the text holds up in dark mode), over rows that alternate the page background and a light violet tint, with the first row plain. The header text is left-aligned; it was centered. The stylesheet defines `--color-table` (violet) for it.
 - **Changed (output, statistics):** the h3 headings are back to the site's small-caps serif, which 0.11.5 had changed on this page. The paragraph after an h3 stays ordinary body text, neither muted nor indented.
@@ -27,7 +33,7 @@ Live: not yet deployed · Commits `git log v0.11.5..v0.11.6`
 - Only the stylesheets change; every page's HTML is byte-identical to 0.11.5, apart from the tsgen version and commit that `/statistics` prints.
 
 ## 0.11.5 — 2026-10-09
-Live: not yet deployed · Commits `git log v0.11.4..v0.11.5`
+Live: 2026-10-09 · Commits `git log v0.11.4..v0.11.5`
 
 - **Changed (output, statistics):** the big-number tiles are redone. They run three across, each with a rule on top in its own hue, the number in that hue and a muted label; the colors are all twelve theme colors, taken in turn across the whole page, each group picking up where the last left off. The first tile of each group is its headline and spans two columns, and a last row left short is stretched to fill it. An "x / y" tile shows its "/ y" small beside the number, on the same line. A tile can name an icon, which is drawn as a big tilted watermark in its hue, clipped along the top by the rule; the icons are chosen for twelve tiles (the Site group, Words, Links between pages, Categories and References) and the rest have none for now.
 - **Changed (output, statistics):** on `/statistics` the h3 headings are set in the same face as h1 and h2 without small caps, and the paragraph after an h3 is ordinary body text, not muted or indented.
@@ -37,7 +43,7 @@ Live: not yet deployed · Commits `git log v0.11.4..v0.11.5`
 - Only `/statistics` and the stylesheets change; every other page is byte-identical to 0.11.4, checked with `scripts/compare-dist.mjs` against a build of the tag. The new kit has to have every icon the layout uses, or the sidebar and header icons will be missing on that page.
 
 ## 0.11.4 — 2026-10-09
-Live: not yet deployed · Commits `git log v0.11.3..v0.11.4`
+Live: 2026-10-09 · Commits `git log v0.11.3..v0.11.4`
 
 - **Changed (output, statistics):** the chapter heatmap gives each book its own theme color, taking the colors in turn in hue order (red, orange, yellow, puke, green, teal, slate, blue, indigo, violet, magenta, pink last) and starting over after twelve, so Genesis is red, Exodus orange, and 1 Chronicles red again. The legend stays the primary green.
 - **Changed (output, statistics):** the percentage bar for each book in the "Book by book" table takes the same color as its heatmap row. The Old Testament, New Testament and Whole Bible bars stay green.
@@ -46,7 +52,7 @@ Live: not yet deployed · Commits `git log v0.11.3..v0.11.4`
 - Only `/statistics` and the stylesheet change; every other file is byte-identical to 0.11.3.
 
 ## 0.11.3 — 2026-10-09
-Live: not yet deployed · Commits `git log v0.11.2..v0.11.3`
+Live: 2026-10-09 · Commits `git log v0.11.2..v0.11.3`
 
 **Read before bumping the content repo:** this release fails the build on 41 references in the content as of 2026-10-09: 22 lone numbers in books of one chapter (`Jude 25`, `Phm 3`, `Ob 10`, `3Jn 7`, mostly in notes pages) and 19 that can't exist (`Isaiah 16:40`, `Isaiah 35:21`, `Isaiah 54:24`, `Exodus 24:23`, `Psalms 21:14–15`, `Rev 4:11–14`, `1 John 3:24–25`, `1Th 1:11–12`, `John 17:52`, a `1Ch` meant as `2Ch` in the Sabbath notes, seven `1 Chronicles` references in the Joseph notes, and more). The build lists each with its page and the reason. Fix them in the content repo first.
 
