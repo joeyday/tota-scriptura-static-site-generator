@@ -147,7 +147,10 @@ Steps 1–6 are plain regex passes over the raw Markdown, outside code.
 3. **Bible reference linker**: turns references into `<a class="external bible-ref" href="https://ref.ly/{Abbr}{ch}[.{v}[-{v2}|-{ch2}.{v2}]|-{ch2}];{TRANS}">`.
    - Books are matched by full name or abbreviation, **case-sensitively** (`Ro 3:23`, not `ro 3:23`). The abbreviations come from the last entry of each book's `names` list in `BIBLE_BOOKS`.
    - Formats: `Book ch`, `Book ch–ch`, `Book ch:v`, `Book ch:v–v`, `Book ch:v–ch:v`.
-   - Continuations: after `;` or `,` with only whitespace in between, `ch:v` or a bare `v` carries the current book and chapter forward.
+   - Continuations: after `;` or `,` with only whitespace in between, `ch:v` or a bare number carries the current book forward. What a bare number means depends on the reference before it:
+     - after a chapter-level reference (`Romans 3`, `Romans 3–5`), it is a chapter, or a range of chapters: `Romans 3, 5` is chapters 3 and 5 (two links), `Romans 3, 5–7` is chapter 3 and chapters 5–7. A further bare number stays at chapter level (`Romans 3, 5, 7`), until a `ch:v` returns to verses.
+     - after a reference with a verse (`Romans 3:16, 18`, and `Romans 3:16; 5` too), it is a verse in the last chapter.
+     - a `1`, `2` or `3` followed by a capitalized word is the start of a numbered book (`; 1 Tim 3:3`), not a continuation.
    - Translation: an `ESV|KJV|NASB|NIV|NKJV|NLT|NRSV` that directly follows a named reference and its continuations (only whitespace in between, as in `Jn 3:16; 5:24 KJV`) applies to all of them. Any word or punctuation in between, such as `Jn 3:16 (KJV)`, means it isn't about that reference. ESV is the default. The translation is moved inside the last link.
    - A reference prefixed with `!` is not linked.
    - Skipped inside `a`, `code`, `pre`, `script`, `style` and `h1`–`h6`. Context resets at block tags.
