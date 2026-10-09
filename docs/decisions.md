@@ -2,6 +2,9 @@
 
 Settled questions, so they aren't re-litigated. Each says who decided and when. If circumstances change, change the entry rather than adding a contradicting one. What was *built* is in `release-notes.md`; what is *open* is in `plan.md`.
 
+## Versioning
+- **A minor release contains new features; a release of fixes is a patch, even when a fix is breaking or fails the build in new ways.** A new check that fails the build on content that was already wrong is a fix (0.10.2, 0.11.3). Nothing reaches the site until the content repo bumps the tag, so the number isn't the safeguard: say what breaks first in the release notes. (Joey, 2026-10-09)
+
 ## Scope
 - **tsgen serves exactly one site** (and perhaps one very similar second). Hardcode folder roles, file names and frontmatter keys; no options, config or plugin hooks. Remove abstractions rather than adding them. (Joey, 2026-10-01)
 - **Build speed is a first-class goal**: no extra pass over the corpus without a reason. Incremental builds were considered and rejected (2026-10-07): the full build takes about half a second, and a page's HTML depends on the whole link graph and every listing, so invalidation would risk stale output.

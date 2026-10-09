@@ -7,9 +7,21 @@ What changed in each tsgen release, newest first, and (at the end) what the gene
 - Output changes are called out. Unless a release says otherwise, a refactor or speed-up left the built site byte-identical to the previous release, which `scripts/compare-dist.mjs` checks.
 - "The vault" is the content repo. Its own side of each change (migrations, files edited) is Joey's and lives in that repo's history.
 
-Contents: [0.11](#0112--2026-10-08) · [0.10](#0102--2026-10-08) · [0.9](#090--2026-10-07) · [0.8](#080--2026-10-07) · [0.7](#070--2026-10-06) · [0.6](#060--2026-10-06) · [0.5](#050--2026-10-02) · [0.4](#040--2026-10-02) · [0.3](#030--2026-10-02) · [0.2](#020--2026-10-02) · [0.1](#010--2026-10-01) · [Before tsgen](#before-tsgen-buildjs-in-the-content-repo-2026-02-28--2026-10-01)
+Contents: [0.11](#0113--2026-10-09) · [0.10](#0102--2026-10-08) · [0.9](#090--2026-10-07) · [0.8](#080--2026-10-07) · [0.7](#070--2026-10-06) · [0.6](#060--2026-10-06) · [0.5](#050--2026-10-02) · [0.4](#040--2026-10-02) · [0.3](#030--2026-10-02) · [0.2](#020--2026-10-02) · [0.1](#010--2026-10-01) · [Before tsgen](#before-tsgen-buildjs-in-the-content-repo-2026-02-28--2026-10-01)
 
 ---
+
+## 0.11.3 — 2026-10-09
+Live: not yet deployed · Commits `git log v0.11.2..v0.11.3`
+
+**Read before bumping the content repo:** this release fails the build on 41 references in the content as of 2026-10-09: 22 lone numbers in books of one chapter (`Jude 25`, `Phm 3`, `Ob 10`, `3Jn 7`, mostly in notes pages) and 19 that can't exist (`Isaiah 16:40`, `Isaiah 35:21`, `Isaiah 54:24`, `Exodus 24:23`, `Psalms 21:14–15`, `Rev 4:11–14`, `1 John 3:24–25`, `1Th 1:11–12`, `John 17:52`, a `1Ch` meant as `2Ch` in the Sabbath notes, seven `1 Chronicles` references in the Joseph notes, and more). The build lists each with its page and the reason. Fix them in the content repo first.
+
+- **Changed, can fail a build:** a Scripture reference that can't exist fails the build, like a broken wikilink. It is checked against the verse table (`lib/bible/validate.js`, from `versification.js`): a chapter or verse its book doesn't have (`Romans 17`, `Isaiah 16:40`), a range that runs backwards (`Jn 3:18–16`), or a number that is really a count read as a continuation (`Romans 12:1–15:13, 71 verses` reads the 71 as Romans 12:71). Every one is listed with its page and the reason. A `!` before a reference opts it out; a continuation can't be opted out, so reword it. Hidden pages are never rendered, so they are never checked, and a page shown by `serve --show-hidden` only warns. An impossible reference is never collected, so no generated page can hold one.
+- **Changed, can fail a build:** books of one chapter (Obadiah, Philemon, 2 John, 3 John, Jude) are written in full. `Phm 1:3` is verse 3 and `Phm 1` is the whole letter; a lone `Phm 3` is chapter 3, which doesn't exist, so it fails with a hint on how to write the verse. This replaces 0.11.1's rule that `Phm 3` and `Phm 1:3` are the same reference.
+- **Changed (output):** a book of one chapter is shown without its chapter: `Phm 1:3` reads `Phm 3`, `Phm 1:3–5` reads `Phm 3–5`, and `Phm 1` or `Philemon 1` reads just `Phm` or `Philemon`, still linked to the whole chapter (so a bare book name, in these books, is opt-in). Links are always explicit (`Phm1.3`, `Phm1`). The Scripture index and the statistics print the full form and the linker collapses it, so every generated reference is valid.
+- **Removed (statistics):** the "citations that point past the end" section, since a build can no longer have any.
+- **Checked:** the new linker against the released one on 296 real pages and 30,000 fuzzed inputs, with every difference involving a book of one chapter; scratch vaults for each kind of failure, the accepted forms, and hidden and `--show-hidden` pages.
+- **Open:** the verse table is the KJV numbering. The ESV mostly follows it, but 3 John may have 15 verses in the ESV (14 in the KJV), which would make a real `3 John 15` fail. Unverified; in the plan.
 
 ## 0.11.2 — 2026-10-08
 Live: not yet deployed · Commits `git log v0.11.1..v0.11.2`
