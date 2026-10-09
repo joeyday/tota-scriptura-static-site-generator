@@ -37,7 +37,7 @@ The rest come from the vault:
 | Path | Required | Purpose |
 |---|---|---|
 | `**/*.md` | | Pages. Skipped directories: `node_modules`, `dist`, `.git`, `.github`, `.local`, `template`, and any dot-prefixed directory. Skipped files, in any folder and whatever their case: `CLAUDE.md`, `PLAN.md` and `README.md` (notes and docs that live beside the content; they are never pages, partials or errors). |
-| `image/**/*.{png,jpg,jpeg,gif,svg,webp,avif,ico,bmp,css,js,eot,otf,ttf,woff,woff2}` | | Copied flat into `dist/asset/`, together with tsgen's own `template/` assets. Assets anywhere else in the vault are ignored. If two files share a name (compared case-insensitively), the build warns and the last one copied wins. |
+| `image/**/*.{png,jpg,jpeg,gif,svg,webp,avif,ico,bmp,css,js,eot,otf,ttf,woff,woff2}` | | Copied flat into `dist/asset/`, together with tsgen's own `template/` assets. Assets anywhere else in the vault are ignored. Names are flat in `dist/asset/`, so two files with the same name (compared case-insensitively) **fail the build**, listing both. |
 | `abbreviations.json` | **yes** (a missing or malformed file fails the build) | `{ "term": "expansion" \| null }` |
 | `alt-text.json` | **yes** (same) | `{ "image-basename.png": "alt text" }` |
 
@@ -87,7 +87,7 @@ For each non-hidden page, in order. Code (fenced blocks and inline code spans) i
 
 1. **Partials**: `{{name}}`, `{{[[name]]}}` and `{{name|arg1|arg2}}` are replaced by the body of `partial/name.md`. Only the `partial/` folder (flat, no subfolders) is consulted. The name is matched by basename, case-insensitively, with no path syntax, aliases or permalinks. Everything in `partial/` is a partial and never a page: no frontmatter is read from it (any that is present is stripped and ignored), it is not in the link maps, and it has no URL, alias redirects or backlinks. Inside the partial's text, `{{1}}`… are replaced by the arguments, unfilled ones become empty, `{{$args}}` becomes the arguments joined by `, `, and `{{$n}}` becomes the argument count. Partials are expanded recursively, and a circular partial is replaced by a comment with a warning. A `|` inside `[[…]]` does not split arguments. A bare numeric `{{3}}` anywhere becomes empty.
 2. **Wikilinks**: `[[Target]]` and `[[Target|Text]]` become Markdown links. One that matches no page, or several, **fails the build** (all of them are listed, with the page that holds each), but only on pages that get published: a hidden page is never rendered, so a bad link there is ignored. Links inside `%%comments%%` and code are ignored. The link text is the raw inner text, not the target's title. A `.md` suffix is stripped. A leading `!` on a non-image wikilink is ignored. `#heading` fragments are not supported and produce a broken link.
-   Image targets (by extension) are looked up in the asset map by **bare filename only**:
+   Image targets (by extension) are looked up in the asset map, by real path (`image/img.png`, which is what Obsidian's link picker inserts; `template/img.png` for tsgen's own) or by bare filename (`img.png`, always unique, see the asset table). An image that is in neither folder, or doesn't exist, **fails the build** like a broken page link (published pages only), listing each one with its page. Alt text and link text default to the bare file name.
    - `[[img.png]]` becomes a link.
    - `![[img.png]]` becomes `<figure><img alt="img.png"></figure>`.
    - `![[img.png|Alt]]` sets the alt text.

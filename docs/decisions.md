@@ -14,6 +14,7 @@ Settled questions, so they aren't re-litigated. Each says who decided and when. 
 - **`hidden` means "no page", except a placeholder** when a published page links to it. This is correct as it is. (Joey, 2026-10-08)
 - **Old `/notes/…` URLs are not redirected**, on purpose (v0.2.0).
 - **`meta` pages are in the Scripture index** even though they are out of the random pool; `category`, `reference` and notes pages are out of the index. (Joey, 2026-10-05)
+- **Image links:** the canonical form is the real path, `image/<file>` (or `template/<file>`), because that is what Obsidian's link picker inserts. A bare `<file>` also works; it is always unique because two assets with the same name fail the build (names are flat in `dist/asset/`). An image in any other folder, or that doesn't exist, fails the build. (Joey, 2026-10-08)
 - **Partial arguments stay.** They are in real use.
 - **Stricter Scripture checks (failing the build on an impossible reference) are not wanted** for now: one documented mistake in 22,901 auto-links. False positives are handled with the `!` opt-out, so no heuristics. (Joey, 2026-10-08)
 - **Roman numerals:** Joey expects them only for the WCF and the Institutes. If an all-caps word ever collides (`MD`, `DC`, `MIX`…), the cheap fix is to stop the numeral range at 99 or add a deny list. The corpus has no collision today (audited 2026-10-07), and a term in `abbreviations.json` already wins.
