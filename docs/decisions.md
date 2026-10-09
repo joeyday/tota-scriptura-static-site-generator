@@ -17,6 +17,7 @@ Settled questions, so they aren't re-litigated. Each says who decided and when. 
 - **Image links:** the canonical form is the real path, `image/<file>` (or `template/<file>`), because that is what Obsidian's link picker inserts. A bare `<file>` also works; it is always unique because two assets with the same name fail the build (names are flat in `dist/asset/`). An image in any other folder, or that doesn't exist, fails the build. (Joey, 2026-10-08)
 - **Partial arguments stay.** They are in real use.
 - **Stricter Scripture checks (failing the build on an impossible reference) are not wanted** for now: one documented mistake in 22,901 auto-links. False positives are handled with the `!` opt-out, so no heuristics. (Joey, 2026-10-08)
+- **Numbered-book abbreviations are written without a space** (`1Jn`, `2Ki`, `1Ti`). A spaced form (`1 Jn 2:2`, `2 Ki 5`, `1 Tim 3:3`) is a mistake in the content and simply doesn't link; no aliases or special cases for it. The full names (`1 John`) take the space. (Joey, 2026-10-08)
 - **Roman numerals:** Joey expects them only for the WCF and the Institutes. If an all-caps word ever collides (`MD`, `DC`, `MIX`…), the cheap fix is to stop the numeral range at 99 or add a deny list. The corpus has no collision today (audited 2026-10-07), and a term in `abbreviations.json` already wins.
 - **Hidden `<h2>`s before the two navs stay** (Joey, 2026-10-06): the markup should make sense without CSS (CSS Naked Day), and a hidden heading is visible there while an `aria-label` is not.
 
