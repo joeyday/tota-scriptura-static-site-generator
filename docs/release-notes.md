@@ -7,9 +7,22 @@ What changed in each tsgen release, newest first, and (at the end) what the gene
 - Output changes are called out. Unless a release says otherwise, a refactor or speed-up left the built site byte-identical to the previous release, which `scripts/compare-dist.mjs` checks.
 - "The vault" is the content repo. Its own side of each change (migrations, files edited) is Joey's and lives in that repo's history.
 
-Contents: [0.10](#0101--2026-10-08) · [0.9](#090--2026-10-07) · [0.8](#080--2026-10-07) · [0.7](#070--2026-10-06) · [0.6](#060--2026-10-06) · [0.5](#050--2026-10-02) · [0.4](#040--2026-10-02) · [0.3](#030--2026-10-02) · [0.2](#020--2026-10-02) · [0.1](#010--2026-10-01) · [Before tsgen](#before-tsgen-buildjs-in-the-content-repo-2026-02-28--2026-10-01)
+Contents: [0.10](#0102--2026-10-08) · [0.9](#090--2026-10-07) · [0.8](#080--2026-10-07) · [0.7](#070--2026-10-06) · [0.6](#060--2026-10-06) · [0.5](#050--2026-10-02) · [0.4](#040--2026-10-02) · [0.3](#030--2026-10-02) · [0.2](#020--2026-10-02) · [0.1](#010--2026-10-01) · [Before tsgen](#before-tsgen-buildjs-in-the-content-repo-2026-02-28--2026-10-01)
 
 ---
+
+## 0.10.2 — 2026-10-08
+Live: not yet deployed · Commits `git log v0.10.1..v0.10.2`
+
+A patch release that includes new ways to fail a build, all of them for content that was already broken.
+
+- **Changed, can fail a build:** an image link must name a real image in `image/` or `template/`. `image/<file>` or `template/<file>` is the canonical form (what Obsidian's link picker inserts), and a bare `<file>` works too. A link to an image in any other folder, to one that doesn't exist, or with a typo fails the build, listing each one with its page, on published pages only. Before it silently emitted a broken `<img>` (and a path-qualified hero embed silently lost its hero and `og:image`). Alt text and link text default to the bare file name.
+- **Changed, can fail a build:** two assets with the same name (compared case-insensitively) fail the build, listing both files. Asset names are flat in `dist/asset/`, so one used to overwrite the other with only a warning. This also keeps every bare image name unambiguous.
+- **Fixed:** `Romans 3, 5` is chapters 3 and 5 (two links), not Romans 3:5. After a chapter-level reference (`Romans 3`, `Romans 3–5`) a bare number after a comma or semicolon is a chapter or a range of chapters (`Romans 3, 5–7`), and it stays at chapter level until a `ch:v` returns to verses. After a reference with a verse it is still a verse (`Romans 3:16, 18`).
+- **Fixed:** a `1`, `2` or `3` followed by a capitalized word after a separator is the start of a numbered book, not a continuation. `Heb 7:26; 1 Pet 3:15` no longer links the `1` as Hebrews 7:1. This was live on four pages (13 wrong links).
+- **Changed:** a numbered book's abbreviation has no space after the number: `1Jn 2:2` and `2Ki 5` link; `1 Jn 2:2`, `2 Ki 5` and `1 Tim 3:3` are not references and don't link. The full names (`1 John`) take the space. A book abbreviation after a lone `1`, `2` or `3` and a space also no longer matches, so `1 Jn 2:2` can't turn into a link to John 2:2.
+- **Output on the vault (compared with 0.10.1):** 18 Scripture links removed and none added, on six notes pages. 13 were wrong links (a bare `1` or `2` linked as a verse). Five were spaced numbered abbreviations that worked before and are now plain text until written `1Jn`, `1Ti`, `2Ki`: `1 Jn 2:2`, `1 Ti 4:13–16`, `1 Jn 1:1–2; 5:11–13` and `2 Ki 5`.
+- Verified against the previous Bible code on every page and 30,000 fuzzed inputs; every difference is one of the rules above.
 
 ## 0.10.1 — 2026-10-08
 Live 2026-10-08 · Commits `git log v0.10.0..v0.10.1`
