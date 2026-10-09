@@ -1048,6 +1048,11 @@ footer {
 	}
 }
 
+/* The print-only "Retrieved from" line in the footer */
+footer .print-source {
+    display: none;
+}
+
 /* ─── Print ───
    The article and nothing else: no navigation, no branding, links as plain text.
    Colors stay (marks, borders, table headers), and print-color-adjust makes

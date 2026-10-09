@@ -260,8 +260,3 @@ a.external[href^="https://mastodon.social/"] {
 a.external:is([href^="http://facebook.com/"], [href^="https://facebook.com/"], [href^="https://www.facebook.com/"]) {
     color: var(--color-link-facebook);
 }
-
-/* The print-only "Retrieved from" line in the footer */
-footer .print-source {
-    display: none;
-}
