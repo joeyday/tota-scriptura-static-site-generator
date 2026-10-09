@@ -1,0 +1,273 @@
+/* The /statistics page's own styles. The layout links this after style.css, so it can
+   override the site's defaults (headings, the paragraph after an h3) on this one page. */
+
+.statistics article {
+    /* This page breaks from the site's style: h3 joins h1 and h2 in the headline face
+       (no small caps), and the paragraph after it is plain body text. */
+    h3 {
+        font-family: var(--font-fancy);
+        font-variant-caps: normal;
+    }
+
+    h3 + p,
+    h3 + .main-topic + p {
+        color: inherit;
+        margin: 1rem 0;
+    }
+
+    .section-nav ul,
+    .letters {
+        margin: 0.5rem 0;
+    }
+
+    .section-nav ul {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.2rem 1rem;
+
+        li {
+            margin-left: 0;
+            list-style-type: none;
+        }
+    }
+
+    /* A row of big-number tiles: the number on top, its label below. */
+    /* Tiles, three across. Each takes its hue from --tile (set inline): a rule on top, the
+       number in the hue, a muted label, and the icon as a big tilted watermark that the
+       tile clips along the top only (the rule cuts it off); it is sized and placed to clear the
+       other edges even tilted. The first tile of a group is its headline
+       and spans two columns; a last row left short is stretched to fill it. */
+    .facts {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+        margin: 1rem 0 1.25rem;
+
+        > div {
+            position: relative;
+            overflow: hidden;
+            display: grid;
+            grid-template-areas:
+                "number"
+                "label";
+            padding-top: 0.5rem;
+            border-top: 2px solid var(--tile);
+            color: var(--tile);
+
+            /* The kit swaps the <span> for an <svg>, so match both. */
+            > :is(span, svg) {
+                position: absolute;
+                top: -0.3rem;
+                right: 0.45rem;
+                width: 3.2rem;
+                height: 3.2rem;
+                opacity: 0.16;
+                transform: rotate(-14deg);
+                pointer-events: none;
+            }
+        }
+
+        > div:first-child {
+            grid-column: span 2;
+
+            dd {
+                font-size: 3em;
+            }
+
+            .of {
+                font-size: calc(var(--font-size-small) / 3);
+            }
+
+            > :is(span, svg) {
+                top: -0.75rem;
+                right: 0.6rem;
+                width: 5rem;
+                height: 5rem;
+            }
+        }
+
+        > div:last-child:nth-child(3n) {
+            grid-column: span 3;
+        }
+
+        > div:last-child:nth-child(3n + 1) {
+            grid-column: span 2;
+        }
+
+        dd {
+            position: relative; /* above the watermark */
+            grid-area: number;
+            white-space: nowrap;
+            font-family: var(--font-fancy);
+            font-size: 1.8em;
+            line-height: 1.1;
+        }
+
+        /* The "/ y" of an "x / y": small text beside the number. --font-size-small is
+           relative to its parent, so divide the number's size back out (1.8 here; the
+           headline tile does the same with its own). */
+        .of {
+            font-size: calc(var(--font-size-small) / 1.8);
+        }
+
+        dt {
+            position: relative;
+            grid-area: label;
+            font-size: var(--font-size-small);
+            line-height: 1.3;
+            color: var(--color-main-text-muted);
+        }
+    }
+
+    .count {
+        font-size: var(--font-size-small);
+        color: var(--color-main-text-muted);
+        white-space: nowrap;
+    }
+
+    .ranking,
+    .records {
+        margin: 0.4rem 0 1rem;
+    }
+
+    .titles,
+    .cloud {
+        line-height: 1.7;
+    }
+
+    /* A bar whose filled part is --p of its width. */
+    .bar {
+        display: inline-block;
+        position: relative;
+        width: 5rem;
+        height: 0.55em;
+        border-radius: 0.3em;
+        background-color: var(--color-main-tint-background);
+        vertical-align: baseline;
+
+        &::after {
+            content: "";
+            position: absolute;
+            inset: 0 auto 0 0;
+            width: var(--p);
+            border-radius: inherit;
+            background-color: var(--heat, var(--color-primary));
+        }
+    }
+
+    td .bar {
+        width: 4rem;
+        margin-left: 0.4em;
+    }
+
+    /* Two columns that read down: the first half of the alphabet, then the second. */
+    .letters {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: repeat(var(--rows), auto);
+        grid-auto-flow: column;
+        gap: 0.15rem 1rem;
+
+        li {
+            display: flex;
+            align-items: baseline;
+            gap: 0.4em;
+            margin-left: 0;
+            list-style-type: none;
+        }
+
+        .bar {
+            flex: 1;
+            width: auto;
+        }
+
+        .letter {
+            width: 1em;
+            font-weight: 700;
+        }
+    }
+
+    /* Every chapter of the Bible as a square, shaded by how often it is cited. */
+    .heatmap {
+        margin: 0.5rem 0 1.5rem;
+
+        h4 {
+            margin: 1rem 0 0.4rem;
+            font-variant-caps: all-small-caps;
+            font-weight: normal;
+        }
+
+        .book {
+            display: grid;
+            grid-template-columns: 7.5rem 1fr;
+            gap: 0.5rem;
+            align-items: start;
+            margin-bottom: 0.3rem;
+        }
+
+        .name {
+            font-size: var(--font-size-small);
+        }
+
+        .chapters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2px;
+        }
+    }
+
+    .heatmap i,
+    .legend i {
+        display: inline-block;
+        width: 0.7rem;
+        height: 0.7rem;
+        border-radius: 2px;
+    }
+
+    .legend {
+        font-size: var(--font-size-small);
+        color: var(--color-main-text-muted);
+
+        i {
+            margin-left: 0.6em;
+            vertical-align: -0.1em;
+        }
+    }
+
+    .c0 { background-color: var(--color-main-tint-background); }
+    .c1 { background-color: color-mix(in oklab, var(--heat, var(--color-primary)) 30%, var(--color-main-background)); }
+    .c2 { background-color: color-mix(in oklab, var(--heat, var(--color-primary)) 52%, var(--color-main-background)); }
+    .c3 { background-color: color-mix(in oklab, var(--heat, var(--color-primary)) 76%, var(--color-main-background)); }
+    .c4 { background-color: var(--heat, var(--color-primary)); }
+
+    /* Each book takes the next theme color, in its heatmap row and its bar; the legend keeps the primary. */
+    :is(.book, .bar) {
+        &.hue-red { --heat: var(--color-red); }
+        &.hue-orange { --heat: var(--color-orange); }
+        &.hue-yellow { --heat: var(--color-yellow); }
+        &.hue-puke { --heat: var(--color-puke); }
+        &.hue-green { --heat: var(--color-green); }
+        &.hue-teal { --heat: var(--color-teal); }
+        &.hue-slate { --heat: var(--color-slate); }
+        &.hue-blue { --heat: var(--color-blue); }
+        &.hue-indigo { --heat: var(--color-indigo); }
+        &.hue-violet { --heat: var(--color-violet); }
+        &.hue-magenta { --heat: var(--color-magenta); }
+        &.hue-pink { --heat: var(--color-pink); }
+    }
+}
+
+/* Brand-colored links. The class and attribute together outrank every other link
+   color (main, footer, mark, muted) by specificity, so no !important is needed. */
+a.external[href^="https://mastodon.social/"] {
+    color: var(--color-link-mastodon);
+}
+
+a.external:is([href^="http://facebook.com/"], [href^="https://facebook.com/"], [href^="https://www.facebook.com/"]) {
+    color: var(--color-link-facebook);
+}
+
+/* The print-only "Retrieved from" line in the footer */
+footer .print-source {
+    display: none;
+}

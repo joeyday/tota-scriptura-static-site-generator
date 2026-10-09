@@ -7,9 +7,19 @@ What changed in each tsgen release, newest first, and (at the end) what the gene
 - Output changes are called out. Unless a release says otherwise, a refactor or speed-up left the built site byte-identical to the previous release, which `scripts/compare-dist.mjs` checks.
 - "The vault" is the content repo. Its own side of each change (migrations, files edited) is Joey's and lives in that repo's history.
 
-Contents: [0.11](#0114--2026-10-09) · [0.10](#0102--2026-10-08) · [0.9](#090--2026-10-07) · [0.8](#080--2026-10-07) · [0.7](#070--2026-10-06) · [0.6](#060--2026-10-06) · [0.5](#050--2026-10-02) · [0.4](#040--2026-10-02) · [0.3](#030--2026-10-02) · [0.2](#020--2026-10-02) · [0.1](#010--2026-10-01) · [Before tsgen](#before-tsgen-buildjs-in-the-content-repo-2026-02-28--2026-10-01)
+Contents: [0.11](#0115--2026-10-09) · [0.10](#0102--2026-10-08) · [0.9](#090--2026-10-07) · [0.8](#080--2026-10-07) · [0.7](#070--2026-10-06) · [0.6](#060--2026-10-06) · [0.5](#050--2026-10-02) · [0.4](#040--2026-10-02) · [0.3](#030--2026-10-02) · [0.2](#020--2026-10-02) · [0.1](#010--2026-10-01) · [Before tsgen](#before-tsgen-buildjs-in-the-content-repo-2026-02-28--2026-10-01)
 
 ---
+
+## 0.11.5 — 2026-10-09
+Live: not yet deployed · Commits `git log v0.11.4..v0.11.5`
+
+- **Changed (output, statistics):** the big-number tiles are redone. They run three across, each with a rule on top in its own hue, the number in that hue and a muted label; the colors are all twelve theme colors, taken in turn across the whole page, each group picking up where the last left off. The first tile of each group is its headline and spans two columns, and a last row left short is stretched to fill it. An "x / y" tile shows its "/ y" small beside the number, on the same line. A tile can name an icon, which is drawn as a big tilted watermark in its hue, clipped along the top by the rule; the icons are chosen for twelve tiles (the Site group, Words, Links between pages, Categories and References) and the rest have none for now.
+- **Changed (output, statistics):** on `/statistics` the h3 headings are set in the same face as h1 and h2 without small caps, and the paragraph after an h3 is ordinary body text, not muted or indented.
+- **Changed (output, statistics):** the Scripture group leads with Verses cited and Chapters cited, and the Site group with Words and Scripture references.
+- **Removed (statistics):** the tiles Aliases, Pages citing and Pages and notes counted, and the "Behind the scenes" paragraph (notes pages without a topic page, pages with their own share image, the page with the most aliases), along with the counts that only they used.
+- **Added:** `/statistics` has its own stylesheet, `template/statistics.css`, linked after `style.css` on that page only, and loads its own Font Awesome kit (`ecf9c95079`, which has the core icons plus the statistics icons) in place of the main one. The layout takes a `stylesheet` and a `kit` for this; every other page is unchanged.
+- Only `/statistics` and the stylesheets change; every other page is byte-identical to 0.11.4, checked with `scripts/compare-dist.mjs` against a build of the tag. The new kit has to have every icon the layout uses, or the sidebar and header icons will be missing on that page.
 
 ## 0.11.4 — 2026-10-09
 Live: not yet deployed · Commits `git log v0.11.3..v0.11.4`

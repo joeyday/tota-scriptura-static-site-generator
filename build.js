@@ -250,10 +250,8 @@ async function build({ showHidden = false, outputDir = OUTPUT_DIR } = {}) {
       ns: fileInfo.nsDir || "meta",
       isNote: !!fileInfo.isNote,
       listed: !fileInfo.unlisted,
-      collected,
       words,
       bytes: Buffer.byteLength(finalHtml),
-      ownHero: hero !== null,
       ...measureHtml(htmlContent),
     });
   }
@@ -310,7 +308,6 @@ async function build({ showHidden = false, outputDir = OUTPUT_DIR } = {}) {
       membersMap,
       alphabeticalByNs,
       notesByPage,
-      pageByNotes,
       imageMap,
       version: JSON.parse(
         await fs.readFile(new URL("./package.json", import.meta.url), "utf-8"),
