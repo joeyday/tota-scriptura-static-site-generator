@@ -74,8 +74,9 @@
                 font-size: 3em;
             }
 
+            /* This tile has the room for body size; the small ones don't ("1,189 / 1,189"). */
             .of {
-                font-size: calc(var(--font-size-small) / 3);
+                font-size: 1rem;
             }
 
             > :is(span, svg) {
