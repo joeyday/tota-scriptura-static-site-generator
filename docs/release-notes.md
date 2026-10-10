@@ -7,12 +7,30 @@ What changed in each tsgen release, newest first, and (at the end) what the gene
 - Output changes are called out. Unless a release says otherwise, a refactor or speed-up left the built site byte-identical to the previous release, which `scripts/compare-dist.mjs` checks.
 - "The vault" is the content repo. Its own side of each change (migrations, files edited) is Joey's and lives in that repo's history.
 
-Contents: [0.11](#01110--2026-10-09) · [0.10](#0102--2026-10-08) · [0.9](#090--2026-10-07) · [0.8](#080--2026-10-07) · [0.7](#070--2026-10-06) · [0.6](#060--2026-10-06) · [0.5](#050--2026-10-02) · [0.4](#040--2026-10-02) · [0.3](#030--2026-10-02) · [0.2](#020--2026-10-02) · [0.1](#010--2026-10-01) · [Before tsgen](#before-tsgen-buildjs-in-the-content-repo-2026-02-28--2026-10-01)
+Contents: [0.11](#01111--2026-10-09) · [0.10](#0102--2026-10-08) · [0.9](#090--2026-10-07) · [0.8](#080--2026-10-07) · [0.7](#070--2026-10-06) · [0.6](#060--2026-10-06) · [0.5](#050--2026-10-02) · [0.4](#040--2026-10-02) · [0.3](#030--2026-10-02) · [0.2](#020--2026-10-02) · [0.1](#010--2026-10-01) · [Before tsgen](#before-tsgen-buildjs-in-the-content-repo-2026-02-28--2026-10-01)
 
 ---
 
+## 0.11.11 — 2026-10-09
+Live: not yet deployed · Commits `git log v0.11.10..v0.11.11`
+
+The statistics page again, and one small site-wide change. Joey's own part in it is the page's code and copy: the Scripture section moved up the file, headings and labels renamed, prose reworded.
+
+**Every page**
+- **Changed (output):** a table has no line under its last row. The thin lines run between the body rows only.
+
+**`/statistics`**
+- **Changed (output):** the menu under the intro is the alphabetical index's menu box, in two rows, and starts with "Jump to:" (the link to the section right under it is gone).
+- **Changed (output):** the "Book by book" table is gone; each book's figures are in the heatmap instead. A book's row has its name (a link when it is cited; muted when it is not) and its citation count on the first line, and under them the share of its chapters and of its verses cited, as percentages, with the fractions ("38 / 50 chapters") in a tooltip (a `title`). The squares are in the right-hand column, ten to a row in chapter order, with empty space to their right. The Old and New Testament headings are gone, and the name lines up with the first row of squares.
+- **Changed (output):** the translations list is styled like the word cloud: no colons, the counts in the italic `count` style.
+- **Changed (output):** numbers are lining figures on this page (the site's old-style figures are off here). Columns of numbers in the tables are right-aligned, header and all, and an asterisk after a number hangs to its right without moving the number.
+- **Changed (output):** a percentage that rounds to nothing in a tile label or the heatmap says "<1%" instead of "0%".
+- **Internal:** the tile row of the Scripture section, the heatmap and the namespace table are one `scriptureSection` function in `lib/pages/statistics.js`; the heatmap is built in a single pass over the books.
+
+**Checked:** against a build of 0.11.10, only `/statistics` and the two stylesheets differ; every other page is byte-identical, apart from the tsgen version and commit that `/statistics` prints.
+
 ## 0.11.10 — 2026-10-09
-Live: not yet deployed · Commits `git log v0.11.9..v0.11.10`
+Live: 2026-10-09 · Commits `git log v0.11.9..v0.11.10`
 
 Mostly the statistics page, plus a few site-wide changes and a better `serve`. Joey's own work in it is organizing and editing: the tiles reordered and relabeled, icons chosen for most of them (some from the kit's own custom icons), and the page's prose copy-edited by hand.
 

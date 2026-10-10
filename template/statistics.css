@@ -1,7 +1,26 @@
 /* The /statistics page's own styles. The layout links this after style.css, so it can
    override the site's defaults (the paragraph after an h3) on this one page. */
 
+/* The site sets numbers in old-style figures; here, where there are so many, they are lining. */
+.statistics {
+    font-variant-numeric: lining-nums;
+}
+
 .statistics article {
+    /* A column of numbers lines up on the right, header and all. */
+    .num {
+        text-align: right;
+    }
+
+    /* An asterisk after a number takes no room, so the numbers still line up on the right:
+       it hangs into the cell's padding, a space's width away from its number. */
+    td.num .asterisk {
+        display: inline-block;
+        width: 0;
+        position: relative;
+        left: 0.3em;
+    }
+
     /* Fine print: an explainer paragraph with no figures of its own, set like the tile
        labels. It follows the h3 rule below on specificity, so it wins over it. */
     .note {
@@ -17,20 +36,15 @@
         margin: 1rem 0;
     }
 
-    .section-nav ul,
     .letters {
         margin: 0.5rem 0;
     }
 
-    .section-nav ul {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.2rem 1rem;
-
-        li {
-            margin-left: 0;
-            list-style-type: none;
-        }
+    /* The section menu is the alphabetical index's menu box. Its first item is a label, not
+       a link, so it takes a space after it where the others take a dot. */
+    .namespace-menu .label::after {
+        content: " ";
+        content: " " / "";
     }
 
     /* Tiles, three across (on a grid of fifteen columns, so the first row can split 3:2 and
@@ -219,24 +233,64 @@
 
         .book {
             display: grid;
-            grid-template-columns: 7.5rem 1fr;
-            gap: 0.5rem;
+            grid-template-columns: 11rem 1fr;
+            gap: 0.75rem;
             align-items: start;
-            margin-bottom: 0.75rem;
+            margin-bottom: 0.5rem;
         }
 
-        /* One line as tall as a square, so the name lines up with a book's first row of squares
-           (a one-row book like Ruth has no other row to hide a misalignment). */
-        .name {
-            font-size: var(--font-size-small);
-            line-height: 0.7rem;
+        /* The book's numbers, flush right against its squares: the name and its references on
+           one line, its verses and chapters cited under them. */
+        .info {
             text-align: right;
         }
 
+        /* One line as tall as a square, so the name lines up with a book's first row of squares
+           (a one-row book like Ruth has no other row to hide a misalignment). The name is body
+           text; its count beside it is fine print. */
+        .name {
+            display: block;
+            line-height: 0.7rem;
+
+            a {
+                line-height: inherit; /* the site's global line height would push the name down */
+            }
+
+            /* A book nothing links to is muted, like the plain text among links elsewhere. */
+            &.uncited {
+                color: var(--color-main-text-muted);
+            }
+
+            .refs {
+                font-family: var(--font-secondary);
+                font-size: var(--font-size-small);
+                line-height: inherit;
+                color: var(--color-main-text-muted);
+            }
+        }
+
+        .figures {
+            display: block;
+            margin-top: 0.35rem;
+            font-family: var(--font-secondary);
+            font-size: var(--font-size-small);
+            line-height: 1.2;
+            white-space: nowrap; /* the column is sized to hold the longest line */
+            color: var(--color-main-text-muted);
+
+            span {
+                line-height: inherit; /* the site's global line height would space them out */
+                cursor: help; /* the fractions are in a tooltip */
+            }
+        }
+
+        /* Ten squares to a row (ten squares of 0.7rem and nine gaps of 2px, as set below), so
+           a chapter is easy to find by counting; the rest of the column stays empty. */
         .chapters {
             display: flex;
             flex-wrap: wrap;
             gap: 2px;
+            width: calc(10 * 0.7rem + 9 * 2px);
         }
     }
 

@@ -349,8 +349,8 @@ main {
     }
     
     /* A gray header row (the nav gray) over rows alternating the page background and a
-       light tint of it, with a thin horizontal line under each body row, the same as the rule
-       under an h2 (no vertical lines, and none under the header). */
+       light tint of it, with a thin horizontal line between the body rows, the same as the rule
+       under an h2 (no vertical lines, none under the header, none under the last row). */
     table {
         font-size: var(--font-size-small);
         width: 100%;
@@ -375,6 +375,10 @@ main {
 
         td {
             border-bottom: 1px solid var(--color-main-thin-stroke);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
         }
 
         tr:nth-child(even) td {
