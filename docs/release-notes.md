@@ -7,12 +7,22 @@ What changed in each tsgen release, newest first, and (at the end) what the gene
 - Output changes are called out. Unless a release says otherwise, a refactor or speed-up left the built site byte-identical to the previous release, which `scripts/compare-dist.mjs` checks.
 - "The vault" is the content repo. Its own side of each change (migrations, files edited) is Joey's and lives in that repo's history.
 
-Contents: [0.11](#01111--2026-10-09) · [0.10](#0102--2026-10-08) · [0.9](#090--2026-10-07) · [0.8](#080--2026-10-07) · [0.7](#070--2026-10-06) · [0.6](#060--2026-10-06) · [0.5](#050--2026-10-02) · [0.4](#040--2026-10-02) · [0.3](#030--2026-10-02) · [0.2](#020--2026-10-02) · [0.1](#010--2026-10-01) · [Before tsgen](#before-tsgen-buildjs-in-the-content-repo-2026-02-28--2026-10-01)
+Contents: [0.11](#01112--2026-10-09) · [0.10](#0102--2026-10-08) · [0.9](#090--2026-10-07) · [0.8](#080--2026-10-07) · [0.7](#070--2026-10-06) · [0.6](#060--2026-10-06) · [0.5](#050--2026-10-02) · [0.4](#040--2026-10-02) · [0.3](#030--2026-10-02) · [0.2](#020--2026-10-02) · [0.1](#010--2026-10-01) · [Before tsgen](#before-tsgen-buildjs-in-the-content-repo-2026-02-28--2026-10-01)
 
 ---
 
+## 0.11.12 — 2026-10-09
+Live: not yet deployed · Commits `git log v0.11.11..v0.11.12`
+
+Two copy tweaks on `/statistics`, by Joey.
+
+**`/statistics`**
+- **Changed (output):** the note under the Scripture tiles explains a cited verse first, then a cited chapter, and says "fifteen verses or smaller". The paragraph above the heatmap says "the brighter the square" and "Scripture citations".
+
+**Checked:** only `/statistics` differs from 0.11.11.
+
 ## 0.11.11 — 2026-10-09
-Live: not yet deployed · Commits `git log v0.11.10..v0.11.11`
+Live: 2026-10-09 · Commits `git log v0.11.10..v0.11.11`
 
 The statistics page again, and one small site-wide change. Joey's own part in it is the page's code and copy: the Scripture section moved up the file, headings and labels renamed, prose reworded.
 
