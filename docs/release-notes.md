@@ -7,9 +7,20 @@ What changed in each tsgen release, newest first, and (at the end) what the gene
 - Output changes are called out. Unless a release says otherwise, a refactor or speed-up left the built site byte-identical to the previous release, which `scripts/compare-dist.mjs` checks.
 - "The vault" is the content repo. Its own side of each change (migrations, files edited) is Joey's and lives in that repo's history.
 
-Contents: [0.11](#01112--2026-10-09) · [0.10](#0102--2026-10-08) · [0.9](#090--2026-10-07) · [0.8](#080--2026-10-07) · [0.7](#070--2026-10-06) · [0.6](#060--2026-10-06) · [0.5](#050--2026-10-02) · [0.4](#040--2026-10-02) · [0.3](#030--2026-10-02) · [0.2](#020--2026-10-02) · [0.1](#010--2026-10-01) · [Before tsgen](#before-tsgen-buildjs-in-the-content-repo-2026-02-28--2026-10-01)
+Contents: [0.11](#01113--2026-10-09) · [0.10](#0102--2026-10-08) · [0.9](#090--2026-10-07) · [0.8](#080--2026-10-07) · [0.7](#070--2026-10-06) · [0.6](#060--2026-10-06) · [0.5](#050--2026-10-02) · [0.4](#040--2026-10-02) · [0.3](#030--2026-10-02) · [0.2](#020--2026-10-02) · [0.1](#010--2026-10-01) · [Before tsgen](#before-tsgen-buildjs-in-the-content-repo-2026-02-28--2026-10-01)
 
 ---
+
+## 0.11.13 — 2026-10-09
+Live: not yet deployed · Commits `git log v0.11.12..v0.11.13`
+
+The statistics heatmap is shaded by completeness, not by citation count.
+
+**`/statistics`**
+- **Changed (output):** a square's shade is the share of its chapter's verses that are cited: none, up to 25%, up to 50%, up to 75%, over 75%. A short chapter (Psalm 117) can reach the top shade, which 8 citations used to be needed for. The legend, the paragraph above the heatmap and the group's accessible label say so, and a square's tooltip gives "1 / 2 verses cited (50%)" in place of a citation count.
+- **Changed (output):** a chapter cited only as a whole (`!John 3`) cites none of its verses, so its square is now the "none" shade.
+
+**Checked:** against a build of 0.11.12, only `/statistics` differs.
 
 ## 0.11.12 — 2026-10-09
 Live: 2026-10-09 · Commits `git log v0.11.11..v0.11.12`
