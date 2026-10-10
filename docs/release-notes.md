@@ -12,7 +12,7 @@ Contents: [0.11](#01112--2026-10-09) · [0.10](#0102--2026-10-08) · [0.9](#090-
 ---
 
 ## 0.11.12 — 2026-10-09
-Live: not yet deployed · Commits `git log v0.11.11..v0.11.12`
+Live: 2026-10-09 · Commits `git log v0.11.11..v0.11.12`
 
 Two copy tweaks on `/statistics`, by Joey.
 
