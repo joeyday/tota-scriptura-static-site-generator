@@ -214,8 +214,8 @@ async function build({ showHidden = false, outputDir = OUTPUT_DIR } = {}) {
     // Notes pages, reference pages (long citation tables) and unlisted pages stay out
     // of the Scripture index; category pages and Meta pages are in it. The references on
     // the pages left out (notes included) are counted apart: the site's total and a
-    // table by namespace. The statistics' cited figures count only topic, commentary
-    // and summary pages, so they leave out the index's category and Meta pages too.
+    // table by namespace. The statistics' cited figures count only topic and
+    // commentary pages, so they leave out the index's category and Meta pages too.
     const collected = !(
       fileInfo.unlisted ||
       fileInfo.relDir === "reference" ||

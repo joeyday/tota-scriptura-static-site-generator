@@ -525,6 +525,11 @@ main {
             padding: 0;
         }
 
+        /* On the alphabetical indexes the second row is the lesser one (not /statistics'). */
+        .alphabetical & ul + ul {
+            font-size: var(--font-size-small);
+        }
+
         li {
             display: inline;
             margin: 0;

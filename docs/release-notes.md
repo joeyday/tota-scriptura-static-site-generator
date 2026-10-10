@@ -7,9 +7,26 @@ What changed in each tsgen release, newest first, and (at the end) what the gene
 - Output changes are called out. Unless a release says otherwise, a refactor or speed-up left the built site byte-identical to the previous release, which `scripts/compare-dist.mjs` checks.
 - "The vault" is the content repo. Its own side of each change (migrations, files edited) is Joey's and lives in that repo's history.
 
-Contents: [0.11](#01113--2026-10-09) · [0.10](#0102--2026-10-08) · [0.9](#090--2026-10-07) · [0.8](#080--2026-10-07) · [0.7](#070--2026-10-06) · [0.6](#060--2026-10-06) · [0.5](#050--2026-10-02) · [0.4](#040--2026-10-02) · [0.3](#030--2026-10-02) · [0.2](#020--2026-10-02) · [0.1](#010--2026-10-01) · [Before tsgen](#before-tsgen-buildjs-in-the-content-repo-2026-02-28--2026-10-01)
+Contents: [0.11](#01114--2026-10-10) · [0.10](#0102--2026-10-08) · [0.9](#090--2026-10-07) · [0.8](#080--2026-10-07) · [0.7](#070--2026-10-06) · [0.6](#060--2026-10-06) · [0.5](#050--2026-10-02) · [0.4](#040--2026-10-02) · [0.3](#030--2026-10-02) · [0.2](#020--2026-10-02) · [0.1](#010--2026-10-01) · [Before tsgen](#before-tsgen-buildjs-in-the-content-repo-2026-02-28--2026-10-01)
 
 ---
+
+## 0.11.14 — 2026-10-10
+Live: not yet deployed · Commits `git log v0.11.13..v0.11.14`
+
+Statistics touches, and the `summary/` folder is no longer special. **Breaking:** a `summary/` folder in the vault now fails the build as an unknown folder, so move its pages (to `reference/`) and fix the links to them before bumping the content repo to this release.
+
+**Every alphabetical index**
+- **Changed (output):** the second row of the namespace menu is set in the small size. The menu is two rows again: Topics and Commentaries, then Reference, Meta and Categories.
+- **Removed:** the Summaries namespace and its `/index/alphabetical/summary` list.
+
+**`/statistics`**
+- **Changed (output):** a chapter cited only as a whole (`!John 3`) gets the first heatmap shade, the same as a chapter with up to 25% of its verses cited. No number of such mentions lifts it further. The legend and the paragraph are unchanged.
+- **Changed (output):** the paragraph above the heatmap is Joey's own wording again (0.11.13 had reworded it). Joey's prose on the page is not to be edited.
+- **Changed (output):** the page opens with the Trees-and-buildings image (300×137), marked up like a content page's hero. Its alt text comes from the vault's `alt-text.json`.
+- **Changed:** the Summaries row is gone from the namespace table, and the cited figures count topic and commentary pages.
+
+**Checked:** the vault copy still holds a `summary/` folder, so a full comparison against 0.11.13 wasn't possible. A scratch copy without it got through folder handling and stopped at the link check, as expected, on the one link to a summary page.
 
 ## 0.11.13 — 2026-10-09
 Live: not yet deployed · Commits `git log v0.11.12..v0.11.13`
