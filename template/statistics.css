@@ -295,6 +295,7 @@
     }
 
     .heatmap i,
+    .heatmap .chapters a,
     .legend i {
         display: inline-block;
         width: 0.7rem;
@@ -302,15 +303,26 @@
         border-radius: 2px;
     }
 
+    /* A cited square is a link to its chapter in the Scripture index. */
+    .heatmap .chapters a:hover {
+        outline: 1px solid var(--color-main-text);
+    }
+
     .legend {
         font-family: var(--font-secondary);
         font-size: var(--font-size-small);
         color: var(--color-main-text-muted);
+        text-align: center;
 
         i {
             margin-left: 0.6em;
             vertical-align: -0.1em;
+
+            &.c0 {
+                margin-left: 0;
+            }
         }
+
     }
 
     .c0 { background-color: var(--color-main-tint-background); }

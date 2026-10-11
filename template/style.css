@@ -206,6 +206,9 @@ html {
 
     /* No rubber-band bounce: iOS paints it with a flat color, never the two-field gradient */
     overscroll-behavior: none;
+
+    /* A font without true small-caps (Meta Sans Condensed) shows capitals, not shrunken fakes. */
+    font-synthesis-small-caps: none;
 }
 
 body {
@@ -447,9 +450,9 @@ main {
         text-decoration: none;
     }
     
-    abbr:not(h1 *, h2 *, th *, .footnotes-list *),
-    .roman-num:not(h1 *, h2 *, th *, .footnotes-list *),
-    .divine-name:not(h1 *, h2 *, th *, .footnotes-list *) {
+    abbr,
+    .roman-num,
+    .divine-name {
         font-variant-caps: all-small-caps;
         font-variant-numeric: normal;
         
