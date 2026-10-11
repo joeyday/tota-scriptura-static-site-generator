@@ -258,8 +258,8 @@
         width: 3rem;
         aspect-ratio: 1;
         border-radius: 50%;
-        /* The rest of the pie is the same hue, faded. */
-        background: conic-gradient(var(--heat) var(--p), oklch(from var(--heat) calc(l * 0.5) calc(c * 0.4) h) 0);
+        /* The rest of the pie is the heatmap's 0–25% dot (.c1). */
+        background: conic-gradient(var(--heat) var(--p), color-mix(in oklab, var(--heat) 30%, var(--color-main-background)) 0);
     }
 
     /* Two columns that read down: the first half of the alphabet, then the second. */
