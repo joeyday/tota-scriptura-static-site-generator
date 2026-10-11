@@ -7,12 +7,36 @@ What changed in each tsgen release, newest first, and (at the end) what the gene
 - Output changes are called out. Unless a release says otherwise, a refactor or speed-up left the built site byte-identical to the previous release, which `scripts/compare-dist.mjs` checks.
 - "The vault" is the content repo. Its own side of each change (migrations, files edited) is Joey's and lives in that repo's history.
 
-Contents: [0.11](#01114--2026-10-10) · [0.10](#0102--2026-10-08) · [0.9](#090--2026-10-07) · [0.8](#080--2026-10-07) · [0.7](#070--2026-10-06) · [0.6](#060--2026-10-06) · [0.5](#050--2026-10-02) · [0.4](#040--2026-10-02) · [0.3](#030--2026-10-02) · [0.2](#020--2026-10-02) · [0.1](#010--2026-10-01) · [Before tsgen](#before-tsgen-buildjs-in-the-content-repo-2026-02-28--2026-10-01)
+Contents: [0.11](#01115--2026-10-10) · [0.10](#0102--2026-10-08) · [0.9](#090--2026-10-07) · [0.8](#080--2026-10-07) · [0.7](#070--2026-10-06) · [0.6](#060--2026-10-06) · [0.5](#050--2026-10-02) · [0.4](#040--2026-10-02) · [0.3](#030--2026-10-02) · [0.2](#020--2026-10-02) · [0.1](#010--2026-10-01) · [Before tsgen](#before-tsgen-buildjs-in-the-content-repo-2026-02-28--2026-10-01)
 
 ---
 
+## 0.11.15 — 2026-10-10
+Live: not yet deployed · Commits `git log v0.11.14..v0.11.15`
+
+The statistics page links to what it counts, and the code is reformatted in JavaScript Standard Style. Joey's own part in it is the page's copy edits (tile labels with a middot, the tile and note wording, the legend and the explainer paragraphs, all in his voice).
+
+**`/statistics`**
+- **Changed (output):** the namespace names in both tables link to their alphabetical indexes. The words in the word cloud link to the search page with the word filled in (`/search?q=…`).
+- **Changed (output):** the most cited chapters and verses, the longest passage and the widest chapter span link to their entries in the Scripture index. Every cited heatmap square (about 860) links to its chapter there; the links are out of the tab order (`tabindex="-1"`), since the book names lead to the same pages. A chapter or verse with no entry of its own links to the nearest earlier chapter's. The longest uncited stretch is left unlinked on purpose. The divine names were tried as search links and dropped: search ignores case.
+- **Changed (output):** the longest passage and chapter span no longer say which page cites them.
+- **Changed (output):** ties share a place in every ranked list (1, 2, 2, 4), and the most cited chapters and verses keep every entry tied with the tenth, so they can run past ten.
+- **Changed (output):** "Total Scripture references" counts every reference on the site, reference pages and the notes of reference and category pages included (14,966 became 17,341).
+- **Changed (output):** a chapter cited only as a whole gets the first heatmap shade; the legend and paragraph above the heatmap are Joey's wording.
+- **Changed (output):** the numbers after page titles (title lengths, page weight, the structures table) use the `count` style without parentheses, and the tiles "In notes" and "From notes" use a middot before the percentage.
+
+**Every page**
+- **Changed (output):** the second row of the namespace menu on the alphabetical indexes is set small.
+- **Changed (output):** `font-synthesis-small-caps: none`, so a font without true small-caps (Meta Sans Condensed, Meta Headline) shows plain capitals, not shrunken fakes. The exclusions for headings, table headers and footnotes are gone, since the setting covers them.
+- **Changed (output):** the Scripture index's book pages give each entry an id (`#3.16`, `#3.9-17`) and each chapter an anchor (`#ch-3`), which the statistics link to. The link classifier no longer calls an internal link with a query string broken.
+
+**Internal**
+- **Changed:** the code follows JavaScript Standard Style (single quotes, no semicolons, no trailing commas), enforced with `standard` (`npm run lint`, `npm run fix`). `docs/decisions.md` has the decision. The reformat is in `.git-blame-ignore-revs`. The two browser scripts in `template/` ship reformatted; they behave the same.
+
+**Checked:** the reformat alone left the site byte-identical apart from those two scripts. Against a build of 0.11.14, the differences are `/statistics`, the 64 Scripture index book pages, the two stylesheets and the two scripts.
+
 ## 0.11.14 — 2026-10-10
-Live: not yet deployed · Commits `git log v0.11.13..v0.11.14`
+Live: 2026-10-10 · Commits `git log v0.11.13..v0.11.14`
 
 Statistics touches, and the `summary/` folder is no longer special. **Breaking:** a `summary/` folder in the vault now fails the build as an unknown folder, so move its pages (to `reference/`) and fix the links to them before bumping the content repo to this release.
 
@@ -29,7 +53,7 @@ Statistics touches, and the `summary/` folder is no longer special. **Breaking:*
 **Checked:** the vault copy still holds a `summary/` folder, so a full comparison against 0.11.13 wasn't possible. A scratch copy without it got through folder handling and stopped at the link check, as expected, on the one link to a summary page.
 
 ## 0.11.13 — 2026-10-09
-Live: not yet deployed · Commits `git log v0.11.12..v0.11.13`
+Live: 2026-10-10 · Commits `git log v0.11.12..v0.11.13`
 
 The statistics heatmap is shaded by completeness, not by citation count.
 
