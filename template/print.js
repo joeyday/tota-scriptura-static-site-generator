@@ -4,15 +4,15 @@
 * Without JavaScript the line just omits the date.
 */
 
-function fillPrintDate() {
-    const element = document.querySelector('.print-date');
-    if (!element) return;
-    element.textContent = ' on ' + new Date().toLocaleDateString(undefined, {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-    });
+function fillPrintDate () {
+  const element = document.querySelector('.print-date')
+  if (!element) return
+  element.textContent = ' on ' + new Date().toLocaleDateString(undefined, {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  })
 }
 
-fillPrintDate();
-window.addEventListener('beforeprint', fillPrintDate);
+fillPrintDate()
+window.addEventListener('beforeprint', fillPrintDate)

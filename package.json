@@ -14,6 +14,10 @@
     "lib/",
     "template/"
   ],
+  "scripts": {
+    "lint": "standard",
+    "fix": "standard --fix"
+  },
   "engines": {
     "node": ">=22"
   },
@@ -27,5 +31,8 @@
     "markdown-it-mark": "^4.0.0",
     "slugify": "^1.6.6",
     "yaml": "^2.9.1"
+  },
+  "devDependencies": {
+    "standard": "^17.1.2"
   }
 }
