@@ -17,7 +17,7 @@ A static site generator with a deliberately boring name. It turns an Obsidian-st
 - tsgen is a **bespoke generator for exactly one site**. It will never be a general-purpose tool. There is a slim chance it will someday also serve one very similar second site, which would need at most one or two settings. Hardcode decisions such as folder roles, file names and frontmatter keys rather than adding options, config or plugin hooks. Prefer YAGNI over DRY, and treat removing abstractions as an improvement. Libraries are fine for things that must be bulletproof, such as Markdown parsing.
 - Build speed is a first-class goal. Don't add another full pass over the corpus without a reason.
 - The site's *content* lives in a separate vault repo. The generator's code lives here, even though that code is site-specific.
-- Match the existing style: 2-space indent, double quotes, trailing commas, Prettier-ish wrapping, `// ─── Section ───` banners, and explanatory comments on the non-obvious regexes.
+- Style is **JavaScript Standard Style** (standardjs.com): single quotes, no semicolons, no trailing commas, a space before function parentheses. Run `npm run fix` and then `npm run lint` before committing; lint must be clean. Beyond that, match the code around you: `// ─── Section ───` banners, and explanatory comments on the non-obvious regexes. Standard doesn't cover CSS or EJS, and the JavaScript written as template strings (the search and random scripts) isn't linted.
 - Only commit when asked. Pushing tags or touching the content repo needs Joey's explicit go-ahead.
 - For test builds, set `TSGEN_OUT` to the scratchpad. `~/.tsgen/dist` (Joey's own `TSGEN_OUT`) is outside my default workspace.
 

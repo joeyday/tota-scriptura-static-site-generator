@@ -11,6 +11,8 @@ Settled questions, so they aren't re-litigated. Each says who decided and when. 
 - **Expanding partials and resolving wikilinks twice per page** (once in the backlinks pre-pass, once to render) stays: the pre-pass must run before any page renders, because placeholders for hidden pages and the `planned` link class depend on every page's links. The duplicate work is about 1.3 ms of 0.5 s. (2026-10-07)
 - **Failures are loud.** A content mistake fails the build; it doesn't warn. (Joey)
 
+- **The code follows JavaScript Standard Style** (standardjs.com), enforced with `standard` (`npm run lint`, `npm run fix`). Single quotes, no semicolons, no trailing commas. The old double-quote, semicolon and trailing-comma style was just what Replit Agent wrote; Joey never chose it and has always preferred Standard's. Adopted 2026-10-10 in one reformatting commit, listed in `.git-blame-ignore-revs`; the built site was byte-identical apart from the two browser scripts in `template/`, which are shipped reformatted. (Joey)
+
 ## Content model
 - **`permalink` stays**, even for the home page: it lets Joey rename the home page. The home page is not hardcoded. (Joey, 2026-10-08)
 - **A notes page with no topic page is a feature**: it builds, with a greyed Topic tab and no warning. (Joey, 2026-10-08)
