@@ -363,7 +363,6 @@ main {
         }
 
         th {
-            width: 20%;
             font-family: var(--font-fancy);
             font-weight: normal;
             text-align: left;

@@ -12,6 +12,14 @@
         text-align: right;
     }
 
+    /* A table whose last column is text: the site's tables give every header 20%, which would
+       leave the text wrapping beside two columns with room to spare. A column of width 1% that
+       won't wrap takes only what its content needs, and the last column takes the rest. */
+    table.text-last :is(th, td):not(:last-child) {
+        width: 1%;
+        white-space: nowrap;
+    }
+
     /* An asterisk after a number takes no room, so the numbers still line up on the right:
        it hangs into the cell's padding, a space's width away from its number. */
     td.num .asterisk {
@@ -194,6 +202,66 @@
         margin-left: 0.4em;
     }
 
+    /* The testaments: a name and its books, then a pie each for chapters and verses cited. */
+    .testaments {
+        display: grid;
+        /* The right column is as wide as its widest figure (a verse count may one day reach
+           five digits) and the left takes the rest, so the pies line up from one testament
+           to the next. */
+        grid-template-columns: minmax(0, 1fr) max-content;
+        gap: 1.25rem 1rem;
+        margin: 1rem 0 1.25rem;
+
+        .testament {
+            display: grid;
+            grid-column: 1 / -1;
+            grid-template-columns: subgrid;
+            gap: 0.75rem 1rem;
+            padding-top: 0.5rem;
+            border-top: 2px solid var(--color-main-tint-background);
+
+            .name {
+                grid-column: 1 / -1;
+                margin: 0;
+            }
+
+            figure {
+                display: flex;
+                align-items: flex-start;
+                gap: 0.6rem;
+                margin: 0;
+            }
+
+            figcaption {
+                font-family: var(--font-secondary);
+                font-size: var(--font-size-small);
+                line-height: 1.3;
+                white-space: nowrap;
+
+                .number {
+                    font-family: var(--font-primary);
+                    font-size: 1.5em;
+                    line-height: 1.1;
+                    white-space: nowrap;
+                }
+
+                .of {
+                    font-size: 0.65em;
+                }
+            }
+        }
+    }
+
+    /* A pie whose filled slice is --p of the circle, from twelve o'clock round clockwise. */
+    .pie {
+        flex: none;
+        width: 3rem;
+        aspect-ratio: 1;
+        border-radius: 50%;
+        /* The rest of the pie is the same hue, faded. */
+        background: conic-gradient(var(--heat) var(--p), oklch(from var(--heat) calc(l * 0.5) calc(c * 0.4) h) 0);
+    }
+
     /* Two columns that read down: the first half of the alphabet, then the second. */
     .letters {
         display: grid;
@@ -221,7 +289,7 @@
         }
     }
 
-    /* Every chapter of the Bible as a square, shaded by how often it is cited. */
+    /* Every chapter of the Bible as a dot, shaded by how often it is cited. */
     .heatmap {
         margin: 0.5rem 0 1.5rem;
 
@@ -300,10 +368,10 @@
         display: inline-block;
         width: 0.7rem;
         height: 0.7rem;
-        border-radius: 2px;
+        border-radius: 50%;
     }
 
-    /* A cited square is a link to its chapter in the Scripture index. */
+    /* A cited dot is a link to its chapter in the Scripture index. */
     .heatmap .chapters a:hover {
         outline: 1px solid var(--color-main-text);
     }

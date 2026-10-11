@@ -7,9 +7,30 @@ What changed in each tsgen release, newest first, and (at the end) what the gene
 - Output changes are called out. Unless a release says otherwise, a refactor or speed-up left the built site byte-identical to the previous release, which `scripts/compare-dist.mjs` checks.
 - "The vault" is the content repo. Its own side of each change (migrations, files edited) is Joey's and lives in that repo's history.
 
-Contents: [0.11](#01115--2026-10-10) · [0.10](#0102--2026-10-08) · [0.9](#090--2026-10-07) · [0.8](#080--2026-10-07) · [0.7](#070--2026-10-06) · [0.6](#060--2026-10-06) · [0.5](#050--2026-10-02) · [0.4](#040--2026-10-02) · [0.3](#030--2026-10-02) · [0.2](#020--2026-10-02) · [0.1](#010--2026-10-01) · [Before tsgen](#before-tsgen-buildjs-in-the-content-repo-2026-02-28--2026-10-01)
+Contents: [0.12](#0120--2026-10-11) · [0.11](#01115--2026-10-10) · [0.10](#0102--2026-10-08) · [0.9](#090--2026-10-07) · [0.8](#080--2026-10-07) · [0.7](#070--2026-10-06) · [0.6](#060--2026-10-06) · [0.5](#050--2026-10-02) · [0.4](#040--2026-10-02) · [0.3](#030--2026-10-02) · [0.2](#020--2026-10-02) · [0.1](#010--2026-10-01) · [Before tsgen](#before-tsgen-buildjs-in-the-content-repo-2026-02-28--2026-10-01)
 
 ---
+
+## 0.12.0 — 2026-10-11
+Live: not yet deployed · Commits `git log v0.11.15..v0.12.0`
+
+More of the statistics page is redrawn and rearranged, and every table on the site now sizes its columns by their content. A minor release, since it adds features (pie charts, new tiles and tables). Joey's own part is the page's reorganization and copy: the sections' order and names (The site became Overview), the new Overview prose, and the reworded intro, tiles and notes.
+
+**`/statistics`**
+- **Changed (output):** the heatmap's chapters are dots, not squares (and so are the legend's swatches).
+- **Changed (output):** "Testament by testament" is no longer a table. Each testament has a heading line (its books cited and its references) and a pie each for the chapters and the verses cited, four in all, in the first four theme hues. The right-hand column is as wide as its widest figure, so a longer number moves its pie in rather than overflowing; the remainder of each pie is its hue faded.
+- **Changed (output):** the commit and the generator version are no longer in the intro sentence. A true footnote at the foot of the page (the markup markdown-it-footnote gives, so it takes the site's footnote styles) names both and links them to GitHub: the commit to the content repo, the version to its release tag. A local build has no commit to link.
+- **Changed (output):** the sections run Overview, Scripture, Words, Pages, Links, Categories, and the jump menu follows (`#overview`, `#pages`). The Pages section holds the page counts, a table by namespace, the titles by first letter, the structures table and page weight.
+- **Changed (output):** the Links section has a "Broken links" tile (links to hidden pages, which visitors reach as the "under construction" stub, counted once per pair of pages) where "From notes" was, and a "Links by namespace" table: links out and links in, each split between content pages and notes pages.
+- **Changed (output):** a table whose last column is text takes the `text-last` class, so its other columns shrink to fit and the text column gets the room (the "Structures across all pages" table).
+
+**Every page**
+- **Changed (output):** tables no longer give each header `width: 20%`, which made a table's columns share the space more or less evenly whatever they held. They now size to their content, in browsers' automatic table layout. Only the stylesheet changed: no page's HTML did. The two-column tables on the Colophon, the reference pages, Baptism, Arminianism, Amillennialism and Trinity notes all look right.
+
+**Internal**
+- **Changed:** `lib/pages/statistics.js` has its sections in the page's order, with clearer names (`pagesSection`, `overviewSection`, `testaments`, `dots`, `shadeLevel`, `namespaceRows`, and so on); `lib/stats.js` no longer computes fields nothing reads (the words' mean, content total and longest content pages, the smallest categories, the linkable count, the per-namespace notes count and a book's testament). That alone left the page byte-identical.
+
+**Checked:** lint is clean. Against a build of 0.11.15, the only differences are `/statistics` and the two stylesheets.
 
 ## 0.11.15 — 2026-10-10
 Live: not yet deployed · Commits `git log v0.11.14..v0.11.15`
