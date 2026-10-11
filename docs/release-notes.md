@@ -7,14 +7,14 @@ What changed in each tsgen release, newest first, and (at the end) what the gene
 - Output changes are called out. Unless a release says otherwise, a refactor or speed-up left the built site byte-identical to the previous release, which `scripts/compare-dist.mjs` checks.
 - "The vault" is the content repo. Its own side of each change (migrations, files edited) is Joey's and lives in that repo's history.
 
-Contents: [0.12](#0120--2026-10-11) · [0.11](#01115--2026-10-10) · [0.10](#0102--2026-10-08) · [0.9](#090--2026-10-07) · [0.8](#080--2026-10-07) · [0.7](#070--2026-10-06) · [0.6](#060--2026-10-06) · [0.5](#050--2026-10-02) · [0.4](#040--2026-10-02) · [0.3](#030--2026-10-02) · [0.2](#020--2026-10-02) · [0.1](#010--2026-10-01) · [Before tsgen](#before-tsgen-buildjs-in-the-content-repo-2026-02-28--2026-10-01)
+Contents: [0.11](#01116--2026-10-11) · [0.10](#0102--2026-10-08) · [0.9](#090--2026-10-07) · [0.8](#080--2026-10-07) · [0.7](#070--2026-10-06) · [0.6](#060--2026-10-06) · [0.5](#050--2026-10-02) · [0.4](#040--2026-10-02) · [0.3](#030--2026-10-02) · [0.2](#020--2026-10-02) · [0.1](#010--2026-10-01) · [Before tsgen](#before-tsgen-buildjs-in-the-content-repo-2026-02-28--2026-10-01)
 
 ---
 
-## 0.12.0 — 2026-10-11
-Live: not yet deployed · Commits `git log v0.11.15..v0.12.0`
+## 0.11.16 — 2026-10-11
+Live: not yet deployed · Commits `git log v0.11.15..v0.11.16`
 
-More of the statistics page is redrawn and rearranged, and every table on the site now sizes its columns by their content. A minor release, since it adds features (pie charts, new tiles and tables). Joey's own part is the page's reorganization and copy: the sections' order and names (The site became Overview), the new Overview prose, and the reworded intro, tiles and notes.
+More of the statistics page is redrawn and rearranged, and every table on the site now sizes its columns by their content. These are tweaks to the statistics page, so a patch release. Joey's own part is the page's reorganization and copy: the sections' order and names (The site became Overview), the new Overview prose, and the reworded intro, tiles and notes.
 
 **`/statistics`**
 - **Changed (output):** the heatmap's chapters are dots, not squares (and so are the legend's swatches).
