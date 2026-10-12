@@ -315,8 +315,15 @@ main {
         color: var(--color-link-broken);
     }
 
-    p, figure, ul, ol, table {
+    p, figure, ul, ol, table, .table-scroll {
         margin: 1rem 0;
+    }
+
+    /* The wrapper scrolls (overflow makes it a block formatting context), so a margin on the table
+       inside it would stay inside and add to its neighbours' instead of collapsing with them. The
+       wrapper carries the margin. */
+    .table-scroll table {
+        margin: 0;
     }
     
     ul ul,
