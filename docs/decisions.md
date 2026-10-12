@@ -18,6 +18,7 @@ Settled questions, so they aren't re-litigated. Each says who decided and when. 
 - **A notes page with no topic page is a feature**: it builds, with a greyed Topic tab and no warning. (Joey, 2026-10-08)
 - **`hidden` means "no page", except a placeholder** when a published page links to it. This is correct as it is. (Joey, 2026-10-08)
 - **Old `/notes/…` URLs are not redirected**, on purpose (v0.2.0).
+- **Old `/summary/…` URLs are not redirected**, on purpose. The Summaries namespace is gone and its pages live in `reference/`; the two summary categories were kept. (Joey, 2026-10-12)
 - **`meta` pages are in the Scripture index** even though they are out of the random pool; `reference` and notes pages are out of the index. (Joey, 2026-10-05) **`category` pages are in the index too**, which only leaves out the reference pages (long citation tables, already a reference like the index itself) and notes. (Joey, 2026-10-09)
 - **Image links:** the canonical form is the real path, `image/<file>` (or `template/<file>`), because that is what Obsidian's link picker inserts. A bare `<file>` also works; it is always unique because two assets with the same name fail the build (names are flat in `dist/asset/`). An image in any other folder, or that doesn't exist, fails the build. (Joey, 2026-10-08)
 - **Partial arguments stay.** They are in real use.
