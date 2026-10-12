@@ -7,7 +7,32 @@ What changed in each tsgen release, newest first, and (at the end) what the gene
 - Output changes are called out. Unless a release says otherwise, a refactor or speed-up left the built site byte-identical to the previous release, which `scripts/compare-dist.mjs` checks.
 - "The vault" is the content repo. Its own side of each change (migrations, files edited) is Joey's and lives in that repo's history.
 
-Contents: [0.13](#0130--2026-10-11) · [0.12](#0121--2026-10-11) · [0.11](#01117--2026-10-11) · [0.10](#0102--2026-10-08) · [0.9](#090--2026-10-07) · [0.8](#080--2026-10-07) · [0.7](#070--2026-10-06) · [0.6](#060--2026-10-06) · [0.5](#050--2026-10-02) · [0.4](#040--2026-10-02) · [0.3](#030--2026-10-02) · [0.2](#020--2026-10-02) · [0.1](#010--2026-10-01) · [Before tsgen](#before-tsgen-buildjs-in-the-content-repo-2026-02-28--2026-10-01)
+Contents: [0.14](#0140--2026-10-12) · [0.13](#0130--2026-10-11) · [0.12](#0121--2026-10-11) · [0.11](#01117--2026-10-11) · [0.10](#0102--2026-10-08) · [0.9](#090--2026-10-07) · [0.8](#080--2026-10-07) · [0.7](#070--2026-10-06) · [0.6](#060--2026-10-06) · [0.5](#050--2026-10-02) · [0.4](#040--2026-10-02) · [0.3](#030--2026-10-02) · [0.2](#020--2026-10-02) · [0.1](#010--2026-10-01) · [Before tsgen](#before-tsgen-buildjs-in-the-content-repo-2026-02-28--2026-10-01)
+
+---
+
+## 0.14.0 — 2026-10-12
+Live: not yet deployed · Commits `git log v0.13.0..v0.14.0`
+
+New feature: a commentary page can show the Scripture index entries for its book between its paragraphs. The vault builds as it did except `/commentary/titus` (the entries and a switch), and no content needs to change first.
+
+**Scripture index entries on commentary pages**
+- **Added (output):** a commentary page named for a Bible book (its title is the book's full name, `Titus`) carries that book's Scripture index entries between its paragraphs, in canonical order, marked up and styled as on the book's Scripture index page. The commentary is cut into slices at each `h2` and at each paragraph that opens with a bold reference to the book (`**Tit 1:2**`), and an entry comes after the slice for its verse. The commentary page's own references are left out of its entries, and so is an entry no other page references.
+- **Added (output):** an iOS-style switch at the foot of the page, centered under the categories, labelled "Interleave Scripture index entries". The entries start hidden and are left out of print. The switch works without script; two small inline scripts remember the choice for the whole site in `localStorage` and show the entries from the first paint.
+- **Added (build):** a listed commentary page that isn't named for a Bible book fails the build, and so does a commentary page for a book that nothing references, not even the page itself.
+- **Changed (build):** a commentary page named for a book is processed twice. The first pass, with its text alone, collects its references and writes nothing; the page is written last, with the entries, which are not collected, so the Scripture index and `/statistics` are unchanged. Search, word counts and the description come from the commentary alone.
+- A separate `/interleave/{book}` page was built first and dropped in the same release: three pages per book meant three stacked menus. See `docs/decisions.md`.
+
+**Build**
+- **Added (build):** an entry in `abbreviations.json` whose value is null or empty fails the build (it used to produce an `<abbr>` with no title).
+- **Changed:** the layout takes a `footerExtra` slot under the categories.
+
+**Code**
+- **Changed:** the Scripture index's grouping, sorting and entry markup are shared (`lib/pages/scripture.js`), and `output.emit` takes the same `{ name, toc }` as `emitPage`, plus `hold`. The Scripture index page is byte-identical.
+- **Changed:** the minor and patch dependency updates are in: `markdown-it-attrs` 4.5.0, `markdown-it-bracketed-spans` 1.0.3 and `slugify` 1.6.9. The output is identical and `npm audit` is clean.
+- **Removed:** `scripts/migrate-vault.mjs`, a one-off for the namespace release.
+
+**Checked:** the output against a build of the previous release on the same vault copy differs only in `/commentary/titus`, `style.css` and the commit hash in the cache-buster (and the `/statistics` footnote).
 
 ---
 
