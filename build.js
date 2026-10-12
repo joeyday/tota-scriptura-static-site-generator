@@ -15,6 +15,7 @@ import { writeBacklinksPages } from './lib/pages/backlinks.js'
 import { writeIndexes } from './lib/pages/indexes.js'
 import { writeRandom } from './lib/pages/random.js'
 import { writeAliasRedirects } from './lib/pages/redirects.js'
+import { commentaryBook, writeCommentaryPages } from './lib/pages/commentary.js'
 import { writeScriptureIndex } from './lib/pages/scripture.js'
 import { writeSearch } from './lib/pages/search.js'
 import { writeStatistics } from './lib/pages/statistics.js'
@@ -115,6 +116,7 @@ async function build ({ showHidden = false, outputDir = OUTPUT_DIR } = {}) {
   })
 
   const searchDocs = []
+  const commentaryPages = [] // the commentary pages named for a Bible book, which are written last, with Scripture index entries
   const pageStats = [] // per published page, for /statistics
   const linkProblems = []
   const draftLinkProblems = [] // from pages that --show-hidden shows: warnings only
@@ -189,7 +191,13 @@ async function build ({ showHidden = false, outputDir = OUTPUT_DIR } = {}) {
     // a map). The home page never shares its avatar. No hero: the fallback.
     const hero = heroOf(pageUrl && index.byUrl[pageUrl])
 
-    const finalHtml = renderLayout(htmlContent, {
+    // A commentary page is named for a Bible book (or the build fails).
+    const book =
+      fileInfo.relDir === 'commentary' && !fileInfo.isNote && !fileInfo.unlisted
+        ? commentaryBook(fileInfo)
+        : null
+
+    const layoutLocals = {
       url: fileInfo.finalUrlPath,
       frontmatter: fileInfo.parsed.data,
       // The frontmatter's `description`, else the first paragraph with text.
@@ -208,7 +216,8 @@ async function build ({ showHidden = false, outputDir = OUTPUT_DIR } = {}) {
       featuredWith: fileInfo.featuredWith || null,
       featured: fileInfo.featured || false,
       shownHidden: fileInfo.shownHidden || false
-    })
+    }
+    const finalHtml = renderLayout(htmlContent, layoutLocals)
 
     const outFilePath = output.fileFor(fileInfo.finalUrlPath)
     // Notes pages, reference pages (long citation tables) and unlisted pages stay out
@@ -221,6 +230,14 @@ async function build ({ showHidden = false, outputDir = OUTPUT_DIR } = {}) {
       fileInfo.relDir === 'reference' ||
       notesUrls.has(fileInfo.finalUrlPath)
     )
+    const source = {
+      name: fileInfo.filePath,
+      warnOnly: !!fileInfo.shownHidden,
+      // a table of contents from the headings, and its title
+      toc: fileInfo.isNote ? 'Contents' : fileInfo.relDir === 'commentary' ? 'Outline' : null
+    }
+    // A commentary page named for a book is only collected from for now; it is written
+    // when the others have been collected (see writeCommentaryPages).
     await output.emitPage(
       fileInfo.finalUrlPath,
       finalHtml,
@@ -229,13 +246,9 @@ async function build ({ showHidden = false, outputDir = OUTPUT_DIR } = {}) {
         : fileInfo.unlisted
           ? null
           : { url: fileInfo.finalUrlPath, title: fileInfo.title, countOnly: true },
-      {
-        name: fileInfo.filePath,
-        warnOnly: !!fileInfo.shownHidden,
-        // a table of contents from the headings, and its title
-        toc: fileInfo.isNote ? 'Contents' : fileInfo.relDir === 'commentary' ? 'Outline' : null
-      }
+      book ? { ...source, hold: true } : source
     )
+    if (book) commentaryPages.push({ fileInfo, html: htmlContent, book, layoutLocals, source })
     info(
       `Built: ${fileInfo.filePath} -> ${outFilePath} (URL: ${fileInfo.finalUrlPath})`
     )
@@ -312,6 +325,7 @@ async function build ({ showHidden = false, outputDir = OUTPUT_DIR } = {}) {
   await writeRandom({ output, renderLayout, listedNamespaces, alphabeticalByNs })
   await output.writeFile('.nojekyll', '')
   await writeScriptureIndex({ output, renderLayout })
+  await writeCommentaryPages({ output, renderLayout, pages: commentaryPages })
   await writeStatistics({
     output,
     renderLayout,

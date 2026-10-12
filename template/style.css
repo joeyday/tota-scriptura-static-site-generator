@@ -1096,8 +1096,12 @@ footer {
     > nav.book-nav p {
         text-align: center;
     }
+}
 
-    dl {
+/* The entries, on a book's page and between the commentary's paragraphs (where a switch shows
+   them; they start hidden, and print without them). */
+.index.scripture article dl,
+.commentary article dl.scripture-entries {
         color: var(--color-main-text-muted);
 
 		display: grid;
@@ -1135,8 +1139,75 @@ footer {
 				font-variant-numeric: normal;
 			}
         }
+}
 
-	}
+/* On a commentary page the entries start hidden; the switch at the foot of the page shows them
+   (the checkbox alone does it, and the script's class on the page does it from the first paint). */
+html:not(.show-scripture-entries) .commentary:not(:has(#show-scripture-index:checked)) article dl.scripture-entries {
+    display: none;
+}
+
+/* The switch, under the categories: a track and a knob, like a toggle on iOS. */
+.scripture-toggle {
+    margin: 1.5rem 0 0;
+    font-family: var(--font-secondary);
+    font-size: var(--font-size-small);
+    color: var(--color-main-text-muted);
+    text-align: center;
+
+    label {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5em;
+        cursor: pointer;
+    }
+
+    input {
+        appearance: none;
+        flex: none;
+        position: relative;
+        top: 0.1em; /* the track sits a little lower, to centre on the text's x-height */
+        width: 1.68em;
+        height: 1em;
+        margin: 0;
+        border-radius: 0.5em;
+        background: var(--color-lighter-gray);
+        cursor: pointer;
+        transition: background-color 0.2s;
+
+        /* The knob. */
+        &::before {
+            content: "";
+            position: absolute;
+            top: 0.095em;
+            left: 0.095em;
+            width: 0.81em;
+            height: 0.81em;
+            border-radius: 50%;
+            background: var(--color-white);
+            transition: transform 0.2s;
+        }
+
+        &:checked {
+            background: var(--color-link);
+        }
+
+        &:checked::before {
+            transform: translateX(0.68em);
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--color-link);
+            outline-offset: 2px;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        input,
+        input::before {
+            transition: none;
+        }
+    }
 }
 
 /* Brand-colored links. The class and attribute together outrank every other link
@@ -1194,8 +1265,14 @@ footer .print-source {
     body .featured-badge,
     body .footnote-backref,
     body .categories,
+    body .scripture-toggle,
     body .css-naked-alert {
         display: none;
+    }
+
+    /* The Scripture index entries between a commentary's paragraphs stay on screen. */
+    body.commentary article dl.scripture-entries {
+        display: none !important;
     }
 
     main article {
