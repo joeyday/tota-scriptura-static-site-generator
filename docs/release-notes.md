@@ -7,7 +7,37 @@ What changed in each tsgen release, newest first, and (at the end) what the gene
 - Output changes are called out. Unless a release says otherwise, a refactor or speed-up left the built site byte-identical to the previous release, which `scripts/compare-dist.mjs` checks.
 - "The vault" is the content repo. Its own side of each change (migrations, files edited) is Joey's and lives in that repo's history.
 
-Contents: [0.12](#0121--2026-10-11) · [0.11](#01117--2026-10-11) · [0.10](#0102--2026-10-08) · [0.9](#090--2026-10-07) · [0.8](#080--2026-10-07) · [0.7](#070--2026-10-06) · [0.6](#060--2026-10-06) · [0.5](#050--2026-10-02) · [0.4](#040--2026-10-02) · [0.3](#030--2026-10-02) · [0.2](#020--2026-10-02) · [0.1](#010--2026-10-01) · [Before tsgen](#before-tsgen-buildjs-in-the-content-repo-2026-02-28--2026-10-01)
+Contents: [0.13](#0130--2026-10-11) · [0.12](#0121--2026-10-11) · [0.11](#01117--2026-10-11) · [0.10](#0102--2026-10-08) · [0.9](#090--2026-10-07) · [0.8](#080--2026-10-07) · [0.7](#070--2026-10-06) · [0.6](#060--2026-10-06) · [0.5](#050--2026-10-02) · [0.4](#040--2026-10-02) · [0.3](#030--2026-10-02) · [0.2](#020--2026-10-02) · [0.1](#010--2026-10-01) · [Before tsgen](#before-tsgen-buildjs-in-the-content-repo-2026-02-28--2026-10-01)
+
+---
+
+## 0.13.0 — 2026-10-11
+Live: not yet deployed · Commits `git log v0.12.1..v0.13.0`
+
+New features: people's initials get their expansions from a new file, and three kinds of omission now fail the build (an unexplained all-caps word, unlisted initials, an image with no alt text). **The content repo needs an `initials.json` before it can build with this release**, and the content that tripped the new checks has to be fixed first. Joey's own part is the decision to fail the build, the `!` opt-out (a reluctant one) and the content cleanup it prompted.
+
+**Initials**
+- **Added (output):** `initials.json`, `{ "R.C. Sproul": "Robert Charles" }`, titles the `<abbr>` around a person's initials. The key is the initials and the surname beside them, found whether the page reads `R.C. Sproul` or `Sproul, R.C.`; a surname before the initials wins over one after. Two people with the same initials (`J.P. Moreland`, `J.P. Lange`) each get their own entry. A defined abbreviation still beats initials (`N.Y.` stays New York).
+- **Added (build):** initials with no entry, or with no surname beside them, fail the build, listing the page and the key to add. Spaced initials (`D. A.`) aren't read as initials; the style is to write them without spaces.
+
+**All-caps words**
+- **Added (build):** an all-caps word (two or more capitals, then capitals or digits: `NASA`, `UBS5`) that isn't a key of `abbreviations.json`, a Roman numeral or a divine name fails the build. A key like `JS–H` covers the `JS` inside it. Dotted forms (`A.5`) aren't checked.
+- **Added:** a `!` in front of such a word (`!YES`) opts it out and is dropped from the output, as it is for a Scripture reference. Joey doesn't like it, but quoted material has all-caps emphasis he can't rewrite.
+- **Fixed (output):** a web address in running text is left alone by the abbreviation, initials, Roman numeral and divine name passes. A bare link's display text had `<abbr>`s inside it (`…/ADD-ADHD-…`, `…/VH/GLP-…`). Two pages changed.
+
+**Images**
+- **Added (build):** an `<img>` with no entry in `alt-text.json` (or no `src`) fails the build.
+
+All three checks apply to generated pages too, and only warn for pages shown by `serve --show-hidden`.
+
+**Changes since 0.12.1, folded in**
+- **Fixed (output):** `-webkit-text-size-adjust` is `100%`, not `none`, and the root font size is `min(…, 22px)`, not a `clamp` from 0.
+- **Changed (output):** the `/statistics` note about long ranges reads "don't count" (Joey's copy).
+
+**Internal**
+- **Changed:** `makeUnknownAbbreviationFinder`, `stripOptOuts` and `mapProse` (the text passes' shared walk, which skips web addresses) in `lib/html/passes.js`; the abbreviation regex is built once and shared; the post-pass pipeline in `lib/output.js` collects `textProblems`/`textWarnings`.
+
+**Checked:** lint is clean. Against a build of 0.12.1 on the same content, 16 files differ: the stylesheet, `/statistics`, 11 notes pages whose initials gained titles, two whose bare links lost stray `<abbr>`s, and the Joseph notes (the opt-outs).
 
 ---
 

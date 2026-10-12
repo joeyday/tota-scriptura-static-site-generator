@@ -270,6 +270,7 @@ async function build ({ showHidden = false, outputDir = OUTPUT_DIR } = {}) {
   // (--show-hidden) only warn.
   for (const problem of draftLinkProblems) console.warn(`Warning: ${problem}`)
   for (const problem of output.referenceWarnings) console.warn(`Warning: ${problem}`)
+  for (const problem of output.textWarnings) console.warn(`Warning: ${problem}`)
   // A reference to a chapter or verse its book doesn't have (a typo, or a number
   // read as a verse) fails the build like a broken link; `!` opts a reference out.
   const failures = []
@@ -279,6 +280,11 @@ async function build ({ showHidden = false, outputDir = OUTPUT_DIR } = {}) {
   if (output.referenceProblems.length > 0) {
     failures.push(
       `Scripture references that can't exist (write a ! before one to opt it out):\n${output.referenceProblems.join('\n')}`
+    )
+  }
+  if (output.textProblems.length > 0) {
+    failures.push(
+      `Abbreviations, initials and images with no entry in abbreviations.json, initials.json or alt-text.json:\n${output.textProblems.join('\n')}`
     )
   }
   if (failures.length > 0) throw new BuildError(failures.join('\n\n'))
@@ -329,9 +335,10 @@ async function build ({ showHidden = false, outputDir = OUTPUT_DIR } = {}) {
 
   // Generated pages are written after the check above; they hold only references
   // that came from checked pages, so this should never fire.
-  if (output.referenceProblems.length > 0) {
+  const lateProblems = [...output.referenceProblems, ...output.textProblems]
+  if (lateProblems.length > 0) {
     throw new BuildError(
-      `Scripture references that can't exist:\n${output.referenceProblems.join('\n')}`
+      `Problems on generated pages:\n${lateProblems.join('\n')}`
     )
   }
 
