@@ -7,7 +7,20 @@ What changed in each tsgen release, newest first, and (at the end) what the gene
 - Output changes are called out. Unless a release says otherwise, a refactor or speed-up left the built site byte-identical to the previous release, which `scripts/compare-dist.mjs` checks.
 - "The vault" is the content repo. Its own side of each change (migrations, files edited) is Joey's and lives in that repo's history.
 
-Contents: [0.12](#0120--2026-10-11) · [0.11](#01117--2026-10-11) · [0.10](#0102--2026-10-08) · [0.9](#090--2026-10-07) · [0.8](#080--2026-10-07) · [0.7](#070--2026-10-06) · [0.6](#060--2026-10-06) · [0.5](#050--2026-10-02) · [0.4](#040--2026-10-02) · [0.3](#030--2026-10-02) · [0.2](#020--2026-10-02) · [0.1](#010--2026-10-01) · [Before tsgen](#before-tsgen-buildjs-in-the-content-repo-2026-02-28--2026-10-01)
+Contents: [0.12](#0121--2026-10-11) · [0.11](#01117--2026-10-11) · [0.10](#0102--2026-10-08) · [0.9](#090--2026-10-07) · [0.8](#080--2026-10-07) · [0.7](#070--2026-10-06) · [0.6](#060--2026-10-06) · [0.5](#050--2026-10-02) · [0.4](#040--2026-10-02) · [0.3](#030--2026-10-02) · [0.2](#020--2026-10-02) · [0.1](#010--2026-10-01) · [Before tsgen](#before-tsgen-buildjs-in-the-content-repo-2026-02-28--2026-10-01)
+
+---
+
+## 0.12.1 — 2026-10-11
+Live: not yet deployed · Commits `git log v0.12.0..v0.12.1`
+
+A spacing fix and a note on `/statistics`, so a patch release.
+
+**Every page with a table**
+- **Changed (output):** a table's margin sits on its `.table-scroll` wrapper, not on the `<table>`. The wrapper scrolls (overflow makes it a block formatting context), so the margin on the table inside it stayed inside and added to its neighbours' instead of collapsing with them. Only the stylesheet changed.
+
+**`/statistics`**
+- **Added (output):** a note under the Scripture reference numbers says that verses in long ranges aren't counted. The copy is Joey's.
 
 ---
 
