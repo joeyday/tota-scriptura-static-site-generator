@@ -7,7 +7,34 @@ What changed in each tsgen release, newest first, and (at the end) what the gene
 - Output changes are called out. Unless a release says otherwise, a refactor or speed-up left the built site byte-identical to the previous release, which `scripts/compare-dist.mjs` checks.
 - "The vault" is the content repo. Its own side of each change (migrations, files edited) is Joey's and lives in that repo's history.
 
-Contents: [0.11](#01117--2026-10-11) · [0.10](#0102--2026-10-08) · [0.9](#090--2026-10-07) · [0.8](#080--2026-10-07) · [0.7](#070--2026-10-06) · [0.6](#060--2026-10-06) · [0.5](#050--2026-10-02) · [0.4](#040--2026-10-02) · [0.3](#030--2026-10-02) · [0.2](#020--2026-10-02) · [0.1](#010--2026-10-01) · [Before tsgen](#before-tsgen-buildjs-in-the-content-repo-2026-02-28--2026-10-01)
+Contents: [0.12](#0120--2026-10-11) · [0.11](#01117--2026-10-11) · [0.10](#0102--2026-10-08) · [0.9](#090--2026-10-07) · [0.8](#080--2026-10-07) · [0.7](#070--2026-10-06) · [0.6](#060--2026-10-06) · [0.5](#050--2026-10-02) · [0.4](#040--2026-10-02) · [0.3](#030--2026-10-02) · [0.2](#020--2026-10-02) · [0.1](#010--2026-10-01) · [Before tsgen](#before-tsgen-buildjs-in-the-content-repo-2026-02-28--2026-10-01)
+
+---
+
+## 0.12.0 — 2026-10-11
+Live: not yet deployed · Commits `git log v0.11.17..v0.12.0`
+
+New features: a table of contents on notes and commentary pages, and navigation on the Scripture index's book pages. Joey's own part is the design calls (bullets over a hanging indent, the dot sizes and offsets, where the jump box goes) and the copy ("Outline", "Jump to chapter:").
+
+**Notes and commentary pages**
+- **Added (output):** a table of contents, a box in front of the first `h2` (after any introduction) that lists the page's `h2` headings, each linking to its id. A notes page titles it "Contents", a commentary page "Outline". A page with fewer than three `h2`s gets none (48 pages today). The `h3`s are left out. The title is a `<p>`, not a heading, so the Scripture collector doesn't take it for a section. The pass (`addTableOfContents`) runs right after the heading IDs, on those pages only.
+
+**Scripture index**
+- **Added (output):** each book's page has back and forward links to its neighbours (`« Malachi · Mark »`), at the top and the bottom. They skip books with no references, so Genesis has only a forward link and Revelation only a back link.
+- **Added (output):** a "Jump to chapter:" box, the statistics page's menu box, links to the `#ch-N` anchors of the chapters that have an entry. At the top it leaves out the first chapter (it is right there) and at the bottom the last. A book with one cited chapter has none. A little more space sits above the box at the bottom.
+- **Changed (output):** a commentary page's references stay in the index, labelled with the heading they fall under (`Romans › Romans 1`). References inside headings aren't linked or collected, so the commentaries' outlines, once they are headings, no longer add long citations.
+
+**`/statistics`**
+- **Added (output):** a "Broken links" cloud at the end of the links section: the hidden ("under construction") pages that listed pages link to, most linked to first, each with the number of pages that link to it. A title list that is empty ("Pages nothing links to", "Broken links", "Uncategorized pages") is left out entirely, heading and all, in place of the "None…" line.
+- **Changed (output):** the heatmap's counts use the `count` style ("214 citations"). The numbers column takes the room the dots leave, so the longest rows (1 and 2 Thessalonians) stay on one line. The dots are 0.65rem, and the first row sits on the name's baseline, a little lower for the optical effect of a circle; the legend's dots are nudged to match.
+
+**Every page**
+- **Changed (output):** in a menu box (the alphabetical indexes, the statistics jump menu, the new chapter jump), the middot between items has a no-break space before it, so a line never starts with a dot.
+
+**Internal**
+- **Changed:** `addTableOfContents` and its `source.toc` title, the book navigation and `jump` helper in `lib/pages/scripture.js`, `titleSection` (and a count on `titleList` items) in `lib/pages/statistics.js`, and `brokenTargets` in `lib/stats.js`. The `.namespace-menu .label::after` rule moved from `statistics.css` to `style.css`, since two pages use it.
+
+**Checked:** lint is clean. Against a build of 0.11.17 on the same content, 115 files differ: the 64 Scripture index book pages, the notes and commentary pages that gained a table of contents, `/statistics` and the two stylesheets.
 
 ---
 

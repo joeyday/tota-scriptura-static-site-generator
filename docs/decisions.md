@@ -27,6 +27,9 @@ Settled questions, so they aren't re-litigated. Each says who decided and when. 
 - **Roman numerals:** Joey expects them only for the WCF and the Institutes. If an all-caps word ever collides (`MD`, `DC`, `MIX`…), the cheap fix is to stop the numeral range at 99 or add a deny list. The corpus has no collision today (audited 2026-10-07), and a term in `abbreviations.json` already wins.
 - **Hidden `<h2>`s before the two navs stay** (Joey, 2026-10-06): the markup should make sense without CSS (CSS Naked Day), and a hidden heading is visible there while an `aria-label` is not.
 
+- **Commentary pages are main content, and are in the Scripture index** (Joey, 2026-10-11), labelled with the heading each reference falls under. Their outlines go in headings, whose references the linker and collector skip, so a long outline citation doesn't count. Excluding commentary from the index, or from the longest-citation records, was tried and dropped.
+- **Notes and commentary pages get a table of contents** of their `h2`s (Joey, 2026-10-11): bullets in a box, no `h3`s, titled "Contents" (notes) or "Outline" (commentary), and only with three or more.
+
 ## Statistics
 - **`/statistics` is a generated page in the `meta` namespace**, the first one there: listed in `/index/alphabetical/meta`, linked from the sidebar, and kept out of search, the random pool and the Scripture index. (Joey, 2026-10-08)
 - **Deterministic output.** No dates, no timings: the page shows the tsgen version and the content commit and is otherwise a function of the content, so builds still compare byte-for-byte.

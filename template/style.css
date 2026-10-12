@@ -539,8 +539,9 @@ main {
             list-style-type: none;
 
             &::after {
-                content: ' · ';
-                content: ' · ' / '';
+                /* A no-break space before the dot keeps it on the line of the item it follows. */
+                content: '\00a0· ';
+                content: '\00a0· ' / '';
                 font-weight: normal;
             }
 
@@ -550,6 +551,12 @@ main {
 
             &.selected {
                 font-weight: bold;
+            }
+
+            /* A label, not a link ("Jump to:"), takes a space after it where the others take a dot. */
+            &.label::after {
+                content: ' ';
+                content: ' ' / '';
             }
         }
     }
@@ -592,6 +599,42 @@ main {
         
         a.index-link {
             color: var(--color-main-text);
+        }
+    }
+
+    /* The table of contents on notes and commentary pages: a box like .categories, but its list
+       reads left to right, with bullets. */
+    .toc {
+        font-family: var(--font-secondary);
+        font-size: var(--font-size-small);
+        background-color: var(--color-main-tint-background);
+
+        width: fit-content;
+        max-width: 100%;
+        margin: 1rem 0;
+        padding: 0.5em 1em 0.75em;
+
+        border-radius: 0.25em;
+
+        .toc-title {
+            margin: 0 0 0.25em;
+            font-variant-caps: all-small-caps;
+            color: var(--color-main-text-muted);
+        }
+
+        ul {
+            margin: 0;
+            padding: 0 0 0 1.1em;
+        }
+
+        li {
+            margin: 0;
+            padding: 0;
+            line-height: 1.35;
+
+            &::marker {
+                color: var(--color-main-text-muted);
+            }
         }
     }
     
@@ -1034,6 +1077,17 @@ footer {
 .index.scripture article {
     > ul {
         columns: 2;
+    }
+
+    /* The jump box at the foot of a book's page follows the last entry, whose list already has
+       0.5rem below it: together the 1rem between blocks everywhere else on the page. */
+    dl + .namespace-menu {
+        margin-top: 0.5rem;
+    }
+
+    /* The book-to-book links on a book's page. */
+    > nav.book-nav p {
+        text-align: center;
     }
 
     dl {

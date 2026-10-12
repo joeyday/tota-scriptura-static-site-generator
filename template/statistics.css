@@ -48,12 +48,7 @@
         margin: 0.5rem 0;
     }
 
-    /* The section menu is the alphabetical index's menu box. Its first item is a label, not
-       a link, so it takes a space after it where the others take a dot. */
-    .namespace-menu .label::after {
-        content: " ";
-        content: " " / "";
-    }
+    /* The section menu is the alphabetical index's menu box (see style.css). */
 
     /* Tiles, three across (on a grid of fifteen columns, so the first row can split 3:2 and
        the rows below thirds). Each takes its hue from --tile (set inline): a rule on top, the
@@ -289,7 +284,14 @@
         }
     }
 
-    /* Every chapter of the Bible as a dot, shaded by how often it is cited. */
+    /* Every chapter of the Bible as a dot, shaded by how often it is cited. Meta's x-height is
+       about 0.49em, but a circle looks smaller than the letters beside it (as an "o" overshoots
+       the baseline), so a dot is a third taller. */
+    .heatmap,
+    .legend {
+        --dot: 0.65rem;
+    }
+
     .heatmap {
         margin: 0.5rem 0 1.5rem;
 
@@ -301,8 +303,9 @@
 
         .book {
             display: grid;
-            grid-template-columns: 11rem 1fr;
-            gap: 0.75rem;
+            /* The squares take what they need (see .chapters); the numbers get all the rest. */
+            grid-template-columns: 1fr calc(10 * var(--dot) + 9 * 2px);
+            gap: 0.5rem;
             align-items: start;
             margin-bottom: 0.5rem;
         }
@@ -313,12 +316,12 @@
             text-align: right;
         }
 
-        /* One line as tall as a square, so the name lines up with a book's first row of squares
-           (a one-row book like Ruth has no other row to hide a misalignment). The name is body
-           text; its count beside it is fine print. */
+        /* The name is body text; its count beside it is fine print. The first row of squares sits
+           on the name's baseline (see .chapters). */
         .name {
             display: block;
             line-height: 0.7rem;
+            white-space: nowrap; /* the name and its count stay on one line: 1 Thessalonians is the tightest */
 
             a {
                 line-height: inherit; /* the site's global line height would push the name down */
@@ -329,11 +332,8 @@
                 color: var(--color-main-text-muted);
             }
 
-            .refs {
-                font-family: var(--font-secondary);
-                font-size: var(--font-size-small);
+            .count {
                 line-height: inherit;
-                color: var(--color-main-text-muted);
             }
         }
 
@@ -352,13 +352,16 @@
             }
         }
 
-        /* Ten squares to a row (ten squares of 0.7rem and nine gaps of 2px, as set below), so
-           a chapter is easy to find by counting; the rest of the column stays empty. */
+        /* Ten squares to a row (ten squares and nine gaps of 2px), so a chapter is easy to find by
+           counting; the rest of the column stays empty. The margin drops the first row until its
+           bottom is on the name's baseline (0.728rem below the top of the name's line), plus 0.09rem
+           (set by eye): a circle looks higher than a letter on the same line. */
         .chapters {
             display: flex;
             flex-wrap: wrap;
             gap: 2px;
-            width: calc(10 * 0.7rem + 9 * 2px);
+            width: calc(10 * var(--dot) + 9 * 2px);
+            margin-top: calc(0.728rem + 0.09rem - var(--dot));
         }
     }
 
@@ -366,8 +369,8 @@
     .heatmap .chapters a,
     .legend i {
         display: inline-block;
-        width: 0.7rem;
-        height: 0.7rem;
+        width: var(--dot);
+        height: var(--dot);
         border-radius: 50%;
     }
 
@@ -384,7 +387,7 @@
 
         i {
             margin-left: 0.6em;
-            vertical-align: -0.1em;
+            vertical-align: -0.08em;
 
             &.c0 {
                 margin-left: 0;

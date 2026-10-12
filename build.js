@@ -229,7 +229,12 @@ async function build ({ showHidden = false, outputDir = OUTPUT_DIR } = {}) {
         : fileInfo.unlisted
           ? null
           : { url: fileInfo.finalUrlPath, title: fileInfo.title, countOnly: true },
-      { name: fileInfo.filePath, warnOnly: !!fileInfo.shownHidden }
+      {
+        name: fileInfo.filePath,
+        warnOnly: !!fileInfo.shownHidden,
+        // a table of contents from the headings, and its title
+        toc: fileInfo.isNote ? 'Contents' : fileInfo.relDir === 'commentary' ? 'Outline' : null
+      }
     )
     info(
       `Built: ${fileInfo.filePath} -> ${outFilePath} (URL: ${fileInfo.finalUrlPath})`
