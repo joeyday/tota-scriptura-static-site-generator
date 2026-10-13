@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-underline-links="<%= underline.links %>" data-underline-abbr="<%= underline.abbr %>">
 <head>
     <meta charset="UTF-8">
     <title><%= frontmatter.title %> ‹ Tota Scriptura</title>
@@ -26,7 +26,8 @@
     <meta name="theme-color" content="#585858" media="(prefers-color-scheme: light)">
     <meta name="theme-color" content="#484848" media="(prefers-color-scheme: dark)">
     <%# The reader's theme choice (settings page), applied before first paint. A choice is saved as
-        {mode, until}; one past its `until` is dropped, and none (or no storage) follows the system. %>
+        {mode, until}; one past its `until` is dropped, and none (or no storage) follows the system.
+        The underline choices ('on' or 'off') replace the defaults the <html> tag carries. %>
     <script>
     window.applyTheme = function (mode) {
       if (mode) document.documentElement.dataset.theme = mode
@@ -41,6 +42,10 @@
       var theme = JSON.parse(localStorage.getItem('theme'))
       if (theme && (!theme.until || theme.until > Date.now())) window.applyTheme(theme.mode)
       else if (theme) localStorage.removeItem('theme')
+      ;['links', 'abbr'].forEach(function (what) {
+        var choice = localStorage.getItem('underline-' + what)
+        if (choice === 'on' || choice === 'off') document.documentElement.setAttribute('data-underline-' + what, choice)
+      })
     } catch (e) {}
     </script>
     <meta name="description" content="<%= description %>">
@@ -186,5 +191,6 @@
     </footer>
 
 	<script type="module" src="/asset/print.js?<%= cacheBust %>"></script>
+	<script type="module" src="/asset/abbr-popover.js?<%= cacheBust %>"></script>
 </body>
 </html>

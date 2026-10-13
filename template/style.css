@@ -70,6 +70,43 @@ a:focus-visible {
 
 /* End CSS reset */
 
+/* The reader's choice (settings page): underline the links, wherever they are, except the logo,
+   the social icons and the page tabs (a cue of their own). The :where()s keep the specificity
+   low, so links styled plain further down (footnote references and back-links) stay plain. */
+:where(:root[data-underline-links="on"]) a:not(:where(body > header *, nav.page-actions *, footer .social *)) {
+	text-decoration: underline;
+	text-decoration-thickness: 0.075rem;
+}
+
+/* Likewise for an abbreviation that has a title: the dotted underline browsers give one by
+   default, which the plain look (`abbr { text-decoration: none }`, further down) takes away. The
+   :root in the selector outranks that rule. */
+:root[data-underline-abbr="on"] abbr[title] {
+	text-decoration: underline dotted;
+}
+
+/* A tap on an abbreviation shows its title in a popover (abbr-popover.js), on a device without
+   hover, setting or not. iOS Safari only delivers a tap to the script if the target looks
+   clickable. The script positions the popover; this is its look. */
+@media (hover: none) {
+	abbr[title] {
+		cursor: pointer;
+	}
+}
+
+#abbr-popover {
+	max-width: min(20rem, calc(100vw - 1rem));
+	padding: 0.4rem 0.7rem;
+	font-family: var(--font-secondary);
+	font-size: 1rem;
+	color: var(--color-main-text);
+	background-color: var(--color-main-background);
+	border: 1px solid var(--color-main-stroke);
+	border-radius: 0.4rem;
+	box-shadow: 0 0.2rem 0.8rem oklch(0 0 0 / 0.25);
+	overflow-wrap: break-word;
+}
+
 	
 :root {
     /* light and dark UA chrome: form controls, scrollbars, focus rings */
