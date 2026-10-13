@@ -14,6 +14,7 @@ import { createOutput } from './lib/output.js'
 import { writeBacklinksPages } from './lib/pages/backlinks.js'
 import { writeIndexes } from './lib/pages/indexes.js'
 import { writeRandom } from './lib/pages/random.js'
+import { writeSettings } from './lib/pages/settings.js'
 import { writeAliasRedirects } from './lib/pages/redirects.js'
 import { commentaryBook, writeCommentaryPages } from './lib/pages/commentary.js'
 import { writeScriptureIndex } from './lib/pages/scripture.js'
@@ -323,6 +324,7 @@ async function build ({ showHidden = false, outputDir = OUTPUT_DIR } = {}) {
   })
   await writeSearch({ output, renderLayout, searchDocs })
   await writeRandom({ output, renderLayout, listedNamespaces, alphabeticalByNs })
+  await writeSettings({ output, renderLayout })
   await output.writeFile('.nojekyll', '')
   await writeScriptureIndex({ output, renderLayout })
   await writeCommentaryPages({ output, renderLayout, pages: commentaryPages })
