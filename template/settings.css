@@ -33,6 +33,21 @@
             font-size: 1.5em;
         }
 
+        /* The System tile's icon: a phone, or at the sidebar's width a laptop. */
+        .wide {
+            display: none;
+        }
+
+        @media (min-width: 700px) {
+            .wide {
+                display: initial;
+            }
+
+            .narrow {
+                display: none;
+            }
+        }
+
         &:has(input:checked) {
             border-color: var(--color-link);
             background-color: var(--color-main-tint-background);

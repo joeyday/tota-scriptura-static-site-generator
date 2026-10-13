@@ -6,6 +6,8 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <link rel="canonical" href="https://totascriptura.org<%= url %>">
+    <%# Blocking, ahead of the stylesheets: a page in CSS Naked mode never paints styled. %>
+    <script src="/asset/css-naked.js?<%= cacheBust %>"></script>
     <link rel="stylesheet" href="/asset/style.css?<%= cacheBust %>">
 <% if (stylesheet) { %>    <link rel="stylesheet" href="/asset/<%= stylesheet %>?<%= cacheBust %>">
 <% } %>    
@@ -175,10 +177,14 @@
     <footer>
         <p class="print-source">Retrieved from https://totascriptura.org<%= url %><span class="print-date"></span>.</p>
         <p>Copyright &copy; 2009–<%= new Date().getFullYear() %> Joey Day</p>
-        <p><a href="/about">About</a> &middot; <a href="/colophon">Colophon</a> &middot; <a href="/settings">Settings</a></p>
+        <p class="footer-links"><span class="footer-about"><a href="/about">About</a> &middot; </span><a href="/colophon">Colophon</a> &middot; <a href="/settings">Settings</a></p>
+        <p class="social">
+            <a href="https://mastodon.social/@joeyday"><span class="fa-brands fa-mastodon" aria-hidden="true"></span><span class="visually-hidden">Mastodon</span></a>
+            <a href="https://bsky.app/profile/joeyday.bsky.social"><span class="fa-brands fa-bluesky" aria-hidden="true"></span><span class="visually-hidden">Bluesky</span></a>
+            <a href="https://facebook.com/joeynday"><span class="fa-brands fa-facebook" aria-hidden="true"></span><span class="visually-hidden">Facebook</span></a>
+        </p>
     </footer>
 
-	<script type="module" src="/asset/css-naked.js?<%= cacheBust %>"></script>
 	<script type="module" src="/asset/print.js?<%= cacheBust %>"></script>
 </body>
 </html>

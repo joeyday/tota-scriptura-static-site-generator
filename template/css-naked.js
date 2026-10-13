@@ -7,105 +7,146 @@
 *      from 00:00 Apr 9 UTC+14:00 to 00:00 Apr 10 UTC-12:00
 *      (10:00 Apr 8 UTC to 12:00 Apr 10 UTC).
 *
-* The user can always toggle back via a banner link. Their preference
-* is stored in localStorage scoped to the current year, so it resets
-* each CSS Naked Day.
+* Styles are switched off, not deleted, so they can come back without a reload: stylesheets
+* get `media="not all"`, inline `style` attributes are set aside, and the Font Awesome icons
+* (inline SVGs) are hidden. `window.cssNaked` has `get()` and `set(naked)` for the settings
+* page; a banner offers the way back (or, on the Day, the way in).
+*
+* This is a classic script in the head, ahead of the stylesheets, so that naked pages never
+* paint styled. The user's choice is kept in localStorage: `css-naked` on an ordinary day, and
+* `css-naked-<year>` on the Day (a visit then turns it on until the user opts out), so it
+* resets each CSS Naked Day.
 */
-
-// localStorage can be missing or throw (private windows, blocked site data);
-// without it a preference simply doesn't persist.
-function readPreference (key) {
-  try { return window.localStorage.getItem(key) } catch { return null }
-}
-function writePreference (key, value) {
-  try { window.localStorage.setItem(key, value) } catch {}
-}
-
-// Determine if the user has explicitly toggled CSS Naked on with
-// the css-naked parameter, and, if so, store their preference
-let cssNakedPreference = readPreference('css-naked')
-if (new URLSearchParams(window.location.search).has('css-naked')) {
-  cssNakedPreference = 'true'
-  writePreference('css-naked', 'true')
-}
-
-// Determine if it is currently CSS Naked Day
-const isCSSNakedDay = (function (now) {
-  const year = now.getUTCFullYear()
-
-  // 00:00 Apr 9 in UTC+14:00 → Apr 8 10:00 UTC
-  const start = Date.UTC(year, 3, 8, 10, 0, 0)
-  // 00:00 Apr 10 in UTC-12:00 → Apr 10 12:00 UTC
-  const end = Date.UTC(year, 3, 10, 12, 0, 0)
-
-  return now >= start && now < end
-})(new Date())
-
-// Determine whether the user has opted out of CSS Naked Day
-const cssNakedDayPreferenceKey = `css-naked-${new Date().getFullYear()}`
-let cssNakedDayPreference = readPreference(cssNakedDayPreferenceKey)
-if (isCSSNakedDay && cssNakedDayPreference === null) {
-  cssNakedDayPreference = 'true'
-  writePreference(cssNakedDayPreferenceKey, 'true')
-}
-
-if ((!isCSSNakedDay && cssNakedPreference === 'true') || (isCSSNakedDay && cssNakedDayPreference === 'true')) {
-  // Remove all styles from external stylesheets or embedded <style> tags
-  Array.from(document.querySelectorAll('style,link[rel="stylesheet"]'))
-    .forEach(($node) => { $node.remove() })
-
-  // Remove all styles from inline attributes
-  Array.from(document.querySelectorAll('[style]'))
-    .forEach(($node) => { $node.setAttribute('style', '') })
-
-  // Font Awesome's kit loads late: it swaps each icon for an inline SVG that only
-  // its own <style> sizes, so without CSS they would fill the page. Drop both
-  // as they arrive.
-  const removeLateStyling = () => {
-    document.querySelectorAll('svg.svg-inline--fa, style').forEach(($node) => { $node.remove() })
+(function () {
+  // localStorage can be missing or throw (private windows, blocked site data);
+  // without it a preference simply doesn't persist.
+  function readPreference (key) {
+    try { return window.localStorage.getItem(key) } catch { return null }
   }
-  new MutationObserver(removeLateStyling).observe(document.documentElement, { childList: true, subtree: true })
+  function writePreference (key, value) {
+    try { window.localStorage.setItem(key, value) } catch {}
+  }
 
-  // Embed a banner at the top indicating you are in "css-naked" mode
-  const $alert = document.createElement('div')
+  // Is it currently CSS Naked Day? 00:00 Apr 9 in UTC+14:00 → Apr 8 10:00 UTC, until
+  // 00:00 Apr 10 in UTC-12:00 → Apr 10 12:00 UTC.
+  const now = new Date()
+  const year = now.getUTCFullYear()
+  const isCSSNakedDay = now >= Date.UTC(year, 3, 8, 10, 0, 0) && now < Date.UTC(year, 3, 10, 12, 0, 0)
 
-  $alert.innerHTML = [
-    isCSSNakedDay
-      ? 'Happy <a href="https://css-naked-day.org"><abbr title="Cascading Style Sheets">CSS</abbr> Naked Day</a>!'
-      : 'You’re viewing the site with all <abbr title="Cascading Style Sheets">CSS</abbr> removed.',
-    isCSSNakedDay
-      ? 'You’re viewing the site with all <abbr title="Cascading Style Sheets">CSS</abbr> removed.'
-      : 'Any day can be <a href="https://css-naked-day.org"><abbr title="Cascading Style Sheets">CSS</abbr> Naked Day</a>!',
-    '<a href="./" id="naked-css-toggle">Flip back to the normal view</a>.'
-  ].join(' ')
+  // The key that decides today: the year's on the Day, the standing one otherwise.
+  const key = isCSSNakedDay ? `css-naked-${now.getFullYear()}` : 'css-naked'
 
-  $alert.style.cssText = 'background: lightyellow; padding: 5px; margin: 15px 0;'
+  // `?css-naked` turns it on (and is dropped from the address, so a reload doesn't turn it
+  // on again after the user flips back). The first visit on the Day does too.
+  if (new URLSearchParams(window.location.search).has('css-naked')) {
+    writePreference(key, 'true')
+    const url = new URL(window.location.href)
+    url.searchParams.delete('css-naked')
+    window.history.replaceState(null, '', url)
+  } else if (isCSSNakedDay && readPreference(key) === null) {
+    writePreference(key, 'true')
+  }
 
-  $alert.querySelector('#naked-css-toggle').addEventListener('click', (e) => {
-    e.preventDefault()
-    if (isCSSNakedDay) writePreference(cssNakedDayPreferenceKey, 'false')
-    else writePreference('css-naked', 'false')
-    window.location.href = window.location.href.split('?')[0]
+  // ─── Switching styles off and on ───
+
+  // What each touched element had: its media (stylesheets) and its style attribute.
+  const touched = new Map()
+  const BANNER = '[data-css-naked-banner]'
+
+  function strip (el) {
+    if (el.closest(BANNER)) return
+    const isSheet = el.matches('link[rel~="stylesheet"], style')
+    const isIcon = el.matches('svg.svg-inline--fa')
+    if (!isSheet && !isIcon && !el.hasAttribute('style')) return
+    if (!touched.has(el)) {
+      touched.set(el, { media: el.getAttribute('media'), style: el.getAttribute('style') })
+    }
+    if (isSheet) el.media = 'not all'
+    el.removeAttribute('style')
+    // Font Awesome's kit swaps each icon for an inline SVG that only its own <style> sizes,
+    // so without CSS they would fill the page.
+    if (isIcon) el.style.display = 'none'
+  }
+
+  function stripWithin (root) {
+    if (root.nodeType !== Node.ELEMENT_NODE) return
+    strip(root)
+    root.querySelectorAll('link[rel~="stylesheet"], style, svg.svg-inline--fa, [style]').forEach(strip)
+  }
+
+  // The kit loads late, and the parser is still adding elements: strip those as they arrive.
+  const observer = new MutationObserver((records) => {
+    records.forEach((record) => record.addedNodes.forEach(stripWithin))
   })
 
-  document.body.prepend($alert)
-} else if (isCSSNakedDay) {
-  // It's CSS Naked Day but the user opted out —
-  // show a banner so they can easily toggle back to naked mode.
-  const $alert = document.createElement('div')
+  function strippedOn () {
+    stripWithin(document.documentElement)
+    observer.observe(document, { childList: true, subtree: true })
+  }
 
-  $alert.innerHTML = [
-    'Happy <a href="https://css-naked-day.org" class="external"><abbr title="Cascading Style Sheets">CSS</abbr> Naked Day</a>!',
-    '<a href="./" id="naked-css-toggle" class="internal">View the site without any <abbr title="Cascading Style Sheets">CSS</abbr></a>.'
-  ].join(' ')
+  function strippedOff () {
+    observer.disconnect()
+    touched.forEach((was, el) => {
+      if (was.media === null) el.removeAttribute('media')
+      else el.setAttribute('media', was.media)
+      if (was.style === null) el.removeAttribute('style')
+      else el.setAttribute('style', was.style)
+    })
+    touched.clear()
+  }
 
-  $alert.className = 'css-naked-alert'
+  // ─── The banner ───
 
-  $alert.querySelector('#naked-css-toggle').addEventListener('click', (e) => {
-    e.preventDefault()
-    writePreference(cssNakedDayPreferenceKey, 'true')
-    window.location.href = window.location.href.split('?')[0]
-  })
+  const CSS = '<abbr title="Cascading Style Sheets">CSS</abbr>'
+  const DAY = `<a href="https://css-naked-day.org" class="external">${CSS} Naked Day</a>`
 
-  document.querySelector('main').prepend($alert)
-}
+  function showBanner () {
+    if (!document.body) return
+    const old = document.querySelector(BANNER)
+    if (old) old.remove()
+    const naked = cssNaked.get()
+    if (!naked && !isCSSNakedDay) return
+    const $alert = document.createElement('div')
+    $alert.setAttribute('data-css-naked-banner', '')
+    if (naked) {
+      // Marked to be skipped, so these inline styles survive the stripping.
+      $alert.style.cssText = 'background: lightyellow; padding: 5px; margin: 15px 0;'
+      $alert.innerHTML = [
+        isCSSNakedDay ? `Happy ${DAY}!` : `You’re viewing the site with all ${CSS} removed.`,
+        isCSSNakedDay ? `You’re viewing the site with all ${CSS} removed.` : `Any day can be ${DAY}!`,
+        '<a href="./" id="naked-css-toggle">Flip back to the normal view</a>.'
+      ].join(' ')
+      document.body.prepend($alert)
+    } else {
+      // It's CSS Naked Day but the user opted out: a way back in.
+      $alert.className = 'css-naked-alert'
+      $alert.innerHTML = [
+        `Happy ${DAY}!`,
+        `<a href="./" id="naked-css-toggle" class="internal">View the site without any ${CSS}</a>.`
+      ].join(' ')
+      document.querySelector('main').prepend($alert)
+    }
+    $alert.querySelector('#naked-css-toggle').addEventListener('click', (e) => {
+      e.preventDefault()
+      cssNaked.set(!naked)
+    })
+  }
+
+  // ─── The page's way in ───
+
+  const cssNaked = window.cssNaked = {
+    get () { return readPreference(key) === 'true' },
+    set (naked) {
+      if (naked === cssNaked.get()) return
+      writePreference(key, naked ? 'true' : 'false')
+      if (naked) strippedOn()
+      else strippedOff()
+      showBanner()
+      window.dispatchEvent(new Event('cssnakedchange'))
+    }
+  }
+
+  if (cssNaked.get()) strippedOn()
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', showBanner)
+  else showBanner()
+})()
