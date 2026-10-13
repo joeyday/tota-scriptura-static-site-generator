@@ -7,7 +7,24 @@ What changed in each tsgen release, newest first, and (at the end) what the gene
 - Output changes are called out. Unless a release says otherwise, a refactor or speed-up left the built site byte-identical to the previous release, which `scripts/compare-dist.mjs` checks.
 - "The vault" is the content repo. Its own side of each change (migrations, files edited) is Joey's and lives in that repo's history.
 
-Contents: [0.15](#0150--2026-10-12) · [0.14](#0140--2026-10-12) · [0.13](#0130--2026-10-11) · [0.12](#0121--2026-10-11) · [0.11](#01117--2026-10-11) · [0.10](#0102--2026-10-08) · [0.9](#090--2026-10-07) · [0.8](#080--2026-10-07) · [0.7](#070--2026-10-06) · [0.6](#060--2026-10-06) · [0.5](#050--2026-10-02) · [0.4](#040--2026-10-02) · [0.3](#030--2026-10-02) · [0.2](#020--2026-10-02) · [0.1](#010--2026-10-01) · [Before tsgen](#before-tsgen-buildjs-in-the-content-repo-2026-02-28--2026-10-01)
+Contents: [0.16](#0160--2026-10-13) · [0.15](#0150--2026-10-12) · [0.14](#0140--2026-10-12) · [0.13](#0130--2026-10-11) · [0.12](#0121--2026-10-11) · [0.11](#01117--2026-10-11) · [0.10](#0102--2026-10-08) · [0.9](#090--2026-10-07) · [0.8](#080--2026-10-07) · [0.7](#070--2026-10-06) · [0.6](#060--2026-10-06) · [0.5](#050--2026-10-02) · [0.4](#040--2026-10-02) · [0.3](#030--2026-10-02) · [0.2](#020--2026-10-02) · [0.1](#010--2026-10-01) · [Before tsgen](#before-tsgen-buildjs-in-the-content-repo-2026-02-28--2026-10-01)
+
+---
+
+## 0.16.0 — 2026-10-13
+Live: not yet deployed · Commits `git log v0.15.0..v0.16.0`
+
+New features: accessibility settings (underlined links, underlined abbreviations), a tap-an-abbreviation popover for touch screens, and text that follows the browser's default font size. No content needs to change first. **Every page's output changes** (the `<html>` tag, the stylesheet, a new script), and the layout looks different between 500px and 800px wide.
+
+**Accessibility**
+- **Added (output):** the settings page's links section is now "Accessibility", with two switches, both off by default: "Underline links" (every link, including the sidebar and footer, except the logo, social icons and page tabs) and "Underline abbreviations" (the usual dotted underline). The defaults are `UNDERLINE_DEFAULTS` in `lib/layout.js`, written on `<html>` as `data-underline-links` and `data-underline-abbr`; the head script swaps in the reader's saved choice.
+- **Added (output):** `abbr-popover.js`: on a device without hover, a tap on an `abbr[title]` shows its title in a popover (the Popover API; a tap elsewhere or Escape closes it). Abbreviations get no tab stop, an abbreviation inside a link leaves the tap to the link, and the popover works whether or not the abbreviation is underlined.
+- **Decided:** WCAG is a guide here, not a requirement (see `decisions.md`). Links in muted text and the abbreviation cue stay as they are by default; the switches cover them.
+
+**Layout**
+- **Changed (output):** sizes follow the reader's default font size (`rem` and `em` throughout: the column, the breakpoints, the text), and the text is never smaller than that default, so page zoom enlarges text on a phone. At the default 16px the layout is identical from 364px wide up; narrower phones get 16px text instead of 14px.
+- **Changed (output):** the root font size is `max(1rem, min(4.4vw, 1.375rem))`: it grows with the window to 22px at 500px wide and holds there, so laptop zoom is exactly 2× at 200% (it was 1.65×). The sidebar now starts at 800px wide (`50em`; it was 700px). Windows 500–800px wide, such as a tablet in portrait, get a single column of 22px text instead of the sidebar layout at about 18px; a phone in landscape shows the sidebar at 22px. Phones up to 412px wide are unchanged.
+- **Changed (output):** the sidebar's color field is a block drawn from the body (not a gradient on the root), with its edge halfway between the main text and the sidebar's widest line. Safari put the root gradient's split in a different place from the layout's.
 
 ---
 
