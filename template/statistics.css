@@ -294,6 +294,12 @@
 
     .heatmap {
         margin: 0.5rem 0 1.5rem;
+        /* One pair of columns shared by every book: the numbers are as wide as the longest (1 or 2
+           Thessalonians), the squares come right after, and any spare width is left on the right. */
+        display: grid;
+        grid-template-columns: max-content calc(10 * var(--dot) + 9 * 2px);
+        column-gap: 0.5rem;
+        justify-content: start;
 
         h4 {
             margin: 1rem 0 0.4rem;
@@ -303,9 +309,8 @@
 
         .book {
             display: grid;
-            /* The squares take what they need (see .chapters); the numbers get all the rest. */
-            grid-template-columns: 1fr calc(10 * var(--dot) + 9 * 2px);
-            gap: 0.5rem;
+            grid-column: 1 / -1;
+            grid-template-columns: subgrid;
             align-items: start;
             margin-bottom: 0.5rem;
         }
