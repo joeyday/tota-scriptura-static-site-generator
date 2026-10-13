@@ -7,7 +7,38 @@ What changed in each tsgen release, newest first, and (at the end) what the gene
 - Output changes are called out. Unless a release says otherwise, a refactor or speed-up left the built site byte-identical to the previous release, which `scripts/compare-dist.mjs` checks.
 - "The vault" is the content repo. Its own side of each change (migrations, files edited) is Joey's and lives in that repo's history.
 
-Contents: [0.14](#0140--2026-10-12) · [0.13](#0130--2026-10-11) · [0.12](#0121--2026-10-11) · [0.11](#01117--2026-10-11) · [0.10](#0102--2026-10-08) · [0.9](#090--2026-10-07) · [0.8](#080--2026-10-07) · [0.7](#070--2026-10-06) · [0.6](#060--2026-10-06) · [0.5](#050--2026-10-02) · [0.4](#040--2026-10-02) · [0.3](#030--2026-10-02) · [0.2](#020--2026-10-02) · [0.1](#010--2026-10-01) · [Before tsgen](#before-tsgen-buildjs-in-the-content-repo-2026-02-28--2026-10-01)
+Contents: [0.15](#0150--2026-10-12) · [0.14](#0140--2026-10-12) · [0.13](#0130--2026-10-11) · [0.12](#0121--2026-10-11) · [0.11](#01117--2026-10-11) · [0.10](#0102--2026-10-08) · [0.9](#090--2026-10-07) · [0.8](#080--2026-10-07) · [0.7](#070--2026-10-06) · [0.6](#060--2026-10-06) · [0.5](#050--2026-10-02) · [0.4](#040--2026-10-02) · [0.3](#030--2026-10-02) · [0.2](#020--2026-10-02) · [0.1](#010--2026-10-01) · [Before tsgen](#before-tsgen-buildjs-in-the-content-repo-2026-02-28--2026-10-01)
+
+---
+
+## 0.15.0 — 2026-10-12
+Live: not yet deployed · Commits `git log v0.14.0..v0.15.0`
+
+New features: a settings page (a theme override, the commentary pages' Scripture switch and CSS Naked), CSS Naked that switches live, and social links in the footer. No content needs to change first. **Every page's output changes** (the footer, the head, the stylesheet), and `/settings` is new.
+
+**Settings**
+- **Added (output):** `/settings`, linked from the footer (not in any index or the search). Its choices live in the reader's browser. It needs script; without it the page says so.
+- **Added (output):** a theme override: System (the default), Light or Dark, as three tiles (the System tile shows a laptop at the sidebar's width, 700px, and a phone below it). Anything but System is temporary: it lasts 12 hours, then the site goes back to following the system. The notice counts down in whole hours (rounded up, "within the hour" at the end) and the page reverts to System by itself if the time runs out while it is open. A "Make my theme choice permanent" switch keeps the choice until it is changed. Opening the page doesn't restart the 12 hours; choosing does.
+- **Added (output):** a script in every page's head reads the choice before first paint and puts `data-theme` on `<html>` (and sets the `theme-color` metas to match). The dark colors in `style.css` are declared twice, for the system's dark mode (unless Light was chosen) and for a chosen Dark; print stays light.
+- **Added (output):** the "Interleave Scripture index entries" switch, sharing its setting with the switch at the foot of commentary pages, which stays.
+- **Added (output):** a "View the site without any CSS" switch for CSS Naked.
+
+**CSS Naked**
+- **Changed (output):** `css-naked.js` is a blocking script in the head, ahead of the stylesheets, instead of a deferred module at the foot of the page, so a naked page never paints styled. It switches styles off instead of deleting them (stylesheets get `media="not all"`, inline styles are set aside, the Font Awesome icons are hidden), so it also switches back on live, with no reload. The banner's link and the settings switch both use it (`window.cssNaked`).
+- **Changed:** `?css-naked` is dropped from the address once read, so a reload after flipping back doesn't turn it on again, and on CSS Naked Day it sets that day's choice (it used to set the ordinary one).
+
+**Layout**
+- **Added (output):** the footer's links are About, Colophon and Settings, with the Mastodon, Bluesky and Facebook icons under them in a paragraph of their own (icon only, each with a visually hidden name, in the footer's plain link color). Below the sidebar's width About is left out, along with its middot, as before.
+- **Added (output):** links to `https://bsky.app/` get Bluesky's blue (`#1185FE`, lifted in dark mode like Mastodon's and Facebook's). The Bluesky and Facebook icons are a tenth smaller, so they sit with Mastodon's, which has padding in its box, and Bluesky gets a little room before the name after it.
+- **Changed (output):** the search button holds a visually hidden "Search" as well as its icon, so it isn't empty with CSS off.
+- **Changed (output):** in the two-column layout (below 700px) the search field is nudged up so its placeholder lines up with "Random page".
+- **Changed (output):** on `/statistics` the heatmap's books share their columns: the numbers are as wide as the longest (1 or 2 Thessalonians), the dots come right after, and any spare width is on the right.
+- **Changed:** the switch's styles in `style.css` are shared between the commentary page's switch and the settings page's.
+
+**Docs**
+- `docs/decisions.md` records the settings page's choices (footer link only; the commentary switch stays); the plan loses the CSS Naked flash and the social links.
+
+**Checked:** the build and lint are clean. The theme override, the countdown and its expiry, the CSS Naked switch and the footer were exercised in headless Chrome. Not tried: Safari, and CSS Naked Day's own path (the live opt-out on April 9). Not compared against a baseline build: nearly every page differs.
 
 ---
 
