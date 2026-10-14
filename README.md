@@ -95,6 +95,7 @@ For each non-hidden page, in order. Code (fenced blocks and inline code spans) i
    - `![[img.png]]` becomes `<figure><img alt="img.png"></figure>`.
    - `![[img.png|Alt]]` sets the alt text.
    - `![[img.png|300]]` and `|300x150` set the dimensions.
+   - **An embedded SVG is inlined**, as `<figure class="diagram"><svg>…</svg></figure>`, not linked as an `<img>`. Inline, its own `<style>` sees the page: the theme override (`:root[data-theme="dark"]`), `--color-main-text`, `--font-secondary`. The SVG scopes its rules under a class of its own, since the file's CSS is global to the page (a rule on `.trinity` hit the whole page, which carries the page's name as a class), and carries its own `<title>` for screen readers. The file's XML prolog and blank lines are dropped, and a `|300x216` size replaces the root's `width` and `height`. The text passes (abbreviations, divine names and the rest) skip `<svg>`, so a diagram writes a divine name by hand (`<tspan class="divine-name"><tspan class="divine-name-initial">G</tspan>OD</tspan>`). A plain link to an SVG (`[[x.svg]]`) is still a link to the file.
 3. **EJS**: the whole page body is rendered as an EJS template with `frontmatter`, `fileMap` and `imageMap`. It is skipped when the body has no `<%`. If rendering fails, the build fails.
 4. **Comments**: `%%…%%` is stripped right after the partials are expanded, before wikilinks and EJS, so a commented-out link or template tag does nothing.
 5. **Small text**: `~text~` becomes `<small>`.

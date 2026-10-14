@@ -78,7 +78,7 @@ async function cleanOutputDir (dir) {
 async function build ({ showHidden = false, outputDir = OUTPUT_DIR } = {}) {
   await cleanOutputDir(outputDir)
 
-  const imageMap = await copyAssets({
+  const { imageMap, svgs } = await copyAssets({
     outputDir,
     templateDir: TEMPLATE_DIR
   })
@@ -154,6 +154,7 @@ async function build ({ showHidden = false, outputDir = OUTPUT_DIR } = {}) {
       fileMap,
       index,
       imageMap,
+      svgs,
       problems: fileInfo.shownHidden ? draftLinkProblems : linkProblems
     })
 
