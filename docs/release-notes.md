@@ -7,7 +7,18 @@ What changed in each tsgen release, newest first, and (at the end) what the gene
 - Output changes are called out. Unless a release says otherwise, a refactor or speed-up left the built site byte-identical to the previous release, which `scripts/compare-dist.mjs` checks.
 - "The vault" is the content repo. Its own side of each change (migrations, files edited) is Joey's and lives in that repo's history.
 
-Contents: [0.16](#0160--2026-10-13) · [0.15](#0150--2026-10-12) · [0.14](#0140--2026-10-12) · [0.13](#0130--2026-10-11) · [0.12](#0121--2026-10-11) · [0.11](#01117--2026-10-11) · [0.10](#0102--2026-10-08) · [0.9](#090--2026-10-07) · [0.8](#080--2026-10-07) · [0.7](#070--2026-10-06) · [0.6](#060--2026-10-06) · [0.5](#050--2026-10-02) · [0.4](#040--2026-10-02) · [0.3](#030--2026-10-02) · [0.2](#020--2026-10-02) · [0.1](#010--2026-10-01) · [Before tsgen](#before-tsgen-buildjs-in-the-content-repo-2026-02-28--2026-10-01)
+Contents: [0.17](#0170--2026-10-13) · [0.16](#0160--2026-10-13) · [0.15](#0150--2026-10-12) · [0.14](#0140--2026-10-12) · [0.13](#0130--2026-10-11) · [0.12](#0121--2026-10-11) · [0.11](#01117--2026-10-11) · [0.10](#0102--2026-10-08) · [0.9](#090--2026-10-07) · [0.8](#080--2026-10-07) · [0.7](#070--2026-10-06) · [0.6](#060--2026-10-06) · [0.5](#050--2026-10-02) · [0.4](#040--2026-10-02) · [0.3](#030--2026-10-02) · [0.2](#020--2026-10-02) · [0.1](#010--2026-10-01) · [Before tsgen](#before-tsgen-buildjs-in-the-content-repo-2026-02-28--2026-10-01)
+
+---
+
+## 0.17.0 — 2026-10-13
+Live: not yet deployed · Commits `git log v0.16.0..v0.17.0`
+
+New feature: an SVG embedded in a page is inlined, so a diagram can follow the site's theme. No content needs to change first, and a page with no embedded SVG is byte-identical to 0.16.0.
+
+- **Added (output):** `![[x.svg]]` (and `|300x216` for a size) is emitted as `<figure class="diagram"><svg>…</svg></figure>` instead of an `<img>`. Inline, the SVG's own `<style>` sees the page: `:root[data-theme="dark"]` (the theme override), `--color-main-text` and the site's fonts, which an SVG loaded as an image can't. The XML prolog and blank lines are dropped, and the size from the embed replaces the root's `width` and `height`. A diagram scopes its CSS under its own class, since the page's styles and the SVG's are one stylesheet. A plain link to an SVG (`[[x.svg]]`) still links the file.
+- **Changed (output):** the abbreviation, initials, Roman numeral and divine-name passes skip `<svg>` (a `<span>` can't live in SVG text), so a diagram writes a divine name itself, as a `<tspan>`.
+- **Content:** the Trinity notes page's diagram is now an SVG (the content repo's side of this release).
 
 ---
 
