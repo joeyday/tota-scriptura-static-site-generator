@@ -1,5 +1,5 @@
 /* The /statistics page's own styles. The layout links this after style.css, so it can
-   override the site's defaults (the paragraph after an h3) on this one page. */
+   override the site's defaults on this one page. */
 
 /* The site sets numbers in old-style figures; here, where there are so many, they are lining. */
 .statistics {
@@ -30,18 +30,11 @@
     }
 
     /* Fine print: an explainer paragraph with no figures of its own, set like the tile
-       labels. It follows the h3 rule below on specificity, so it wins over it. */
+       labels. */
     .note {
         font-family: var(--font-secondary);
         font-size: var(--font-size-small);
         color: var(--color-main-text-muted);
-    }
-
-    /* The paragraph after an h3 is plain body text here, not muted or indented. */
-    h3 + p,
-    h3 + .main-topic + p {
-        color: inherit;
-        margin: 1rem 0;
     }
 
     .letters {

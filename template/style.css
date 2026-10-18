@@ -21,7 +21,7 @@ h1, h2, h3, h4, h5, h6 {
     text-wrap: pretty;
 }
 
-p, li, blockquote {
+p, li, dd, blockquote {
     hyphens: auto;
 }
 
@@ -370,10 +370,42 @@ main {
         margin: -0.75rem 0 1rem 1.4rem;
     }
 
-    h3 + p,
-    h3 + .main-topic + p {
-        color: var(--color-main-text-muted);
-        margin: 0 0 1rem 1.4rem;
+    /* Terms and definitions, on a topic page and its notes: a term is a section title, set like
+       an h3, and its definitions are the muted, indented text under it. (A commentary page sets
+       them differently, below; the lists with a class of their own are the Scripture index's
+       and the statistics' tiles.) */
+    body:not(.commentary) & dl:not([class]) {
+        margin: 0;
+
+        dt {
+            font-variant-caps: all-small-caps;
+            font-variant-numeric: normal;
+            margin: 1em 0 0;
+            text-wrap: pretty;
+        }
+
+        dd {
+            color: var(--color-main-text-muted);
+            margin: 0 0 1rem 1.4rem;
+
+            /* A definition that holds paragraphs (a blank line after the term) keeps their margins inside it. */
+            > :first-child {
+                margin-top: 0;
+            }
+
+            > :last-child {
+                margin-bottom: 0;
+            }
+
+            /* The "Main topic" line is a definition of its own, and the one after it follows closely. */
+            &:has(> .main-topic) {
+                margin-bottom: 0;
+            }
+
+            > .main-topic {
+                margin: 0;
+            }
+        }
     }
             
     a {
@@ -1254,6 +1286,40 @@ footer .social {
         }
 }
 
+/* On a commentary page a term runs into its definition, as a paragraph that opens with a bold
+   phrase: the term in bold (its italics are in the markup), a period, then the definition. */
+.commentary main dl:not([class]) {
+    margin: 1rem 0;
+    hyphens: auto;
+
+    dt,
+    dd {
+        display: inline;
+        margin: 0;
+    }
+
+    dt {
+        font-weight: 700;
+
+        &::after {
+            content: ". ";
+            font-weight: normal;
+        }
+    }
+
+    /* Each pair is a paragraph of its own, with the 1rem between paragraphs below it (the list's
+       own margin does that for the last). */
+    dd::after {
+        content: "";
+        display: block;
+        height: 1rem;
+    }
+
+    dd:last-child::after {
+        display: none;
+    }
+}
+
 /* On a commentary page the entries start hidden; the switch at the foot of the page shows them
    (the checkbox alone does it, and the script's class on the page does it from the first paint). */
 html:not(.show-scripture-entries) .commentary:not(:has(#show-scripture-index:checked)) article dl.scripture-entries {
@@ -1495,6 +1561,12 @@ footer .print-source {
         page-break-after: avoid;
     }
 
+    /* A topic page's term, like its heading, stays with its definition. */
+    body:not(.commentary) dl:not([class]) dt {
+        break-after: avoid;
+        page-break-after: avoid;
+    }
+
     /* The "Main topic" line sits between a heading and its text; keep the three together */
     .main-topic {
         break-after: avoid;
@@ -1508,7 +1580,7 @@ footer .print-source {
         page-break-inside: avoid;
     }
 
-    p {
+    p, dd {
         orphans: 3;
         widows: 3;
     }

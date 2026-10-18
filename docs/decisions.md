@@ -35,6 +35,7 @@ Settled questions, so they aren't re-litigated. Each says who decided and when. 
 - **Hidden `<h2>`s before the two navs stay** (Joey, 2026-10-06): the markup should make sense without CSS (CSS Naked Day), and a hidden heading is visible there while an `aria-label` is not.
 
 - **Commentary pages are main content, and are in the Scripture index** (Joey, 2026-10-11), labelled with the heading each reference falls under. Their outlines go in headings, whose references the linker and collector skip, so a long outline citation doesn't count. Excluding commentary from the index, or from the longest-citation records, was tried and dropped.
+- **Section titles are description terms** (Joey, 2026-10-18). A topic page's old `h3` followed by a paragraph is a `<dl>`: the title a `<dt>`, its text a `<dd>` (a Main topic line is the first). A term is a heading to everything downstream (id, Scripture index section, no linked references, the statistics' count), so the site looks and works as it did; only the markup changed. A commentary page's verse commentary is a description list too, but its terms are not headings: they are bold text, whose references are linked and collected, as before. `h3` stays for subheadings of an `h2` (the statistics page, and a handful of topic pages, followed by a blockquote or a table).
 - **Notes and commentary pages get a table of contents** of their `h2`s (Joey, 2026-10-11): bullets in a box, no `h3`s, titled "Contents" (notes) or "Outline" (commentary), and only with three or more.
 
 ## Statistics

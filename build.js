@@ -236,7 +236,9 @@ async function build ({ showHidden = false, outputDir = OUTPUT_DIR } = {}) {
       name: fileInfo.filePath,
       warnOnly: !!fileInfo.shownHidden,
       // a table of contents from the headings, and its title
-      toc: fileInfo.isNote ? 'Contents' : fileInfo.relDir === 'commentary' ? 'Outline' : null
+      toc: fileInfo.isNote ? 'Contents' : fileInfo.relDir === 'commentary' ? 'Outline' : null,
+      // a topic page's terms are its headings; a commentary page's are bold text
+      terms: fileInfo.relDir !== 'commentary'
     }
     // A commentary page named for a book is only collected from for now; it is written
     // when the others have been collected (see writeCommentaryPages).
@@ -277,7 +279,7 @@ async function build ({ showHidden = false, outputDir = OUTPUT_DIR } = {}) {
       listed: !fileInfo.unlisted,
       words,
       bytes: Buffer.byteLength(finalHtml),
-      ...measureHtml(htmlContent)
+      ...measureHtml(htmlContent, source.terms)
     })
   }
 
