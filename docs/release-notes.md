@@ -7,7 +7,30 @@ What changed in each tsgen release, newest first, and (at the end) what the gene
 - Output changes are called out. Unless a release says otherwise, a refactor or speed-up left the built site byte-identical to the previous release, which `scripts/compare-dist.mjs` checks.
 - "The vault" is the content repo. Its own side of each change (migrations, files edited) is Joey's and lives in that repo's history.
 
-Contents: [0.17](#0170--2026-10-13) · [0.16](#0160--2026-10-13) · [0.15](#0150--2026-10-12) · [0.14](#0140--2026-10-12) · [0.13](#0130--2026-10-11) · [0.12](#0121--2026-10-11) · [0.11](#01117--2026-10-11) · [0.10](#0102--2026-10-08) · [0.9](#090--2026-10-07) · [0.8](#080--2026-10-07) · [0.7](#070--2026-10-06) · [0.6](#060--2026-10-06) · [0.5](#050--2026-10-02) · [0.4](#040--2026-10-02) · [0.3](#030--2026-10-02) · [0.2](#020--2026-10-02) · [0.1](#010--2026-10-01) · [Before tsgen](#before-tsgen-buildjs-in-the-content-repo-2026-02-28--2026-10-01)
+Contents: [0.18](#0180--2026-10-18) · [0.17](#0170--2026-10-13) · [0.16](#0160--2026-10-13) · [0.15](#0150--2026-10-12) · [0.14](#0140--2026-10-12) · [0.13](#0130--2026-10-11) · [0.12](#0121--2026-10-11) · [0.11](#01117--2026-10-11) · [0.10](#0102--2026-10-08) · [0.9](#090--2026-10-07) · [0.8](#080--2026-10-07) · [0.7](#070--2026-10-06) · [0.6](#060--2026-10-06) · [0.5](#050--2026-10-02) · [0.4](#040--2026-10-02) · [0.3](#030--2026-10-02) · [0.2](#020--2026-10-02) · [0.1](#010--2026-10-01) · [Before tsgen](#before-tsgen-buildjs-in-the-content-repo-2026-02-28--2026-10-01)
+
+---
+
+## 0.18.0 — 2026-10-18
+Live: not yet deployed · Commits `git log v0.17.0..v0.18.0`
+
+New features: description lists for section titles and commentary verse notes, `[[Page#Heading]]` and `[[Page#^id]]` links, and a Ko-fi footer icon. **The content must be migrated first**: a topic page's old `### Title` followed by a paragraph no longer gets its styling, and the pages must use `Term` / `: definition` instead. The content repo's side of this release is that migration.
+
+**Description lists**
+- **Changed (output):** on a topic, notes or reference page, a section title and its text are a `<dl>`: the title a `<dt>` (set like an h3, with an id and a Scripture index section, its references not linked), the text a `<dd>` (muted and indented, as the paragraph after an h3 was). A commentary page's verse notes are a `<dl>` too: the term a bold phrase run into its definition, with the references linked and collected as before. `h3` stays for subheadings under an `h2`. Pages with an h3 before any h2 went from 100 to 0.
+- **Changed (output):** the Scripture index's `<dl>` carries `class="scripture-entries"`. The `h3 + p` CSS rules are gone.
+- **Changed:** a partial used after a `: ` marker is indented to fit inside the definition.
+- **Added:** the `markdown-it-deflist` dependency.
+
+**Headings and links**
+- **Changed (fails the build):** a heading or term whose name repeats the one just above it is legal and takes no id (links and Scripture index entries go to the first). The same name anywhere else on a page fails the build. The `-2`, `-3` suffixes are gone; 15 Scripture index pages and the Titus commentary now link to `#covenant-of-redemption` and `#covenant-of-works` instead of the `-2` ids.
+- **Added:** `[[Page#Heading]]` links to an h2, h3 or topic-page term, matched by slug. `[[Page#^id]]` (Obsidian's block id, written at the end of a definition's line) links to the term above that definition. A `#` link that matches nothing fails the build, and a link with a `#` counts as a backlink.
+- **Changed (output):** a trailing ` ^id` is removed from the text of every page.
+
+**Page furniture**
+- **Added (output):** a Ko-fi icon in the footer's social links.
+- **Added (output):** the statistics' Pages table counts Description terms apart from Headings (headings 1,787 → 596, terms 1,207).
+- **Changed (output):** a sentence on long ranges in the statistics note is tighter.
 
 ---
 

@@ -5,13 +5,11 @@ Open work only: bugs to fix and features to build. When something is finished, d
 ## Bugs and quirks
 
 - **Bible-ref false positives.** A capitalised word before a number still links: "Job 2 years ago" links to Job 2 and lands in the Scripture index. The `!` opt-out is the workaround.
-- **`[[Page#Heading]]` is unsupported** and renders as broken. The vault has no such link.
 - **Colors beyond sRGB.** Several hues still exceed sRGB at chroma 0.16 and rely on the browser's gamut mapping. Check by setting the Mac's display profile to sRGB.
 
 ## Accessibility and standards (each needs a decision from Joey)
 
 - **Tables:** add captions (9 pages have an authored one; there is no syntax for it yet). Tables scroll sideways in a `.table-scroll` wrapper that is not keyboard-focusable, to avoid dozens of tab stops on the citation pages.
-- **Heading levels skip on 101 pages** (h1 → h3). It is authored content, since h3 carries the small-caps look. Decide whether to fix it in content or style by class.
 
 ## Features
 
@@ -19,7 +17,7 @@ Open work only: bugs to fix and features to build. When something is finished, d
 - **Deterministic hero assignment from a larger pool**, for `og:image` and perhaps the page's visible hero. It would replace the single fallback image. Assign deterministically (for example a hash of the page path) so a page's card doesn't change between builds. Open: where the pool lives, and whether every page should show a hero or only some (Joey is undecided; don't build the visible part until he decides).
 - **`aliases` parity with Obsidian.** Understand how Obsidian uses `aliases` and match it. Obsidian disallows wikilinks in `aliases`; tsgen optionally allows them. tsgen assumes all aliases sit in the same folder as the page; check whether Obsidian thinks about it that way or more subtly.
 - **Aliases that cross namespaces** (eventually, not urgent). Today an alias redirects only inside its page's own folder (`/{relDir}/{alias}`). It would let the old root URLs `/otnt` and `/ntot`, which now 404, redirect to `/reference/…`. No design yet: the frontmatter syntax, how the alphabetical index and wikilinks treat such an alias (which namespace lists it?), and collisions with real pages there.
-- **More statistics, if wanted:** the page is built (see `docs/decisions.md` for what it counts). Candidates not built: external links by domain, footnotes per page, abbreviation and Roman numeral counts (each needs its pass to return a count), build-over-build trends (needs history, and breaks deterministic output), and an "as of" date.
+- **More statistics, if wanted:** the page is built (see `docs/decisions.md` for what it counts). Candidates not built: external links by domain, abbreviation and Roman numeral counts (each needs its pass to return a count), build-over-build trends (needs history, and breaks deterministic output), and an "as of" date.
 - **Scripture index entries on commentary pages, the rest** (Joey, 2026-10-12). The entries and their switch exist (see the README). Open: whether the Outline and the switch hold up for a much longer book than Titus (page size too: hidden entries are still downloaded, and a long book's could be fetched the first time the switch is turned on instead), and how the entries should look between the paragraphs.
 - **Implicit small text for parentheticals.** `~text~` makes small text, and typing `<small>` is a non-starter. On 2026-10-02, content pages had 502 parentheticals already wrapped in `~…~` and 101 bare ones (notes pages are mostly bare, 994 vs 146, so the rule would apply to content pages only). The bare ones are a mix, so the rule would need an opt-out.
 
