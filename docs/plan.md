@@ -4,7 +4,6 @@ Open work only: bugs to fix and features to build. When something is finished, d
 
 ## Bugs and quirks
 
-- **Bible-ref false positives.** A capitalised word before a number still links: "Job 2 years ago" links to Job 2 and lands in the Scripture index. The `!` opt-out is the workaround.
 - **Colors beyond sRGB.** Several hues still exceed sRGB at chroma 0.16 and rely on the browser's gamut mapping. Check by setting the Mac's display profile to sRGB.
 
 ## Accessibility and standards (each needs a decision from Joey)
