@@ -2,10 +2,6 @@
 
 Open work only: bugs to fix and features to build. When something is finished, delete it here; `release-notes.md` records what shipped and when, and `decisions.md` records the questions that are settled. Verify an item against the code before acting on it, since it may have gone stale.
 
-## Bugs and quirks
-
-- **Colors beyond sRGB.** Several hues still exceed sRGB at chroma 0.16 and rely on the browser's gamut mapping. Check by setting the Mac's display profile to sRGB.
-
 ## Accessibility and standards (each needs a decision from Joey)
 
 - **Tables:** add captions (9 pages have an authored one; there is no syntax for it yet). Tables scroll sideways in a `.table-scroll` wrapper that is not keyboard-focusable, to avoid dozens of tab stops on the citation pages.
