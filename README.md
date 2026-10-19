@@ -71,7 +71,7 @@ Keys are lowercase (`title`, `featured with`). A key with any capital letter, su
 | `featured` | Listed on `/index/featured`. Gets a star on the alphabetical indexes. Links to it get the `featured` class. |
 | `featured with` | Value is a page name or `[[wikilink]]`. Shown as "(and …)" after the target on `/index/featured`. Gets a star on the alphabetical index. |
 | `categories` | A string or list of page names/`[[wikilinks]]`, each naming a page in `category/`, by basename or as `category/Name` (case-insensitive). A page in `category/` is a category page. A category with no listed members is made `unlisted` automatically, which can empty its parent category in turn. A name with no matching page logs a warning and renders as a broken link. |
-| `aliases` | A string or list. Each alias writes a meta-refresh redirect at `/{relDir}/{slugify(alias)}`, is listed on its namespace's alphabetical index as "Alias (see Title)", and works as a wikilink target. If the page has a notes page, the alias also redirects `/{relDir}/{alias}/notes` to it, so a notes page has no aliases of its own (the build fails if it does). |
+| `aliases` | A string or list. Each alias writes a meta-refresh redirect at `/{relDir}/{slugify(alias)}`, is listed on its namespace's alphabetical index as "Alias (see Title)". It is not a wikilink target (`[[Alias]]` fails the build, as for any unknown name), and it can't contain a `/` (the build fails). If the page has a notes page, the alias also redirects `/{relDir}/{alias}/notes` to it, so a notes page has no aliases of its own (the build fails if it does). |
 
 For all page-name values, `[[Page|Display]]` is reduced to `Page`.
 
@@ -80,7 +80,7 @@ For all page-name values, `[[Page|Display]]` is reduced to `Page`.
 `resolveLink` is used for wikilinks and `featured with`:
 
 1. If the target contains `/`, it is **path-qualified** and matches the file at exactly that path from the vault root, case-insensitively: `topic/Trinity`, `topic/notes/Trinity`. There is no suffix matching.
-2. Otherwise the target is looked up in `fileMap`, which is keyed by the lowercased basename, the permalink, the alias name and the alias slug.
+2. Otherwise the target is looked up in `fileMap`, which is keyed by the lowercased basename and the permalink.
 3. When several candidates match, notes pages are dropped unless nothing else matches. Then the candidate in the source page's own folder wins (a notes page counts as in its page's folder), then the one in `topic/`, then the one at the vault root. When a tiebreak decides, a warning asks you to qualify the link. If none applies, the result is ambiguous: the build fails (see Wikilinks).
 
 
