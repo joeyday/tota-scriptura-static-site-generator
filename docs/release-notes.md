@@ -7,7 +7,19 @@ What changed in each tsgen release, newest first, and (at the end) what the gene
 - Output changes are called out. Unless a release says otherwise, a refactor or speed-up left the built site byte-identical to the previous release, which `scripts/compare-dist.mjs` checks.
 - "The vault" is the content repo. Its own side of each change (migrations, files edited) is Joey's and lives in that repo's history.
 
-Contents: [0.18](#0181--2026-10-19) · [0.17](#0170--2026-10-13) · [0.16](#0160--2026-10-13) · [0.15](#0150--2026-10-12) · [0.14](#0140--2026-10-12) · [0.13](#0130--2026-10-11) · [0.12](#0121--2026-10-11) · [0.11](#01117--2026-10-11) · [0.10](#0102--2026-10-08) · [0.9](#090--2026-10-07) · [0.8](#080--2026-10-07) · [0.7](#070--2026-10-06) · [0.6](#060--2026-10-06) · [0.5](#050--2026-10-02) · [0.4](#040--2026-10-02) · [0.3](#030--2026-10-02) · [0.2](#020--2026-10-02) · [0.1](#010--2026-10-01) · [Before tsgen](#before-tsgen-buildjs-in-the-content-repo-2026-02-28--2026-10-01)
+Contents: [0.18](#0182--2026-10-19) · [0.17](#0170--2026-10-13) · [0.16](#0160--2026-10-13) · [0.15](#0150--2026-10-12) · [0.14](#0140--2026-10-12) · [0.13](#0130--2026-10-11) · [0.12](#0121--2026-10-11) · [0.11](#01117--2026-10-11) · [0.10](#0102--2026-10-08) · [0.9](#090--2026-10-07) · [0.8](#080--2026-10-07) · [0.7](#070--2026-10-06) · [0.6](#060--2026-10-06) · [0.5](#050--2026-10-02) · [0.4](#040--2026-10-02) · [0.3](#030--2026-10-02) · [0.2](#020--2026-10-02) · [0.1](#010--2026-10-01) · [Before tsgen](#before-tsgen-buildjs-in-the-content-repo-2026-02-28--2026-10-01)
+
+---
+
+## 0.18.2 — 2026-10-19
+Live: not yet deployed · Commits `git log v0.18.1..v0.18.2`
+
+A fix release: the asides in terms and definitions become small text on their own, and `~small~` becomes a Markdown rule. Only markup changes, in terms and definitions; the visible text is the same. The edited vault needs this release: 0.18.1 fails on it (see the dash, below).
+
+- **Added (output):** in a term (`<dt>`) or definition (`<dd>`), outside a commentary page, a parenthetical is wrapped in `<small>` by the build, so the tildes are no longer needed. A pair that is part of a word (`Son(s)`) is left alone, and so is a term or definition that is one parenthetical from start to end (it stays full size). A pair that is exactly an existing `<small>` isn't wrapped again, but a smaller one inside a bigger one is wanted and gets its own.
+- **Added (output):** in a definition, an em dash starts an `<em>` and a `<small>` that run to the end of the `<dd>` (or its paragraph), the dash included, so `Rev 2:8 — cf. Hab 1:12` is italic and small from the dash on. Only the first dash in an element counts. A dash alone (the `: —` placeholder) is left as it is. This also keeps a reference from reading the dash as a range: "Rev 20:6 — 168 results" failed 0.18.1's build as Revelation 20:6–168.
+- **Changed:** `~text~` is a markdown-it inline rule, not a regex over the raw source. It pairs within one block as emphasis does (never from a term to its definition or across markup), may span a line break inside a paragraph, and leaves a lone `~` alone. On the whole vault the output matched the regex's byte for byte. An opening `~` needs a non-space after it and a closing one a non-space before it.
+- **Decisions recorded:** parentheses and em dashes are small text without tildes; `~text~` is a markdown-it rule.
 
 ---
 
