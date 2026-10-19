@@ -7,7 +7,25 @@ What changed in each tsgen release, newest first, and (at the end) what the gene
 - Output changes are called out. Unless a release says otherwise, a refactor or speed-up left the built site byte-identical to the previous release, which `scripts/compare-dist.mjs` checks.
 - "The vault" is the content repo. Its own side of each change (migrations, files edited) is Joey's and lives in that repo's history.
 
-Contents: [0.18](#0182--2026-10-19) · [0.17](#0170--2026-10-13) · [0.16](#0160--2026-10-13) · [0.15](#0150--2026-10-12) · [0.14](#0140--2026-10-12) · [0.13](#0130--2026-10-11) · [0.12](#0121--2026-10-11) · [0.11](#01117--2026-10-11) · [0.10](#0102--2026-10-08) · [0.9](#090--2026-10-07) · [0.8](#080--2026-10-07) · [0.7](#070--2026-10-06) · [0.6](#060--2026-10-06) · [0.5](#050--2026-10-02) · [0.4](#040--2026-10-02) · [0.3](#030--2026-10-02) · [0.2](#020--2026-10-02) · [0.1](#010--2026-10-01) · [Before tsgen](#before-tsgen-buildjs-in-the-content-repo-2026-02-28--2026-10-01)
+Contents: [0.19](#0190--2026-10-19) · [0.18](#0182--2026-10-19) · [0.17](#0170--2026-10-13) · [0.16](#0160--2026-10-13) · [0.15](#0150--2026-10-12) · [0.14](#0140--2026-10-12) · [0.13](#0130--2026-10-11) · [0.12](#0121--2026-10-11) · [0.11](#01117--2026-10-11) · [0.10](#0102--2026-10-08) · [0.9](#090--2026-10-07) · [0.8](#080--2026-10-07) · [0.7](#070--2026-10-06) · [0.6](#060--2026-10-06) · [0.5](#050--2026-10-02) · [0.4](#040--2026-10-02) · [0.3](#030--2026-10-02) · [0.2](#020--2026-10-02) · [0.1](#010--2026-10-01) · [Before tsgen](#before-tsgen-buildjs-in-the-content-repo-2026-02-28--2026-10-01)
+
+---
+
+## 0.19.0 — 2026-10-19
+Live: not yet deployed · Commits `git log v0.18.2..v0.19.0`
+
+New feature: a search that shows where a word is. No content needs to change. The search page's markup and script change, and so does one number on `/statistics`.
+
+**Search**
+- **Added (output):** each result has an excerpt of about 180 characters, from just before the first word that matched, cut between words with `…`. A page that matched only through its title starts at the top of its text. Nothing is highlighted. Each result also shows its kind (`Topic`, `Topic notes`, `Commentary`, `Reference`, …), the page has a count ("122 results · page 1 of 7"), and 20 results make a page, with Previous and Next buttons. `?page=` stays in the address with `?q=`.
+- **Changed (output):** the search field looks like the sidebar's (a pill with the button's circle inset) in the page's colors, spans the column, and is focused on load. The bullets are gone from the results.
+- **Changed:** results are ranked with MiniSearch's own options. Common English words (a short list, without "will" and "no") and lone letters (the "s" of "God's") are dropped from the index and the queries, accents and transliteration marks are ignored (`olam` finds `ʿôlām`), prefix matching applies only to the word being typed, fuzzy matching only to words of six letters or more, and a notes page ranks below its topic. `God's love` went from 207 results to 122, with "God is love" first.
+- **Changed (output):** the script is `template/search.js`, served as `/asset/search.js` with the stylesheet's cache-buster (it was a string in the build code, written to `/search.js`). `search-index.json` gains each page's `kind`.
+
+**Statistics**
+- **Changed (output):** the page text the statistics count is decoded first, so an `&amp;` is no longer a word ("amp"). Total words 84,882 → 84,876, notes words 55,491 → 55,485, unique words 6,132 → 6,129.
+
+**Decisions recorded:** tables stay as they are (no captions, no focusable scroll wrapper).
 
 ---
 
