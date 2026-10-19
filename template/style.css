@@ -559,6 +559,109 @@ main {
         a.broken { color: oklch(from var(--color-link-broken) calc(l + var(--mark-link-lift)) c h); }
     }
     
+    /* The search field, like the sidebar's (a pill with the button's circle inset at the right end),
+       in the main text's colors and the width of the column */
+    #search-page form {
+        display: grid; /* input and button share one cell; the button sits at its end */
+        margin: 1rem 0;
+
+        input {
+            grid-area: 1 / 1;
+            min-width: 0;
+            width: 100%;
+            margin: 0;
+            height: 2.2em;
+            padding: 0 2.6em 0 0.9em;
+            font: inherit;
+            font-family: var(--font-secondary);
+            color: var(--color-main-text);
+            background-color: var(--color-main-tint-background);
+            border: none;
+            border-radius: 3em;
+
+            &::placeholder {
+                color: var(--color-main-text-muted);
+                opacity: 1; /* Firefox dims placeholders by default */
+            }
+        }
+
+        button {
+            grid-area: 1 / 1;
+            justify-self: end;
+            align-self: center;
+            margin: 0 0.2em 0 0;
+            display: grid;
+            place-items: center;
+            width: 1.8em;
+            height: 1.8em;
+            padding: 0;
+            font-size: 1em;
+            line-height: 1;
+            color: var(--color-main-text);
+            background-color: var(--color-main-background);
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+
+            span {
+                font-size: 0.75em; /* leaves a margin around the icon */
+            }
+        }
+    }
+
+    /* A search result is a title and, under it, a line of the page with the words found in <mark> */
+    #search-results ul {
+        padding: 0;
+
+        li {
+            margin-left: 0;
+            list-style-type: none;
+        }
+    }
+
+    #search-results .result-count {
+        font-family: var(--font-secondary);
+        color: var(--color-main-text-muted);
+    }
+
+    /* The kind of page (Topic, Topic notes, Commentary…) after a result's title */
+    #search-results .kind {
+        font-family: var(--font-secondary);
+        font-size: var(--font-size-small);
+        font-variant-caps: all-small-caps;
+        color: var(--color-main-text-muted);
+    }
+
+    #search-results .pager {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-family: var(--font-secondary);
+        color: var(--color-main-text-muted);
+
+        button {
+            font: inherit;
+            color: var(--color-main-text);
+            background-color: var(--color-main-tint-background);
+            border: none;
+            border-radius: 3em;
+            padding: 0.2em 1em;
+            cursor: pointer;
+
+            &:disabled {
+                color: var(--color-main-text-muted);
+                cursor: default;
+            }
+        }
+    }
+
+    #search-results .excerpt {
+        margin: 0 0 1em;
+        font-family: var(--font-secondary);
+        color: var(--color-main-text-muted);
+        font-size: 0.8em;
+    }
+    
     abbr {
         text-decoration: none;
     }

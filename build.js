@@ -22,6 +22,7 @@ import { writeSearch } from './lib/pages/search.js'
 import { writeStatistics } from './lib/pages/statistics.js'
 import { computeStatistics, countWords, measureHtml } from './lib/stats.js'
 import { describe, fallbackHero, findHero } from './lib/html/describe.js'
+import { unescHtml } from './lib/html/escape.js'
 import { renderBody } from './lib/render.js'
 import { createWatcher } from './lib/watch.js'
 import { ASSET_EXTENSIONS, NEVER_PAGES, copyAssets, loadVault } from './lib/vault.js'
@@ -259,15 +260,17 @@ async function build ({ showHidden = false, outputDir = OUTPUT_DIR } = {}) {
 
     let words = 0
     if (!fileInfo.unlisted) {
-      const bodyText = htmlContent
+      // Decoded, so an "&amp;" is neither a word in the statistics nor a search word ("amp")
+      const bodyText = unescHtml(htmlContent
         .replace(/<[^>]*>/g, ' ')
         .replace(/\s+/g, ' ')
-        .trim()
+        .trim())
       words = countWords(bodyText)
       searchDocs.push({
         id: fileInfo.finalUrlPath,
         title: fileInfo.title,
         url: fileInfo.finalUrlPath,
+        kind: `${nsName(fileInfo.nsDir || 'meta')}${fileInfo.isNote ? ' notes' : ''}`,
         body: bodyText
       })
     }
@@ -331,7 +334,7 @@ async function build ({ showHidden = false, outputDir = OUTPUT_DIR } = {}) {
     draftPages,
     featuredWithMap
   })
-  await writeSearch({ output, renderLayout, searchDocs })
+  await writeSearch({ output, renderLayout, searchDocs, cacheBust: commit })
   await writeRandom({ output, renderLayout, listedNamespaces, alphabeticalByNs })
   await writeSettings({ output, renderLayout })
   await output.writeFile('.nojekyll', '')
