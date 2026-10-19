@@ -279,13 +279,14 @@ async function build ({ showHidden = false, outputDir = OUTPUT_DIR } = {}) {
       listed: !fileInfo.unlisted,
       words,
       bytes: Buffer.byteLength(finalHtml),
-      ...measureHtml(htmlContent, source.terms)
+      ...measureHtml(htmlContent)
     })
   }
 
   // Hidden pages are never rendered, so a bad link there doesn't count. Shown ones
   // (--show-hidden) only warn.
   for (const problem of draftLinkProblems) console.warn(`Warning: ${problem}`)
+  for (const problem of output.headingWarnings) console.warn(`Warning: ${problem}`)
   for (const problem of output.referenceWarnings) console.warn(`Warning: ${problem}`)
   for (const problem of output.textWarnings) console.warn(`Warning: ${problem}`)
   // A reference to a chapter or verse its book doesn't have (a typo, or a number
@@ -293,6 +294,11 @@ async function build ({ showHidden = false, outputDir = OUTPUT_DIR } = {}) {
   const failures = []
   if (linkProblems.length > 0) {
     failures.push(`Broken links in published pages:\n${linkProblems.join('\n')}`)
+  }
+  if (output.headingProblems.length > 0) {
+    failures.push(
+      `Headings and terms with the same name that aren't next to each other (links to them couldn't tell them apart):\n${output.headingProblems.join('\n')}`
+    )
   }
   if (output.referenceProblems.length > 0) {
     failures.push(
@@ -354,7 +360,7 @@ async function build ({ showHidden = false, outputDir = OUTPUT_DIR } = {}) {
 
   // Generated pages are written after the check above; they hold only references
   // that came from checked pages, so this should never fire.
-  const lateProblems = [...output.referenceProblems, ...output.textProblems]
+  const lateProblems = [...output.headingProblems, ...output.referenceProblems, ...output.textProblems]
   if (lateProblems.length > 0) {
     throw new BuildError(
       `Problems on generated pages:\n${lateProblems.join('\n')}`
