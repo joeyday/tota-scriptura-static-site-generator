@@ -249,10 +249,14 @@ describe('serve --show-hidden', { concurrency: true }, () => {
     cleanups.push(made.cleanup)
     const server = await startServe(made.vault, made.dist, {})
     cleanups.push(() => server.close())
+    // Add the file and let that rebuild finish; only then lock it and change another page, so
+    // the next rebuild reads it. (Locking a file as it is made goes unnoticed by the watcher on Linux.)
     const file = path.join(made.vault, 'topic', 'Locked.md')
     await fs.writeFile(file, page('l'))
+    await waitFor(() => /Rebuilt in/.test(server.output()), { what: `the first rebuild:\n${server.output()}` })
     await fs.chmod(file, 0o000)
     try {
+      await fs.writeFile(path.join(made.vault, 'topic', 'Grace.md'), page('changed'))
       await waitFor(() => /Build failed \(still serving the last good build\): Error: EACCES/.test(server.output()), { what: `the failure:\n${server.output()}` })
     } finally {
       await fs.chmod(file, 0o644)
