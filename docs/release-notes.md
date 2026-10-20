@@ -2,7 +2,7 @@
 
 What changed in each tsgen release, newest first, and (at the end) what the generator did before tsgen existed.
 
-- **Dates** are the tag's date (local time). **Live** is the date the content repo bumped to that tag, which is what deploys the site. A release with no Live date was never deployed on its own; its changes went out with the next release that was.
+- **Dates** are the tag's date (local time). The notes do not track which release the content repo has installed; the content repo's own history shows that.
 - **Commits** is the `git log` range that shows exactly what is in the release.
 - Output changes are called out. Unless a release says otherwise, a refactor or speed-up left the built site byte-identical to the previous release, which `scripts/compare-dist.mjs` checks.
 - "The vault" is the content repo. Its own side of each change (migrations, files edited) is Joey's and lives in that repo's history.
@@ -12,7 +12,7 @@ Contents: [0.19.1](#0191--2026-10-20) · [0.19](#0190--2026-10-19) · [0.18](#01
 ---
 
 ## 0.19.1 — 2026-10-20
-Live: not yet deployed · Commits `git log v0.19.0..v0.19.1`
+Commits `git log v0.19.0..v0.19.1`
 
 A release of fixes. No content needs to change. The one change the live site shows is the order of entries in the Scripture index.
 
@@ -34,7 +34,7 @@ A release of fixes. No content needs to change. The one change the live site sho
 ---
 
 ## 0.19.0 — 2026-10-19
-Live: not yet deployed · Commits `git log v0.18.2..v0.19.0`
+Commits `git log v0.18.2..v0.19.0`
 
 New feature: a search that shows where a word is. No content needs to change. The search page's markup and script change, and so does one number on `/statistics`.
 
@@ -52,7 +52,7 @@ New feature: a search that shows where a word is. No content needs to change. Th
 ---
 
 ## 0.18.2 — 2026-10-19
-Live: not yet deployed · Commits `git log v0.18.1..v0.18.2`
+Commits `git log v0.18.1..v0.18.2`
 
 A fix release: the asides in terms and definitions become small text on their own, and `~small~` becomes a Markdown rule. Only markup changes, in terms and definitions; the visible text is the same. The edited vault needs this release: 0.18.1 fails on it (see the dash, below).
 
@@ -64,7 +64,7 @@ A fix release: the asides in terms and definitions become small text on their ow
 ---
 
 ## 0.18.1 — 2026-10-19
-Live: not yet deployed · Commits `git log v0.18.0..v0.18.1`
+Commits `git log v0.18.0..v0.18.1`
 
 A fix release that fails builds in two new ways, both for content mistakes. Built output is byte-identical to 0.18.0 for content that has neither.
 
@@ -75,7 +75,7 @@ A fix release that fails builds in two new ways, both for content mistakes. Buil
 ---
 
 ## 0.18.0 — 2026-10-18
-Live: not yet deployed · Commits `git log v0.17.0..v0.18.0`
+Commits `git log v0.17.0..v0.18.0`
 
 New features: description lists for section titles and commentary verse notes, `[[Page#Heading]]` and `[[Page#^id]]` links, and a Ko-fi footer icon. **The content must be migrated first**: a topic page's old `### Title` followed by a paragraph no longer gets its styling, and the pages must use `Term` / `: definition` instead. The content repo's side of this release is that migration.
 
@@ -98,7 +98,7 @@ New features: description lists for section titles and commentary verse notes, `
 ---
 
 ## 0.17.0 — 2026-10-13
-Live: not yet deployed · Commits `git log v0.16.0..v0.17.0`
+Commits `git log v0.16.0..v0.17.0`
 
 New feature: an SVG embedded in a page is inlined, so a diagram can follow the site's theme. No content needs to change first, and a page with no embedded SVG is byte-identical to 0.16.0.
 
@@ -109,7 +109,7 @@ New feature: an SVG embedded in a page is inlined, so a diagram can follow the s
 ---
 
 ## 0.16.0 — 2026-10-13
-Live: not yet deployed · Commits `git log v0.15.0..v0.16.0`
+Commits `git log v0.15.0..v0.16.0`
 
 New features: accessibility settings (underlined links, underlined abbreviations), a tap-an-abbreviation popover for touch screens, and text that follows the browser's default font size. No content needs to change first. **Every page's output changes** (the `<html>` tag, the stylesheet, a new script), and the layout looks different between 500px and 800px wide.
 
@@ -126,7 +126,7 @@ New features: accessibility settings (underlined links, underlined abbreviations
 ---
 
 ## 0.15.0 — 2026-10-12
-Live: not yet deployed · Commits `git log v0.14.0..v0.15.0`
+Commits `git log v0.14.0..v0.15.0`
 
 New features: a settings page (a theme override, the commentary pages' Scripture switch and CSS Naked), CSS Naked that switches live, and social links in the footer. No content needs to change first. **Every page's output changes** (the footer, the head, the stylesheet), and `/settings` is new.
 
@@ -157,7 +157,7 @@ New features: a settings page (a theme override, the commentary pages' Scripture
 ---
 
 ## 0.14.0 — 2026-10-12
-Live: not yet deployed · Commits `git log v0.13.0..v0.14.0`
+Commits `git log v0.13.0..v0.14.0`
 
 New feature: a commentary page can show the Scripture index entries for its book between its paragraphs. The vault builds as it did except `/commentary/titus` (the entries and a switch), and no content needs to change first.
 
@@ -182,7 +182,7 @@ New feature: a commentary page can show the Scripture index entries for its book
 ---
 
 ## 0.13.0 — 2026-10-11
-Live: not yet deployed · Commits `git log v0.12.1..v0.13.0`
+Commits `git log v0.12.1..v0.13.0`
 
 New features: people's initials get their expansions from a new file, and three kinds of omission now fail the build (an unexplained all-caps word, unlisted initials, an image with no alt text). **The content repo needs an `initials.json` before it can build with this release**, and the content that tripped the new checks has to be fixed first. Joey's own part is the decision to fail the build, the `!` opt-out (a reluctant one) and the content cleanup it prompted.
 
@@ -212,7 +212,7 @@ All three checks apply to generated pages too, and only warn for pages shown by 
 ---
 
 ## 0.12.1 — 2026-10-11
-Live: not yet deployed · Commits `git log v0.12.0..v0.12.1`
+Commits `git log v0.12.0..v0.12.1`
 
 A spacing fix and a note on `/statistics`, so a patch release.
 
@@ -225,7 +225,7 @@ A spacing fix and a note on `/statistics`, so a patch release.
 ---
 
 ## 0.12.0 — 2026-10-11
-Live: not yet deployed · Commits `git log v0.11.17..v0.12.0`
+Commits `git log v0.11.17..v0.12.0`
 
 New features: a table of contents on notes and commentary pages, and navigation on the Scripture index's book pages. Joey's own part is the design calls (bullets over a hanging indent, the dot sizes and offsets, where the jump box goes) and the copy ("Outline", "Jump to chapter:").
 
@@ -252,7 +252,7 @@ New features: a table of contents on notes and commentary pages, and navigation 
 ---
 
 ## 0.11.17 — 2026-10-11
-Live: not yet deployed · Commits `git log v0.11.16..v0.11.17`
+Commits `git log v0.11.16..v0.11.17`
 
 A fix to the pies on `/statistics`, so a patch release.
 
@@ -262,7 +262,7 @@ A fix to the pies on `/statistics`, so a patch release.
 ---
 
 ## 0.11.16 — 2026-10-11
-Live: not yet deployed · Commits `git log v0.11.15..v0.11.16`
+Commits `git log v0.11.15..v0.11.16`
 
 More of the statistics page is redrawn and rearranged, and every table on the site now sizes its columns by their content. These are tweaks to the statistics page, so a patch release. Joey's own part is the page's reorganization and copy: the sections' order and names (The site became Overview), the new Overview prose, and the reworded intro, tiles and notes.
 
@@ -283,7 +283,7 @@ More of the statistics page is redrawn and rearranged, and every table on the si
 **Checked:** lint is clean. Against a build of 0.11.15, the only differences are `/statistics` and the two stylesheets.
 
 ## 0.11.15 — 2026-10-10
-Live: not yet deployed · Commits `git log v0.11.14..v0.11.15`
+Commits `git log v0.11.14..v0.11.15`
 
 The statistics page links to what it counts, and the code is reformatted in JavaScript Standard Style. Joey's own part in it is the page's copy edits (tile labels with a middot, the tile and note wording, the legend and the explainer paragraphs, all in his voice).
 
@@ -307,7 +307,7 @@ The statistics page links to what it counts, and the code is reformatted in Java
 **Checked:** the reformat alone left the site byte-identical apart from those two scripts. Against a build of 0.11.14, the differences are `/statistics`, the 64 Scripture index book pages, the two stylesheets and the two scripts.
 
 ## 0.11.14 — 2026-10-10
-Live: 2026-10-10 · Commits `git log v0.11.13..v0.11.14`
+Commits `git log v0.11.13..v0.11.14`
 
 Statistics touches, and the `summary/` folder is no longer special. **Breaking:** a `summary/` folder in the vault now fails the build as an unknown folder, so move its pages (to `reference/`) and fix the links to them before bumping the content repo to this release.
 
@@ -324,7 +324,7 @@ Statistics touches, and the `summary/` folder is no longer special. **Breaking:*
 **Checked:** the vault copy still holds a `summary/` folder, so a full comparison against 0.11.13 wasn't possible. A scratch copy without it got through folder handling and stopped at the link check, as expected, on the one link to a summary page.
 
 ## 0.11.13 — 2026-10-09
-Live: 2026-10-10 · Commits `git log v0.11.12..v0.11.13`
+Commits `git log v0.11.12..v0.11.13`
 
 The statistics heatmap is shaded by completeness, not by citation count.
 
@@ -335,7 +335,7 @@ The statistics heatmap is shaded by completeness, not by citation count.
 **Checked:** against a build of 0.11.12, only `/statistics` differs.
 
 ## 0.11.12 — 2026-10-09
-Live: 2026-10-09 · Commits `git log v0.11.11..v0.11.12`
+Commits `git log v0.11.11..v0.11.12`
 
 Two copy tweaks on `/statistics`, by Joey.
 
@@ -345,7 +345,7 @@ Two copy tweaks on `/statistics`, by Joey.
 **Checked:** only `/statistics` differs from 0.11.11.
 
 ## 0.11.11 — 2026-10-09
-Live: 2026-10-09 · Commits `git log v0.11.10..v0.11.11`
+Commits `git log v0.11.10..v0.11.11`
 
 The statistics page again, and one small site-wide change. Joey's own part in it is the page's code and copy: the Scripture section moved up the file, headings and labels renamed, prose reworded.
 
@@ -363,7 +363,7 @@ The statistics page again, and one small site-wide change. Joey's own part in it
 **Checked:** against a build of 0.11.10, only `/statistics` and the two stylesheets differ; every other page is byte-identical, apart from the tsgen version and commit that `/statistics` prints.
 
 ## 0.11.10 — 2026-10-09
-Live: 2026-10-09 · Commits `git log v0.11.9..v0.11.10`
+Commits `git log v0.11.9..v0.11.10`
 
 Mostly the statistics page, plus a few site-wide changes and a better `serve`. Joey's own work in it is organizing and editing: the tiles reordered and relabeled, icons chosen for most of them (some from the kit's own custom icons), and the page's prose copy-edited by hand.
 
@@ -393,25 +393,25 @@ Mostly the statistics page, plus a few site-wide changes and a better `serve`. J
 **Checked:** every other page is byte-identical to 0.11.9 apart from the redirect stubs' ellipsis (60 pages), which `scripts/compare-dist.mjs` shows against a build of the 0.11.9 tag, along with `/statistics` and the two stylesheets. The `serve` change was tried against a scratch server: a code change restarts it and reloads a connected client once, a rebuild still reloads once, a syntax error is survived, and Ctrl-C stops both processes.
 
 ## 0.11.9 — 2026-10-09
-Live: 2026-10-09 · Commits `git log v0.11.8..v0.11.9`
+Commits `git log v0.11.8..v0.11.9`
 
 - **Fixed (output, every page but `/statistics`):** the print-only "Retrieved from" line in the footer showed on screen. 0.11.5 moved the rule that hides it from `style.css` into `statistics.css`, which only the statistics page loads. The rule is back in `style.css`, and print still shows the line.
 - Only the stylesheets change; every page's HTML is byte-identical to 0.11.8, apart from the tsgen version and commit that `/statistics` prints.
 
 ## 0.11.8 — 2026-10-09
-Live: 2026-10-09 · Commits `git log v0.11.7..v0.11.8`
+Commits `git log v0.11.7..v0.11.8`
 
 - **Changed (output, every page with a table):** tables are gray again, in the lineless layout of 0.11.6: a header row in the nav gray with white text, over rows alternating the page background and a light tint of it. The table color (`--color-table`, violet in 0.11.6 and indigo in 0.11.7) is gone.
 - Only the stylesheet changes; every page's HTML is byte-identical to 0.11.7, apart from the tsgen version and commit that `/statistics` prints.
 
 ## 0.11.7 — 2026-10-09
-Live: 2026-10-09 · Commits `git log v0.11.6..v0.11.7`
+Commits `git log v0.11.6..v0.11.7`
 
 - **Changed (output, every page with a table):** the table color is indigo instead of violet (`--color-table` in the stylesheet). Everything else about the tables is as in 0.11.6. Indigo has the most contrast against the white header text of the theme colors tried (about 6.3 to 6.7:1 against the 4.5:1 minimum).
 - Only the stylesheet changes; every page's HTML is byte-identical to 0.11.6, apart from the tsgen version and commit that `/statistics` prints.
 
 ## 0.11.6 — 2026-10-09
-Live: 2026-10-09 · Commits `git log v0.11.5..v0.11.6`
+Commits `git log v0.11.5..v0.11.6`
 
 - **Changed (output, every page with a table):** tables have no lines. The header row is white text on a dark shade of violet (never lighter than 0.5 in lightness, so the text holds up in dark mode), over rows that alternate the page background and a light violet tint, with the first row plain. The header text is left-aligned; it was centered. The stylesheet defines `--color-table` (violet) for it.
 - **Changed (output, statistics):** the h3 headings are back to the site's small-caps serif, which 0.11.5 had changed on this page. The paragraph after an h3 stays ordinary body text, neither muted nor indented.
@@ -420,7 +420,7 @@ Live: 2026-10-09 · Commits `git log v0.11.5..v0.11.6`
 - Only the stylesheets change; every page's HTML is byte-identical to 0.11.5, apart from the tsgen version and commit that `/statistics` prints.
 
 ## 0.11.5 — 2026-10-09
-Live: 2026-10-09 · Commits `git log v0.11.4..v0.11.5`
+Commits `git log v0.11.4..v0.11.5`
 
 - **Changed (output, statistics):** the big-number tiles are redone. They run three across, each with a rule on top in its own hue, the number in that hue and a muted label; the colors are all twelve theme colors, taken in turn across the whole page, each group picking up where the last left off. The first tile of each group is its headline and spans two columns, and a last row left short is stretched to fill it. An "x / y" tile shows its "/ y" small beside the number, on the same line. A tile can name an icon, which is drawn as a big tilted watermark in its hue, clipped along the top by the rule; the icons are chosen for twelve tiles (the Site group, Words, Links between pages, Categories and References) and the rest have none for now.
 - **Changed (output, statistics):** on `/statistics` the h3 headings are set in the same face as h1 and h2 without small caps, and the paragraph after an h3 is ordinary body text, not muted or indented.
@@ -430,7 +430,7 @@ Live: 2026-10-09 · Commits `git log v0.11.4..v0.11.5`
 - Only `/statistics` and the stylesheets change; every other page is byte-identical to 0.11.4, checked with `scripts/compare-dist.mjs` against a build of the tag. The new kit has to have every icon the layout uses, or the sidebar and header icons will be missing on that page.
 
 ## 0.11.4 — 2026-10-09
-Live: 2026-10-09 · Commits `git log v0.11.3..v0.11.4`
+Commits `git log v0.11.3..v0.11.4`
 
 - **Changed (output, statistics):** the chapter heatmap gives each book its own theme color, taking the colors in turn in hue order (red, orange, yellow, puke, green, teal, slate, blue, indigo, violet, magenta, pink last) and starting over after twelve, so Genesis is red, Exodus orange, and 1 Chronicles red again. The legend stays the primary green.
 - **Changed (output, statistics):** the percentage bar for each book in the "Book by book" table takes the same color as its heatmap row. The Old Testament, New Testament and Whole Bible bars stay green.
@@ -439,7 +439,7 @@ Live: 2026-10-09 · Commits `git log v0.11.3..v0.11.4`
 - Only `/statistics` and the stylesheet change; every other file is byte-identical to 0.11.3.
 
 ## 0.11.3 — 2026-10-09
-Live: 2026-10-09 · Commits `git log v0.11.2..v0.11.3`
+Commits `git log v0.11.2..v0.11.3`
 
 **Read before bumping the content repo:** this release fails the build on 41 references in the content as of 2026-10-09: 22 lone numbers in books of one chapter (`Jude 25`, `Phm 3`, `Ob 10`, `3Jn 7`, mostly in notes pages) and 19 that can't exist (`Isaiah 16:40`, `Isaiah 35:21`, `Isaiah 54:24`, `Exodus 24:23`, `Psalms 21:14–15`, `Rev 4:11–14`, `1 John 3:24–25`, `1Th 1:11–12`, `John 17:52`, a `1Ch` meant as `2Ch` in the Sabbath notes, seven `1 Chronicles` references in the Joseph notes, and more). The build lists each with its page and the reason. Fix them in the content repo first.
 
@@ -451,13 +451,13 @@ Live: 2026-10-09 · Commits `git log v0.11.2..v0.11.3`
 - **Open:** the verse table is the KJV numbering. The ESV mostly follows it, but 3 John may have 15 verses in the ESV (14 in the KJV), which would make a real `3 John 15` fail. Unverified; in the plan.
 
 ## 0.11.2 — 2026-10-08
-Live: not yet deployed · Commits `git log v0.11.1..v0.11.2`
+Commits `git log v0.11.1..v0.11.2`
 
 - **Fixed (statistics):** two false Scripture links on the page itself. The linker read a number after a reference as a continuation, so "Romans 12:1–15:13, 71 verses" linked the 71 as Romans 12:71 (a verse that doesn't exist) and "Romans 1–4, 4 chapters" linked the 4 as Romans 4. The records now put the number before the reference ("The longest passage cited, at 71 verses, is Romans 12:1–15:13…"), and the example in the explanation is opted out. The page has no Scripture link it shouldn't.
 - **Changed (statistics):** a verse range of more than 15 verses cites its chapters but not its verses, so an outline that cites whole sections can't "cite" most of a book. On the vault, Romans goes from 97.7% of its verses to 80.8%, and the whole Bible from 26.1% to **23.5%** (7,304 of 31,102 verses); chapters are unchanged at 913 of 1,189. 62 passages are affected, 8 of them over 40 verses (seven in the Romans commentary's outline, plus two long Ezekiel chapters). The longest-passage record still shows them. The limit is `MAX_CITED_RANGE` in `lib/stats.js`; 10 and 20 were tried first.
 
 ## 0.11.1 — 2026-10-08
-Live: not yet deployed · Commits `git log v0.11.0..v0.11.1`
+Commits `git log v0.11.0..v0.11.1`
 
 - **Changed:** books of one chapter (Obadiah, Philemon, 2 John, 3 John, Jude). A lone number is a verse, so `Phm 3` is Philemon 1:3 and `Phm 3–5` is verses 3–5, and `Phm 1:3` is the same reference. Both forms link to the same explicit URL (`Phm1.3`; a lone number used to link as a chapter, `Phm3`), both read `Phm 3` in the link text (the chapter is dropped), and both are one entry in the Scripture index, which shows `3`. `Phm 1` is verse 1, not the whole letter: write `Phm 1–25` for that. `Phm 2:3` stays as written, since chapter 2 doesn't exist. After such a reference a bare number is a verse (`Jude 3, 5`). On the vault, 85 link texts on 46 pages change, and no link is added or lost.
 - **Changed (statistics):** the Scripture figures count exactly the references the Scripture index lists, so notes pages, reference pages and categories are left out; counting notes had inflated the coverage.
@@ -469,7 +469,7 @@ Live: not yet deployed · Commits `git log v0.11.0..v0.11.1`
 - **Checked:** the Scripture figures were recounted independently from the `ref.ly` links in the built HTML (8,961 links, 65 books, 913 chapters, 8,125 verses, 8 impossible citations), and the one-chapter change against the previous code on every page and 30,000 fuzzed inputs.
 
 ## 0.11.0 — 2026-10-08
-Live: not yet deployed · Commits `git log v0.10.2..v0.11.0`
+Commits `git log v0.10.2..v0.11.0`
 
 - **Added:** a statistics page at `/statistics`, the first generated page in the `meta` namespace. It is in `/index/alphabetical/meta` and linked from the sidebar under "About this project", and stays out of search, the random pool and the Scripture index. Everything on it is counted from structures the build already holds, with no new pass over the files, and the output is deterministic (no dates or timings; it shows the tsgen version and the content commit):
   - **The site:** pages and notes by namespace, drafts, featured, aliases, images, partials, and how many pages carry their own share image.
@@ -485,7 +485,7 @@ Live: not yet deployed · Commits `git log v0.10.2..v0.11.0`
 - **Checked:** the Scripture figures were recomputed independently in Python from the `ref.ly` links in the built HTML, and match: 66 of 66 books, 1,088 of 1,189 chapters, 40.9% of verses covered.
 
 ## 0.10.2 — 2026-10-08
-Live: not yet deployed · Commits `git log v0.10.1..v0.10.2`
+Commits `git log v0.10.1..v0.10.2`
 
 A patch release that includes new ways to fail a build, all of them for content that was already broken.
 
@@ -498,13 +498,13 @@ A patch release that includes new ways to fail a build, all of them for content 
 - Verified against the previous Bible code on every page and 30,000 fuzzed inputs; every difference is one of the rules above.
 
 ## 0.10.1 — 2026-10-08
-Live 2026-10-08 · Commits `git log v0.10.0..v0.10.1`
+Commits `git log v0.10.0..v0.10.1`
 
 - **Changed:** `theme-color` is now always the nav gray (`#585858` light, `#484848` dark) at every width, so Safari's window chrome matches the sidebar. It was white (light) and `#161616` (dark), the main column's colors.
 - **Not fixed:** a thin light line at the top of the phone layout in Safari persists. The page itself has none (the top pixel rows are solid nav gray in headless Chrome at 3× and 2.5×), so it is presumed to be part of Safari's own chrome.
 
 ## 0.10.0 — 2026-10-08
-Live 2026-10-08 · Commits `git log v0.9.2..v0.10.0`
+Commits `git log v0.9.2..v0.10.0`
 
 - **Faster:** the Bible-reference pass skips text runs with no digit (about 99% of them), and the Scripture collector and the Bible-ref linker are now one pass (`lib/bible/scan.js` finds each reference once; `link.js` renders links; `collect.js` builds index entries; `process.js` does the single tag walk). Build time went from about 519 ms to about 486 ms. The two passes can no longer disagree about what counts as a reference, and `lib/bible/` is 100 lines shorter. Verified against the old code on every page and 30,000 fuzzed inputs (HTML and collected references).
 - **Changed, can fail a build:** `abbreviations.json` and `alt-text.json` are required. A missing, malformed or non-object file fails the build with its name; before it only warned and skipped.
@@ -513,29 +513,29 @@ Live 2026-10-08 · Commits `git log v0.9.2..v0.10.0`
 - **Changed (markup):** the first tab in the page-actions nav has class `page` instead of `topic`, since it names the page in any namespace. No CSS used the old class.
 
 ## 0.9.2 — 2026-10-08
-Live 2026-10-08 · Commits `git log v0.9.1..v0.9.2`
+Commits `git log v0.9.1..v0.9.2`
 
 - **Changed (output):** a notes page uses its page's hero image as its `og:image`, with the card type to match, instead of the fallback. A notes page never uses its own opening image (a diagram or a map); with no page hero it gets the fallback.
 
 ## 0.9.1 — 2026-10-08
-Live 2026-10-08 · Commits `git log v0.9.0..v0.9.1`
+Commits `git log v0.9.0..v0.9.1`
 
 - **Added (output):** every page gets an `og:image`. A page that has no hero of its own, every generated page and the 404, and the home page share `image/Trees-and-buildings.png` with a `summary_large_image` card. The home page keeps its avatar on the page itself; only its role as the share image is gone. The build fails if the fallback image is missing.
 
 ## 0.9.0 — 2026-10-07
-Live 2026-10-07 · Commits `git log v0.8.3..v0.9.0`
+Commits `git log v0.8.3..v0.9.0`
 
 - **Added:** `tsgen serve` watches and rebuilds. A change to a page, a `.json` data file, an image or other asset, or a template file starts a rebuild after 2.5 s of quiet (Obsidian saves a file more than once, so a short wait would rebuild over and over). The whole site is rebuilt into a staging folder and swapped in only if the build succeeds; a failed build prints its error and the last good site keeps serving. Open pages reload themselves when a rebuild finishes (only while watching; the built site never has the script). `--no-watch` serves the first build only. Each rebuild prints which files triggered it. Incremental builds were considered and rejected: the full build is about half a second, and a page depends on the whole link graph and every listing, so invalidation would risk stale output.
 
 ## 0.8.3 — 2026-10-07
-Live 2026-10-07 · Commits `git log v0.8.2..v0.8.3`
+Commits `git log v0.8.2..v0.8.3`
 
 - **Changed:** a missing or circular partial is reported once per page, naming the page, instead of once per expansion.
 - **Changed (CSS):** the Mastodon and Facebook link colors win on specificity (`a.external[href^=…]`) and no longer need `!important`.
 - Notes and backlinks titles briefly read "Trinity · notes" in this release's history and were reverted before the tag ("Do babies go to heaven? · notes" reads badly), so titles are unchanged: "Trinity notes".
 
 ## 0.8.2 — 2026-10-07
-Live 2026-10-07 · Commits `git log v0.8.1..v0.8.2`
+Commits `git log v0.8.1..v0.8.2`
 
 - **Added:** a page shown by `serve --show-hidden` says "This topic page is hidden." (a notes page: "These notes are hidden.") with an eye-slash icon, standing in for the draft notice. The layout receives `shownHidden`.
 - **Added:** `serve --port <n>`; `serve` is quiet by default, printing only warnings, errors and the address, and `--verbose` brings back the "Built …" and "processed …" lines.
@@ -543,12 +543,12 @@ Live 2026-10-07 · Commits `git log v0.8.1..v0.8.2`
 - **Changed (CSS):** the stroke ladder lost a duplicate step (`thinner-stroke`); no visual change.
 
 ## 0.8.1 — 2026-10-07
-Live 2026-10-07 · Commits `git log v0.8.0..v0.8.1`
+Commits `git log v0.8.0..v0.8.1`
 
 - **Changed (print):** callouts keep their screen width, so their text wraps at the same words; headings follow a type scale (h3 keeps its size, h2 is one step up, h1 two, each 1.667×).
 
 ## 0.8.0 — 2026-10-07
-Live 2026-10-07 · Commits `git log v0.7.3..v0.8.0`
+Commits `git log v0.7.3..v0.8.0`
 
 - **Added:** a print stylesheet. A printed page is the article and nothing else: no logo, navs, search, featured star, footnote back-links or categories line. Links are plain text, and an external link spells out its address in parentheses, except Scripture references and links whose text already is the address (the new `bare-url` class). Print is always light, with colors and backgrounds kept. Body type is a fixed 11pt in a full-width column with 1in margins above and below, 1.5in at the sides, and page numbers where supported. Headings stay with their text (and with a "Main topic" line between them); figures, blockquotes and table rows don't split. A print-only footer line reads "Retrieved from {URL} on {date}" (`print.js` fills in the date).
 - **Added:** `CLAUDE.md`, `PLAN.md` and `README.md` (any folder, any case) are never built as pages, partials or errors.
@@ -560,17 +560,17 @@ Live 2026-10-07 · Commits `git log v0.7.3..v0.8.0`
 - **Changed (CSS):** the dark-mode highlight (`mark`) background matches Logos's contrast.
 
 ## 0.7.3 — 2026-10-07
-Live 2026-10-07 · Commits `git log v0.7.2..v0.7.3` (a hotfix branched from v0.7.2; the work in 0.8.0 was not in it)
+Commits `git log v0.7.2..v0.7.3` (a hotfix branched from v0.7.2; the work in 0.8.0 was not in it)
 
 - **Fixed:** every icon disappeared. After the Font Awesome kit was pruned it became an SVG-with-JavaScript kit and its `.css` URL returned a 19-byte stub. The layout now loads the kit as a deferred script, and `css-naked.js` removes the kit's SVGs and `<style>` in CSS Naked mode. Icons appear a moment after the page paints, and with JavaScript off they are absent.
 
 ## 0.7.2 — 2026-10-07
-Live 2026-10-07 · Commits `git log v0.7.1..v0.7.2`
+Commits `git log v0.7.1..v0.7.2`
 
 - **Changed:** `viewport-fit=cover` so the page paints under the notch strips, and `overscroll-behavior: none` on the root, since iOS paints the rubber-band bounce with a flat color, never the desktop two-field gradient.
 
 ## 0.7.1 — 2026-10-07
-Live 2026-10-07 · Commits `git log v0.7.0..v0.7.1`
+Commits `git log v0.7.0..v0.7.1`
 
 - **Changed (CSS, no visible change except as noted):** small caps and numerals use `font-variant-*` instead of `font-feature-settings` (old-style figures stay off inside small caps, as before); one link reset; no `!important` on the footer; the duplicate gray tokens merged into `--color-gray`; dead vendor prefixes removed.
 - **Changed (output):** a bare `:::` fence is a `<div class="callout">` (it was an unmarked `<div>`, which also caught hand-written divs); `data-name` is gone from divine-name spans (nothing read it); the draft notice text is no longer italic; the hidden words in the sidebar links ("Featured *topics*", "Alphabetical *index*") use the shared visually-hidden class.
@@ -578,7 +578,7 @@ Live 2026-10-07 · Commits `git log v0.7.0..v0.7.1`
 - Checked in headless Chrome at three widths in light and dark, pixel-identical to the previous release apart from a half-pixel shift in one `h3` containing "I AM" and ±1 gradient dithering at the desktop column split.
 
 ## 0.7.0 — 2026-10-06
-Live 2026-10-06 · Commits `git log v0.6.3..v0.7.0`
+Commits `git log v0.6.3..v0.7.0`
 
 - **Added (accessibility):** footnote references, back-links and the footnotes section carry DPUB-ARIA roles, and each back-link says which footnote it returns to; decorative icons are `aria-hidden`; the featured star has a text alternative; the selected tab and namespace carry `aria-current`; search fields are `type="search"` with a real label on the search page, which no longer autofocuses; decorative CSS separators have empty alt text; links get a `:focus-visible` underline.
 - **Added (head):** every page has a meta description (the frontmatter's `description`, else the first paragraph with text trimmed to about 160 characters at a word boundary, else a site default) and Open Graph / Twitter card tags; a page that opens with an image embed uses it as `og:image` with the large card. Absolute canonical links on every page and alias redirect; backlinks pages are `noindex`; `meta charset` first.
@@ -588,22 +588,22 @@ Live 2026-10-06 · Commits `git log v0.6.3..v0.7.0`
 - **Changed:** every build empties the output directory first (refusing one that holds the vault). Tables scroll sideways in a `.table-scroll` wrapper. `/random` gets the divine-name treatment. CSS Naked guards `localStorage` and has descriptive link text. The Mastodon and Facebook link colors match only links that start with those hosts. Dead skip lists removed.
 
 ## 0.6.3 — 2026-10-06
-Live 2026-10-06 · Commits `git log v0.6.2..v0.6.3`
+Commits `git log v0.6.2..v0.6.3`
 
 - **Fixed (CSS):** mobile menu columns align to the top.
 
 ## 0.6.2 — 2026-10-06
-Live 2026-10-06 · Commits `git log v0.6.1..v0.6.2`
+Commits `git log v0.6.1..v0.6.2`
 
 - **Changed (output):** the sidebar menu is reordered (Indexes and Random page first, then Home and About, then search) so the two mobile columns balance. The desktop rule that hides the Home link now targets the last section.
 
 ## 0.6.1 — 2026-10-06
-Live 2026-10-06 · Commits `git log v0.6.0..v0.6.1`
+Commits `git log v0.6.0..v0.6.1`
 
 - **Changed:** the search button is an inset magnifying-glass circle. The field has a fixed height so Safari and Firefox match Chrome (they ignore a `line-height` below the font's normal one, which made the field taller). Field and button have `aria-label`s; the placeholder is "Search" (it was "Keywords").
 
 ## 0.6.0 — 2026-10-06
-Live 2026-10-06 · Commits `git log v0.5.7..v0.6.0`
+Commits `git log v0.5.7..v0.6.0`
 
 - **Added:** a hidden page that a published page links to builds as an under-construction placeholder at its URL: the title and a `fa-person-digging` notice, `noindex`, none of its content, and in no list. Links to it get the `planned` class. A hidden page nobody links to still builds nothing.
 - **Changed, can fail a build:** a wikilink on a published page that matches no page, or several, fails the build, with every problem listed. (Hidden pages are never rendered, so a bad link there doesn't count.)
@@ -611,27 +611,27 @@ Live 2026-10-06 · Commits `git log v0.5.7..v0.6.0`
 - **Changed (CSS):** `planned`, `broken` and `span.broken` are pink. Color system: the muted nav text, the search field derives from the nav text and background so they can never collapse into it (`--color-nav-text-muted`, `--color-nav-field-background`); `color-scheme: light dark`; light and dark `theme-color`; a lighter dark-mode `mark` with lifted link colors inside it; the chroma `--c` is 0.16 as the sRGB fallback and 0.25 (light) / 0.17 (dark) under `color-gamut: p3`.
 
 ## 0.5.7 — 2026-10-05
-Live 2026-10-05 · Commits `git log v0.5.6..v0.5.7`
+Commits `git log v0.5.6..v0.5.7`
 
 - **Changed:** the draft notice's pencil is a Font Awesome icon instead of the Unicode character.
 
 ## 0.5.6 — 2026-10-05
-Live 2026-10-05 · Commits `git log v0.5.5..v0.5.6`
+Commits `git log v0.5.5..v0.5.6`
 
 - **Changed (output):** reference pages are kept out of the Scripture index.
 
 ## 0.5.5 — 2026-10-05
-Live 2026-10-05 · Commits `git log v0.5.4..v0.5.5`
+Commits `git log v0.5.4..v0.5.5`
 
 - **Changed (output):** the namespace menu splits into two lines (Reference, Meta and Categories on line two), and the separator dot no longer turns bold with the selected item. Backlinks sections are headed by kind ("Links to the topic page", "Links to the category page"…). Notes pages are titled "X notes" and backlinks pages "X backlinks", which also tells them apart in search.
 
 ## 0.5.4 — 2026-10-05
-Live 2026-10-05 · Commits `git log v0.5.3..v0.5.4`
+Commits `git log v0.5.3..v0.5.4`
 
 - **Changed (output):** the Reference namespace is out of the random pool, and Categories moves last in the namespace menu.
 
 ## 0.5.3 — 2026-10-05
-Live 2026-10-05 (with the Reference namespace of 0.5.2) · Commits `git log v0.5.2..v0.5.3`
+Commits `git log v0.5.2..v0.5.3`
 
 - **Changed, can fail a build:** `gray-matter` is replaced by the `yaml` package (`lib/frontmatter.js` splits the leading `---` block itself). gray-matter pinned `js-yaml` 3, which left `npm audit` with unfixable advisories. Output is identical on the vault. Unclosed or invalid frontmatter (partials included) now fails the build, listing every offending file, instead of skipping the page with a warning.
 
@@ -642,17 +642,17 @@ Not deployed on its own · Commits `git log v0.5.1..v0.5.2`
 - **Changed (output):** one backlinks page per page, for non-notes pages only. It lists links to the page and, in a second section, links to its notes page. A page, its notes and its backlinks share the Topic/Notes/Backlinks tabs; index pages show a lone "Index page" tab; search and random show no page-actions nav.
 
 ## 0.5.1 — 2026-10-03
-Live 2026-10-03 · Commits `git log v0.5.0..v0.5.1`
+Commits `git log v0.5.0..v0.5.1`
 
 - **Fixed:** the sidebar, the footer and the random page's no-script message linked to `/index/alphabetical`, which only redirects to the Topic list; they now link straight to `/index/alphabetical/topic`.
 
 ## 0.5.0 — 2026-10-02
-Live 2026-10-02 · Commits `git log v0.4.0..v0.5.0`
+Commits `git log v0.4.0..v0.5.0`
 
 - **Changed:** new feather-pointed favicons, Android, Windows-tile and apple-touch PNGs and ICO, regenerated from the Font Awesome icon and shipped in `template/favicon/` instead of the content repo. Icons in the page still load from the Pro kit, since the Pro licence bans publishing standalone SVG copies.
 
 ## 0.4.0 — 2026-10-02
-Live 2026-10-02 · Commits `git log v0.3.3..v0.4.0`
+Commits `git log v0.3.3..v0.4.0`
 
 - **Changed, can fail a build:** the build now fails (with a `BuildError`, no stack trace) on: two pages at one URL, an alias that replaces a page or collides with another, Markdown outside the known folders, an aliased notes page, a broken body-EJS template, and an iCloud placeholder file.
 - **Added:** each alias of a page also redirects `/{alias}/notes` to its notes page. Hidden pages write no alias stubs.
@@ -662,22 +662,22 @@ Live 2026-10-02 · Commits `git log v0.3.3..v0.4.0`
 - **Removed:** the unused Entypo, Fontello and Font Awesome 3 fonts and CSS.
 
 ## 0.3.3 — 2026-10-02
-Live 2026-10-02 · Commits `git log v0.3.2..v0.3.3`
+Commits `git log v0.3.2..v0.3.3`
 
 - **Changed:** the project is renamed from Press to tsgen (Tota Scriptura Static Site Generator): the command is `tsgen`, the environment variable `TSGEN_OUT`, the repo `joeyday/tota-scriptura-static-site-generator`. No functional change; the content repo updated its dependency key, build script and lockfile to match. `markdown-it` requires `^14.3.2`.
 
 ## 0.3.2 — 2026-10-02
-Live 2026-10-02 · Commits `git log v0.3.1..v0.3.2`
+Commits `git log v0.3.1..v0.3.2`
 
 - **Fixed (security):** patch bumps to `markdown-it` 14.3.2, `linkify-it` 5.0.2, `js-yaml` 3.15.2 and `brace-expansion` 2.1.7 for their denial-of-service advisories. `npm audit` reports 0 vulnerabilities; the built site is byte-identical.
 
 ## 0.3.1 — 2026-10-02
-Live 2026-10-02 · Commits `git log v0.3.0..v0.3.1`
+Commits `git log v0.3.0..v0.3.1`
 
 - **Changed (output):** the namespace indexes are titled "All topic pages", "All commentary pages" and so on (the sidebar link still says Alphabetical index), and the namespace menu gets the tinted rounded box the categories line uses.
 
 ## 0.3.0 — 2026-10-02
-Live 2026-10-02 (with the content migration to the namespace layout) · Commits `git log v0.2.0..v0.3.0`
+Commits `git log v0.2.0..v0.3.0`
 
 The refactor and speed release. A clean build of the vault went from about 0.97 s to about 0.48 s, byte-identical apart from the fixes below.
 
@@ -698,7 +698,7 @@ The "hardcode the folder roles" release. The content repo was migrated to match 
 - **Added:** `tsgen serve` (then `press serve`), a local preview server at `http://localhost:4000/` that mimics GitHub Pages (directory indexes, redirects to a trailing slash, `404.html` with a 404 status, path-traversal protection, localhost only), and the `PRESS_OUT` (now `TSGEN_OUT`) environment variable to choose the output directory. The output directory's name is skipped when scanning the vault. (A same-day attempt to serve at `press.lvh.me` on port 80 was reverted.)
 
 ## 0.1.0 — 2026-10-01
-Live 2026-10-01 · Commits `git log v0.1.0`
+Commits `git log v0.1.0`
 
 The first release: the site's generator, split out of the content repo.
 
