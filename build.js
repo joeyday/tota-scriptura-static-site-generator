@@ -42,16 +42,18 @@ const TEMPLATE_PATH = path.join(TEMPLATE_DIR, 'layout.ejs')
 // ─── Cache-buster ───
 // The content repo's commit (CI sets GITHUB_SHA; locally, the vault's HEAD), so
 // assets are refetched exactly when a deploy changes something. Without a repo,
-// one timestamp for the whole build.
+// one timestamp for the whole build. `commit` is false for anything that is not a commit
+// hash (the timestamp), which the statistics print but do not link.
 function cacheBuster () {
-  if (process.env.GITHUB_SHA) return process.env.GITHUB_SHA.slice(0, 7)
+  const hash = (value) => ({ value, commit: /^[0-9a-f]{7,}$/.test(value) })
+  if (process.env.GITHUB_SHA) return hash(process.env.GITHUB_SHA.slice(0, 7))
   try {
-    return execFileSync('git', ['rev-parse', '--short=7', 'HEAD'], {
+    return hash(execFileSync('git', ['rev-parse', '--short=7', 'HEAD'], {
       encoding: 'utf-8',
       stdio: ['ignore', 'pipe', 'ignore']
-    }).trim()
+    }).trim())
   } catch {
-    return String(Math.floor(Date.now() / 1000))
+    return { value: String(Math.floor(Date.now() / 1000)), commit: false }
   }
 }
 
@@ -104,7 +106,7 @@ async function build ({ showHidden = false, outputDir = OUTPUT_DIR } = {}) {
     plannedUrls
   } = buildModel({ filesToProcess, index, fileMap, partials, imageMap, aliasRedirects })
 
-  const commit = cacheBuster()
+  const buster = cacheBuster()
   const renderLayout = createLayout({
     template: await fs.readFile(TEMPLATE_PATH, 'utf-8'),
     draftUrls,
@@ -114,7 +116,7 @@ async function build ({ showHidden = false, outputDir = OUTPUT_DIR } = {}) {
     plannedUrls,
     allKnownUrls,
     fallbackHero: fallbackHero(imageMap),
-    cacheBust: commit
+    cacheBust: buster.value
   })
 
   const searchDocs = []
@@ -334,7 +336,7 @@ async function build ({ showHidden = false, outputDir = OUTPUT_DIR } = {}) {
     draftPages,
     featuredWithMap
   })
-  await writeSearch({ output, renderLayout, searchDocs, cacheBust: commit })
+  await writeSearch({ output, renderLayout, searchDocs, cacheBust: buster.value })
   await writeRandom({ output, renderLayout, listedNamespaces, alphabeticalByNs })
   await writeSettings({ output, renderLayout })
   await output.writeFile('.nojekyll', '')
@@ -357,7 +359,8 @@ async function build ({ showHidden = false, outputDir = OUTPUT_DIR } = {}) {
       version: JSON.parse(
         await fs.readFile(new URL('./package.json', import.meta.url), 'utf-8')
       ).version,
-      commit: /^[0-9a-f]{7,}$/.test(commit) ? commit : 'a local build'
+      commit: buster.value,
+      commitLinked: buster.commit
     })
   })
 

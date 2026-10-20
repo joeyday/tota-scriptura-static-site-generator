@@ -182,12 +182,12 @@ describe('the cache-buster', { concurrency: true }, () => {
     assert.ok(stamp >= before && stamp <= before + 60, stamp)
   })
 
-  // A timestamp is all digits, which the statistics page takes for a commit: it prints
-  // it as one and links to a GitHub commit that does not exist.
-  test('the statistics call a build with no commit "a local build"', { todo: 'a timestamp looks like a hex commit hash' }, async () => {
+  // A timestamp is all digits: the statistics print it as plain text, with no link to a
+  // GitHub commit that does not exist.
+  test('the statistics print a build with no commit as plain text, unlinked', async () => {
     const b = await build({ 'Home.md': page('x'), 'Home page.md': null }, { env: { GITHUB_SHA: '', GIT_DIR: '/nonexistent', GIT_CEILING_DIRECTORIES: '/' } })
     const html = await b.read('/statistics')
-    assert.match(html, /a local build/)
+    assert.match(html, /accurate as of commit \d{10}, built/)
     assert.doesNotMatch(html, /\/commit\//)
   })
 })
