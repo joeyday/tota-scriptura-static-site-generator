@@ -139,11 +139,11 @@ test('references that cannot exist are problems and are not collected', () => {
 })
 
 test('a bad continuation says what it was read as', () => {
-  // A bare verse after a cross-chapter range is read in the range's first chapter
-  // (12), not its last (15). Pinned as the code behaves today.
+  // A bare verse after a cross-chapter range is read in the range's last chapter.
   const { problems } = run('Romans 12:1\u201315:13, 71')
   assert.equal(problems.length, 1)
-  assert.match(problems[0], /"71" \(read as Romans 12:71\)/)
+  assert.match(problems[0], /"71" \(read as Romans 15:71\)/)
+  assert.deepEqual(hrefs(run('Ro 12:1\u201315:13, 12').html), ['Ro12.1-15.13;ESV', 'Ro15.12;ESV'])
 })
 
 test('a generated page (no page record) links but collects nothing', () => {

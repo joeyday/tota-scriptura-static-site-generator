@@ -44,10 +44,8 @@ test('a fence closes on the same character, however long (the code says 3 or mor
 })
 
 // CommonMark closes a fence only on a fence at least as long as the opening one, so
-// a four-backtick fence can hold a three-backtick line. maskCode closes it at the
-// first three (its comment says "any length of 3+"), which leaves "still code" unmasked
-// and starts a second, unclosed fence that swallows the rest of the text.
-test('a longer fence is not closed by a shorter one (CommonMark)', { todo: 'maskCode closes on any fence of 3+' }, () => {
+// a four-backtick fence can hold a three-backtick line.
+test('a longer fence is not closed by a shorter one (CommonMark)', () => {
   const { stash } = roundTrip('````\n```\nstill code\n````\nout')
   assert.equal(stash.length, 1)
   assert.match(stash[0], /still code/)

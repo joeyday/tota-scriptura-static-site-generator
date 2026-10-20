@@ -40,6 +40,7 @@ const stats = (overrides = {}) => computeStatistics({
   imageMap: {},
   version: '0.0.0',
   commit: 'abc1234',
+  commitLinked: true,
   ...overrides
 })
 

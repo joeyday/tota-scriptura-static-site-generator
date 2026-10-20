@@ -74,11 +74,11 @@ describe('the build\'s environment', { concurrency: true }, () => {
     await fs.access(path.join(b.vault, 'dist', 'topic', 'grace', 'index.html'))
   })
 
-  test('a commit that is not a hash is "a local build" in the statistics', async () => {
+  test('a commit that is not a hash is plain text, unlinked, in the statistics', async () => {
     const b = await build({}, { env: { GITHUB_SHA: 'localdev-build' } })
     assert.equal(b.code, 0, b.output)
     const html = await b.read('/statistics')
-    assert.match(html, /a local build/)
+    assert.match(html, /accurate as of commit localde, built/)
     assert.doesNotMatch(html, /\/commit\//)
   })
 
@@ -304,10 +304,9 @@ test('a book\'s entries are ordered by chapter, then verse, then the end of the 
   })
   assert.equal(b.code, 0, b.output)
   const ids = [...(await b.read('/index/scripture/john')).matchAll(/<dt class="scripture-reference" id="([^"]+)"/g)].map((m) => m[1])
-  // The comparator reads `rangeVal` as a number whichever it is: the last verse of a range in
-  // one chapter, or the last chapter of a range across two. So 3:16\u20134:2 (4) sorts before
-  // 3:16\u201318 (18). Pinned as it is; see docs/plan.md.
-  assert.deepEqual(ids, ['2.1', '3', '3.2', '3.2-4', '3.2-4.1', '3.16', '3.16-4.1', '3.16-4.2', '3.16-18', '3.16-20'])
+  // From the same verse the longer range comes first: by where it ends, a run across
+  // chapters ahead of one within a chapter, a single verse last.
+  assert.deepEqual(ids, ['2.1', '3', '3.2-4.1', '3.2-4', '3.2', '3.16-4.2', '3.16-4.1', '3.16-20', '3.16-18', '3.16'])
 })
 
 test('a heading that holds a wikilink is linked by its display text', async () => {

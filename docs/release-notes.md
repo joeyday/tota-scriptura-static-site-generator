@@ -7,7 +7,29 @@ What changed in each tsgen release, newest first, and (at the end) what the gene
 - Output changes are called out. Unless a release says otherwise, a refactor or speed-up left the built site byte-identical to the previous release, which `scripts/compare-dist.mjs` checks.
 - "The vault" is the content repo. Its own side of each change (migrations, files edited) is Joey's and lives in that repo's history.
 
-Contents: [0.19](#0190--2026-10-19) · [0.18](#0182--2026-10-19) · [0.17](#0170--2026-10-13) · [0.16](#0160--2026-10-13) · [0.15](#0150--2026-10-12) · [0.14](#0140--2026-10-12) · [0.13](#0130--2026-10-11) · [0.12](#0121--2026-10-11) · [0.11](#01117--2026-10-11) · [0.10](#0102--2026-10-08) · [0.9](#090--2026-10-07) · [0.8](#080--2026-10-07) · [0.7](#070--2026-10-06) · [0.6](#060--2026-10-06) · [0.5](#050--2026-10-02) · [0.4](#040--2026-10-02) · [0.3](#030--2026-10-02) · [0.2](#020--2026-10-02) · [0.1](#010--2026-10-01) · [Before tsgen](#before-tsgen-buildjs-in-the-content-repo-2026-02-28--2026-10-01)
+Contents: [0.19.1](#0191--2026-10-20) · [0.19](#0190--2026-10-19) · [0.18](#0182--2026-10-19) · [0.17](#0170--2026-10-13) · [0.16](#0160--2026-10-13) · [0.15](#0150--2026-10-12) · [0.14](#0140--2026-10-12) · [0.13](#0130--2026-10-11) · [0.12](#0121--2026-10-11) · [0.11](#01117--2026-10-11) · [0.10](#0102--2026-10-08) · [0.9](#090--2026-10-07) · [0.8](#080--2026-10-07) · [0.7](#070--2026-10-06) · [0.6](#060--2026-10-06) · [0.5](#050--2026-10-02) · [0.4](#040--2026-10-02) · [0.3](#030--2026-10-02) · [0.2](#020--2026-10-02) · [0.1](#010--2026-10-01) · [Before tsgen](#before-tsgen-buildjs-in-the-content-repo-2026-02-28--2026-10-01)
+
+---
+
+## 0.19.1 — 2026-10-20
+Live: not yet deployed · Commits `git log v0.19.0..v0.19.1`
+
+A release of fixes. No content needs to change. The one change the live site shows is the order of entries in the Scripture index.
+
+**Scripture index**
+- **Changed (output):** from the same starting verse, the longer range comes first, by where it ends: `John 3:16–4:2`, `3:16–20`, `3:16–18`, then `3:16`. A range across two chapters used to sort among same-chapter ranges by a number that meant something else. On the current content this reorders entries in 50 book pages and in the Titus commentary page, which shows the same entries.
+
+**Bible references**
+- **Fixed:** a bare verse after a run across chapters belongs to the chapter the run ended in: `Romans 12:1–15:13, 20` is Romans 15:20, not Romans 12:20. No page in the content has one yet.
+
+**Statistics**
+- **Fixed:** a build with no commit hash (no `GITHUB_SHA`, no git repository) prints its timestamp as plain text in the footnote, instead of linking to a GitHub commit that does not exist. Builds with a commit are unchanged.
+
+**Markdown**
+- **Fixed:** a code fence is closed only by a fence at least as long as the one that opened it, as in CommonMark, so a four-backtick fence can hold a three-backtick line. The content has no fenced code yet.
+
+**Development**
+- **Added:** a test suite (`npm test`, `npm run coverage`, `npm run fuzz`) and CI on every pull request and on `main`. `main` and the `v*` tags are protected; a tag is made only on a commit whose CI run is green. See `docs/decisions.md`, Process.
 
 ---
 
