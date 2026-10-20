@@ -14,6 +14,10 @@ Settled questions, so they aren't re-litigated. Each says who decided and when. 
 
 - **The code follows JavaScript Standard Style** (standardjs.com), enforced with `standard` (`npm run lint`, `npm run fix`). Single quotes, no semicolons, no trailing commas. The old double-quote, semicolon and trailing-comma style was just what Replit Agent wrote; Joey never chose it and has always preferred Standard's. Adopted 2026-10-10 in one reformatting commit, listed in `.git-blame-ignore-revs`; the built site was byte-identical apart from the two browser scripts in `template/`, which are shipped reformatted. (Joey)
 
+## Process
+- **`main` and release tags are protected, and the suite gates both** (Joey, 2026-10-20). Two GitHub rulesets: `main` takes changes only by pull request with the `test` check (lint and the full suite, `.github/workflows/ci.yml`) green and the branch up to date; no force-pushes or deletion; no required reviews (there is no one to review). The one bypass is a repository admin merging a pull request, for an emergency such as a broken CI config; a direct push to `main` is refused for everyone. Tags matching `v*` can't be moved or deleted (a mistake is a new patch release). GitHub cannot refuse a tag on a commit whose suite is red, so **we never tag one**: before tagging, confirm the CI run on that exact commit passed (`CLAUDE.md`, Releasing). The content repo's own gates (`scripts/update-tsgen.sh`) are its business.
+- **tsgen's spec is not bent to the content repo** (Joey, 2026-10-20). The two are one site in practice, but tsgen treats the content repo as a separate project that conforms to it: when a tsgen change breaks the content repo's build, the content repo is fixed, not tsgen. So tsgen's CI never builds the real content (no job that checks out the content repo), and a release is gated on tsgen's own suite alone.
+
 ## Content model
 - **`permalink` stays**, even for the home page: it lets Joey rename the home page. The home page is not hardcoded. (Joey, 2026-10-08)
 - **A notes page with no topic page is a feature**: it builds, with a greyed Topic tab and no warning. (Joey, 2026-10-08)

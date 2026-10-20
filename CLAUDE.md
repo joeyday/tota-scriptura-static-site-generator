@@ -19,6 +19,7 @@ A static site generator with a deliberately boring name. It turns an Obsidian-st
 - The site's *content* lives in a separate vault repo. The generator's code lives here, even though that code is site-specific.
 - Style is **JavaScript Standard Style** (standardjs.com): single quotes, no semicolons, no trailing commas, a space before function parentheses. Run `npm run fix` and then `npm run lint` before committing; lint must be clean. Beyond that, match the code around you: `// ─── Section ───` banners, and explanatory comments on the non-obvious regexes. Standard doesn't cover CSS or EJS, and the JavaScript written as template strings (the search and random scripts) isn't linted.
 - Only commit when asked. Pushing tags or touching the content repo needs Joey's explicit go-ahead.
+- **`main` is protected** (a GitHub ruleset; see `docs/decisions.md`, Process). Nothing is pushed to it directly: work on a branch, push the branch, open a pull request with `gh pr create`, and merge it (`gh pr merge --squash`) once the `test` check is green. Lint and the suite (`npm run lint`, `npm test`) run on every PR and on every push to `main`; run them locally first. Never merge a red PR, and never bypass the ruleset.
 - For test builds, set `TSGEN_OUT` to the scratchpad. `~/.tsgen/dist` (Joey's own `TSGEN_OUT`) is outside my default workspace.
 
 ## Running and testing
@@ -36,6 +37,9 @@ Search tools skip gitignored paths, so target `vault/` explicitly when searching
 
 ```sh
 npm ci                                                      # once
+npm test                                                    # unit tests, scratch-vault builds and serve tests (~16 s); needs no vault/
+npm run coverage                                            # the same, with Node's coverage report
+npm run fuzz                                                # seeded fuzzing of the Bible code (FUZZ_SEED, FUZZ_ITERATIONS)
 cd vault && rm -rf dist && node ../build.js                 # build (cwd must be the vault)
 node ../scripts/compare-dist.mjs ../baseline/dist dist      # must say IDENTICAL for pure refactors
 ```
@@ -45,7 +49,8 @@ node ../scripts/compare-dist.mjs ../baseline/dist dist      # must say IDENTICAL
 - `baseline/dist` (gitignored) is the reference output of the generator as of the last baseline, built from the current `vault/` copy. Regenerate it whenever `vault/` is refreshed, or whenever an output change is accepted on purpose.
 - **At the start of any new development**, before changing code: commit or park pending work, `rsync` the content repo into `vault/` (the command is below), then rebuild `baseline/dist` from the unchanged code (`TSGEN_OUT` pointing at `baseline/dist`, after `rm -rf`). When the work is done, `compare-dist.mjs` shows exactly what it changed, so every diff is attributable to the new work and not to content drift.
 - The layout's asset cache-buster is the content repo's short commit hash (`GITHUB_SHA` in CI, else `git rev-parse` in the cwd, else a build timestamp). Inside `vault/` that finds this repo's own HEAD. `compare-dist.mjs` normalises the buster, so use it rather than raw `diff -r`.
-- For edge cases the vault lacks, use a scratch vault in the scratchpad.
+- For edge cases the vault lacks, add a test: `test/helpers/scratch-vault.js` builds a tiny vault with the real generator (see `test/build.test.js`). Use a scratch vault in the scratchpad only for one-off experiments.
+- **The test suite** (`test/*.test.js`, Node's built-in runner, no dependency) is run before every commit along with lint. Unit tests sit beside the module they cover; `build.test.js`, `generated.test.js`, `corners.test.js` and `gaps.test.js` build scratch vaults with the real CLI; `serve.test.js` runs `tsgen serve` for real, including the supervisor (it touches files of tsgen's own code, so its last tests run alone). A test for a known bug is marked `todo` with the bug named, and lives in the plan until fixed; when the bug is fixed, remove the `todo`. Coverage is about 99.9% of lines and 98.8% of branches: what is left is defensive code that no input reaches (a Windows path check, `?? fallbacks` for impossible states, the `building` guard in `watchAndRebuild`, which needs a build that gives up the event loop for longer than the watcher's quiet period). New code gets tests in the same commit.
 
 ## Releasing
 
@@ -53,9 +58,10 @@ The content repo (`joeyday/totascriptura.org`, cloned at `~/Documents/Obsidian/T
 
 To release:
 1. Pick the number: a minor release has new features, a release of fixes is a patch even if it is breaking or fails the build in new ways (`docs/decisions.md` → Versioning). Bump `version` in `package.json`, and add the release's entry to the top of `docs/release-notes.md` (date, what changed, output changes called out; leave "Live" for when the content repo bumps). Delete what the release finished from `docs/plan.md`.
-2. Commit, then tag `vX.Y.Z` and push the tag.
-3. In the content repo, run `npm run update-tsgen -- X.Y.Z` (`scripts/update-tsgen.sh`). It checks that the tag exists on GitHub, sets the tag in `package.json`, re-resolves the git dependency (`npm update tsgen --package-lock-only`; plain `npm install --package-lock-only` does **not** re-resolve a git dependency whose lock entry already exists, so CI would keep building with the old tsgen), runs `npm audit fix --package-lock-only` (the content repo's lockfile pins tsgen's nested dependencies, so patched versions only arrive when it is refreshed), and fails unless the lockfile's `node_modules/tsgen` entry shows the new version and the tag's commit. It edits only those two files. Never run a full `npm install` inside the iCloud vault. Content migrations and the tag bump go in one commit, since the push is what deploys.
-4. Commit and push. Only do this with Joey's go-ahead, since it deploys the live site.
+2. Commit that on a branch and merge it by pull request (`main` is protected). Then, on `main` at the merge commit, **check that the suite is green on that exact commit before tagging**: `gh run list --branch main --commit "$(git rev-parse HEAD)"` must show the CI run as completed with success. If it is still running, wait; if it failed, fix it first. Nothing in GitHub can stop a tag on a commit without a green suite, so this check is a rule we follow ourselves, every time, with no exceptions.
+3. Tag `vX.Y.Z` at that commit and push the tag. A pushed `v*` tag is protected: it can't be moved or deleted, so a mistake is a new patch release, not a re-tag. The tag push runs CI once more under the tag's own name.
+4. In the content repo, run `npm run update-tsgen -- X.Y.Z` (`scripts/update-tsgen.sh`, which belongs to the content repo and its agent). It checks that the tag exists on GitHub, sets the tag in `package.json`, re-resolves the git dependency (`npm update tsgen --package-lock-only`; plain `npm install --package-lock-only` does **not** re-resolve a git dependency whose lock entry already exists, so CI would keep building with the old tsgen), runs `npm audit fix --package-lock-only` (the content repo's lockfile pins tsgen's nested dependencies, so patched versions only arrive when it is refreshed), and fails unless the lockfile's `node_modules/tsgen` entry shows the new version and the tag's commit. It edits only those two files. Never run a full `npm install` inside the iCloud vault. Content migrations and the tag bump go in one commit, since the push is what deploys.
+5. Commit and push. Only do this with Joey's go-ahead, since it deploys the live site.
 
 `template/` (layout, CSS, JS, `favicon/`) belongs to tsgen. It is resolved from `build.js`'s own directory, and its assets are copied alongside the vault's. Never commit Font Awesome Pro SVGs: the repo is public and the Pro licence bans standalone copies. Icons load from the Pro kit; only rasterized PNGs (`favicon/`) live here. Text fonts come from Typekit, so there are no font files.
 
