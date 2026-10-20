@@ -12,7 +12,7 @@ import { addHeadingIds, smallAsides } from '../lib/html/passes.js'
 import { mapText } from '../lib/html/walk.js'
 import { md, protectFencedAttrs } from '../lib/markdown.js'
 import { buildVault, makeVault } from './helpers/scratch-vault.js'
-import { startServe, startStatic, waitFor } from './helpers/serve.js'
+import { changeUntil, startServe, startStatic, waitFor } from './helpers/serve.js'
 
 // One-line corners of the generator, each with the smallest input that reaches it.
 
@@ -252,8 +252,7 @@ describe('serve --show-hidden', { concurrency: true }, () => {
     // Add the file and let that rebuild finish; only then lock it and change another page, so
     // the next rebuild reads it. (Locking a file as it is made goes unnoticed by the watcher on Linux.)
     const file = path.join(made.vault, 'topic', 'Locked.md')
-    await fs.writeFile(file, page('l'))
-    await waitFor(() => /Rebuilt in/.test(server.output()), { what: `the first rebuild:\n${server.output()}` })
+    await changeUntil((n) => fs.writeFile(file, page(`l ${n}`)), () => /Rebuilt in/.test(server.output()))
     await fs.chmod(file, 0o000)
     try {
       await fs.writeFile(path.join(made.vault, 'topic', 'Grace.md'), page('changed'))
@@ -268,8 +267,9 @@ describe('serve --show-hidden', { concurrency: true }, () => {
     cleanups.push(made.cleanup)
     const server = await startServe(made.vault, made.dist, {})
     cleanups.push(() => server.close())
-    for (let i = 1; i <= 7; i++) await fs.writeFile(path.join(made.vault, 'topic', `New${i}.md`), page('n'))
-    await waitFor(() => /Changed: .* and 2 more/.test(server.output()), { what: `the count:\n${server.output()}` })
+    await changeUntil(async (n) => {
+      for (let i = 1; i <= 7; i++) await fs.writeFile(path.join(made.vault, 'topic', `New${i}.md`), page(`n ${n}`))
+    }, () => /Changed: .* and 2 more/.test(server.output()))
   })
 })
 

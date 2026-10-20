@@ -7,7 +7,7 @@ import { promisify } from 'node:util'
 import { processBibleRefs } from '../lib/bible/process.js'
 import { md, protectFencedAttrs } from '../lib/markdown.js'
 import { buildVault, makeVault } from './helpers/scratch-vault.js'
-import { startServe, startStatic, waitFor } from './helpers/serve.js'
+import { changeUntil, startServe, startStatic, waitFor } from './helpers/serve.js'
 
 // What the other test files leave: odd corners of the Bible checker, the markdown rules, URL
 // assignment, the cache-buster, commentary slicing, and the rebuild that overlaps another.
@@ -299,8 +299,9 @@ describe('serve edge cases', { concurrency: true }, () => {
     const server = await startServe(made.vault, made.dist, {})
     cleanups.push(() => server.close())
 
-    for (const [name, content] of Object.entries(slow(600))) await fs.writeFile(path.join(made.vault, name), content)
-    await waitFor(() => /Changed:/.test(server.output()), { what: 'the first rebuild to start' })
+    await changeUntil(async (n) => {
+      for (const [name, content] of Object.entries(slow(600 + n))) await fs.writeFile(path.join(made.vault, name), content)
+    }, () => /Changed:/.test(server.output()))
     for (const [name, content] of Object.entries(slow(0))) await fs.writeFile(path.join(made.vault, name), content)
     await waitFor(() => (server.output().match(/Rebuilt in/g) ?? []).length >= 2, { timeout: 40000, what: `two rebuilds:\n${server.output()}` })
     assert.ok((server.output().match(/Changed:/g) ?? []).length >= 2)

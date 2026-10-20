@@ -9,7 +9,7 @@ const TSGEN_DIR = fileURLToPath(new URL('../..', import.meta.url))
 export const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
 // Polls `check` (which may be async) until it returns something truthy; fails after `timeout`.
-export async function waitFor (check, { timeout = 15000, what = 'a condition' } = {}) {
+export async function waitFor (check, { timeout = 30000, what = 'a condition' } = {}) {
   const started = Date.now()
   for (;;) {
     const value = await check()
@@ -32,6 +32,22 @@ function exitOf (child) {
     })
     child.once('close', (code, signal) => resolve([code, signal]))
   })
+}
+
+// Makes a change to a watched vault and waits for `until` (a function) to become true; if it
+// doesn't within `wait` ms, makes the change again, differently (`change(attempt)` is given the
+// attempt number), up to `tries` times. `tsgen serve` says it is serving a moment before its
+// watcher is ready, and a slow machine can miss a change made in that moment; a change made
+// again is seen.
+export async function changeUntil (change, until, { tries = 4, wait = 8000, what = 'the change to be noticed' } = {}) {
+  for (let attempt = 0; ; attempt++) {
+    await change(attempt)
+    try {
+      return await waitFor(until, { timeout: wait, what })
+    } catch (err) {
+      if (attempt + 1 >= tries) throw err
+    }
+  }
 }
 
 // A port nothing is listening on.

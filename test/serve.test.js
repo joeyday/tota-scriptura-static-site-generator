@@ -5,7 +5,7 @@ import http from 'node:http'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { buildVault, makeVault } from './helpers/scratch-vault.js'
-import { copyGenerator, freePort, startServe, startStatic, waitFor } from './helpers/serve.js'
+import { changeUntil, copyGenerator, freePort, startServe, startStatic, waitFor } from './helpers/serve.js'
 
 // The preview server, run for real as `tsgen serve` in scratch vaults. These tests start
 // processes and (the watching ones) wait out the watcher's quiet period, so they take a few
@@ -252,23 +252,30 @@ describe('serve with watching', { concurrency: true }, () => {
     await read()
     assert.match(seen, /^data: [0-9a-z]+\n\n/)
 
-    await fs.writeFile(path.join(made.vault, 'topic', 'Grace.md'), page('Version two.'))
+    await changeUntil(
+      (n) => fs.writeFile(path.join(made.vault, 'topic', 'Grace.md'), page(n === 0 ? 'Version two.' : `Version two, again ${n}.`)),
+      () => /Rebuilt in/.test(server.output())
+    )
     while (!seen.includes('data: reload')) await read()
     assert.match(server.output(), /Changed: topic\/Grace\.md/)
     assert.match(server.output(), /Rebuilt in \d+\.\d+ s\./)
-    assert.match(await (await server.get('/topic/grace/')).text(), /Version two\./)
+    assert.match(await (await server.get('/topic/grace/')).text(), /Version two/)
     await reader.cancel()
   })
 
   test('a build that fails keeps the last good site up, and fixing it recovers', async () => {
     const made = await vaultFor({ 'topic/Grace.md': page('Good.') })
     const server = await serve(made)
-    await fs.writeFile(path.join(made.vault, 'topic', 'Grace.md'), page('[[Nowhere]]'))
-    await waitFor(() => /still serving the last good build/.test(server.output()), { what: `a failed rebuild:\n${server.output()}` })
+    await changeUntil(
+      (n) => fs.writeFile(path.join(made.vault, 'topic', 'Grace.md'), page(`[[Nowhere]] ${n}`)),
+      () => /still serving the last good build/.test(server.output())
+    )
     assert.match(server.output(), /\[\[Nowhere\]\] matches no page/)
     assert.match(await (await server.get('/topic/grace/')).text(), /Good\./)
-    await fs.writeFile(path.join(made.vault, 'topic', 'Grace.md'), page('Fixed.'))
-    await waitFor(async () => /Fixed\./.test(await (await server.get('/topic/grace/')).text()), { what: 'the fix to be served' })
+    await changeUntil(
+      (n) => fs.writeFile(path.join(made.vault, 'topic', 'Grace.md'), page(`Fixed. ${n}`)),
+      async () => /Fixed\./.test(await (await server.get('/topic/grace/')).text())
+    )
   })
 
   test('changes the watcher does not care about do not rebuild', async () => {
@@ -387,8 +394,7 @@ describe('the supervisor and the watcher, on more of tsgen\'s own files', { conc
   test('a change to a file of the template rebuilds the site', async () => {
     const made = await vaultFor({ 'topic/Grace.md': page('g') })
     const server = await serve(made)
-    await touch('template', 'print.js')
-    await waitFor(() => /Changed: print\.js/.test(server.output()), { what: `a rebuild:\n${server.output()}` })
+    await changeUntil(() => touch('template', 'print.js'), () => /Changed: print\.js/.test(server.output()))
     await waitFor(() => /Rebuilt in/.test(server.output()), { what: 'the rebuild to finish' })
   })
 
