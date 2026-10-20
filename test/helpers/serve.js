@@ -19,6 +19,21 @@ export async function waitFor (check, { timeout = 15000, what = 'a condition' } 
   }
 }
 
+// A promise of [code, signal] for a child process, kept until its output has all arrived: the
+// text a process printed just before it exited can still be in the pipe when 'exit' fires, and
+// 'close' (after the pipes end) is the event that comes after it. If something else holds a pipe
+// open, don't wait for it for more than a moment.
+function exitOf (child) {
+  return new Promise((resolve) => {
+    let result
+    child.once('exit', (code, signal) => {
+      result = [code, signal]
+      setTimeout(() => resolve(result), 500).unref()
+    })
+    child.once('close', (code, signal) => resolve([code, signal]))
+  })
+}
+
 // A port nothing is listening on.
 export function freePort () {
   return new Promise((resolve, reject) => {
@@ -58,7 +73,7 @@ export async function startServe (vault, dist, { args = [], buildJs = path.join(
   })
   child.stdout.on('data', (chunk) => { output += chunk })
   child.stderr.on('data', (chunk) => { output += chunk })
-  const exit = new Promise((resolve) => child.once('exit', (code, signal) => resolve([code, signal])))
+  const exit = exitOf(child)
   let exited = false
   exit.then(() => { exited = true })
 
@@ -106,7 +121,7 @@ export async function startStatic (dist, { watching = false, port } = {}) {
   })
   child.stdout.on('data', (chunk) => { output += chunk })
   child.stderr.on('data', (chunk) => { output += chunk })
-  const exit = new Promise((resolve) => child.once('exit', (code, signal) => resolve([code, signal])))
+  const exit = exitOf(child)
   let exited = false
   exit.then(() => { exited = true })
   const server = {

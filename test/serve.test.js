@@ -121,7 +121,7 @@ describe('the static server (serve.js)', { concurrency: true }, () => {
       const res = await server.get('/search-index.json')
       assert.equal(res.status, 500)
       assert.equal(await res.text(), '500 Internal Server Error')
-      assert.match(server.output(), /Serve error/)
+      await waitFor(() => /Serve error/.test(server.output()), { what: `the error message:\n${server.output()}` })
     } finally {
       await fs.chmod(file, 0o644)
     }
