@@ -15,6 +15,9 @@
     "template/"
   ],
   "scripts": {
+    "test": "node --test test/*.test.js",
+    "fuzz": "node test/fuzz/bible.fuzz.js",
+    "coverage": "node --test --experimental-test-coverage --test-coverage-include='lib/**' --test-coverage-include=build.js --test-coverage-include=serve.js test/*.test.js",
     "lint": "standard",
     "fix": "standard --fix"
   },
