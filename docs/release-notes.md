@@ -7,7 +7,19 @@ What changed in each tsgen release, newest first, and (at the end) what the gene
 - Output changes are called out. Unless a release says otherwise, a refactor or speed-up left the built site byte-identical to the previous release, which `scripts/compare-dist.mjs` checks.
 - "The vault" is the content repo. Its own side of each change (migrations, files edited) is Joey's and lives in that repo's history.
 
-Contents: [0.19.1](#0191--2026-10-20) · [0.19](#0190--2026-10-19) · [0.18](#0182--2026-10-19) · [0.17](#0170--2026-10-13) · [0.16](#0160--2026-10-13) · [0.15](#0150--2026-10-12) · [0.14](#0140--2026-10-12) · [0.13](#0130--2026-10-11) · [0.12](#0121--2026-10-11) · [0.11](#01117--2026-10-11) · [0.10](#0102--2026-10-08) · [0.9](#090--2026-10-07) · [0.8](#080--2026-10-07) · [0.7](#070--2026-10-06) · [0.6](#060--2026-10-06) · [0.5](#050--2026-10-02) · [0.4](#040--2026-10-02) · [0.3](#030--2026-10-02) · [0.2](#020--2026-10-02) · [0.1](#010--2026-10-01) · [Before tsgen](#before-tsgen-buildjs-in-the-content-repo-2026-02-28--2026-10-01)
+Contents: [0.19.2](#0192--2026-10-20) · [0.19.1](#0191--2026-10-20) · [0.19](#0190--2026-10-19) · [0.18](#0182--2026-10-19) · [0.17](#0170--2026-10-13) · [0.16](#0160--2026-10-13) · [0.15](#0150--2026-10-12) · [0.14](#0140--2026-10-12) · [0.13](#0130--2026-10-11) · [0.12](#0121--2026-10-11) · [0.11](#01117--2026-10-11) · [0.10](#0102--2026-10-08) · [0.9](#090--2026-10-07) · [0.8](#080--2026-10-07) · [0.7](#070--2026-10-06) · [0.6](#060--2026-10-06) · [0.5](#050--2026-10-02) · [0.4](#040--2026-10-02) · [0.3](#030--2026-10-02) · [0.2](#020--2026-10-02) · [0.1](#010--2026-10-01) · [Before tsgen](#before-tsgen-buildjs-in-the-content-repo-2026-02-28--2026-10-01)
+
+---
+
+## 0.19.2 — 2026-10-20
+Commits `git log v0.19.1..v0.19.2`
+
+The search page, finished: its page links look like the rest of the site, and it says which kind of page it is. No content needs to change.
+
+**Search**
+- **Changed (output):** the buttons under the results are links, like the book-to-book links of the Scripture index: `« Previous · 1 · … · 4 · 5 · 6 · … · 20 · Next »`. The current page is bold and unlinked, the first and last page and two either side of the current one are shown, and a gap is a `…`. Each link is a real address (`?q=…&page=n`). The count no longer says "page 1 of 7". The kind of page after a result's title (Topic, Commentary, …) is in normal text, no longer muted.
+- **Added (output):** the search page and the settings page have a lone page-action tab at the foot, like the indexes' `Index page`: `Search page` and `Settings page`. The random page has none.
+- **Fixed (output):** the current page in the pager has `aria-current="page"`, and the result count is a live region of its own (`role="status"`), so a screen reader announces the count and not the whole list as a search runs.
 
 ---
 

@@ -4,7 +4,6 @@ Open work only: bugs to fix and features to build. When something is finished, d
 
 ## Features
 
-- **Design the Search page** (Joey, 2026-10-12). `/search` needs some design attention. The sidebar's search box and button are done and stay.
 - **Deterministic hero assignment from a larger pool**, for `og:image` and perhaps the page's visible hero. It would replace the single fallback image. Assign deterministically (for example a hash of the page path) so a page's card doesn't change between builds. Open: where the pool lives, and whether every page should show a hero or only some (Joey is undecided; don't build the visible part until he decides).
 - **More statistics, if wanted:** the page is built (see `docs/decisions.md` for what it counts). Candidates not built: external links by domain, abbreviation and Roman numeral counts (each needs its pass to return a count), build-over-build trends (needs history, and breaks deterministic output), and an "as of" date.
 - **Lazy-load the Scripture index entries on commentary pages** (Joey, 2026-10-19), when a much longer book than Titus arrives. Hidden entries are still downloaded with the page; a long book's could be fetched the first time the switch is turned on instead. Also check then that the Outline and the switch hold up at that length. Fine as it is for now.

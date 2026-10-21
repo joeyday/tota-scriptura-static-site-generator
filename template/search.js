@@ -37,6 +37,7 @@
 
   const input = document.getElementById('search-input')
   const results = document.getElementById('search-results')
+  const status = document.getElementById('search-status')
   let index = null
   const bodies = {}
   let page = 1
@@ -61,21 +62,21 @@
   }
 
   function render (query, hits) {
+    results.innerHTML = ''
     if (!query) {
-      results.innerHTML = ''
+      status.textContent = ''
       return
     }
     if (!hits.length) {
       const searched = [...query.matchAll(WORD)].some((m) => processTerm(m[0]))
-      results.innerHTML = searched
-        ? '<p class="result-count">No results found.</p>'
-        : '<p class="result-count">Common words and single letters aren’t searched.</p>'
+      status.textContent = searched ? 'No results found.' : 'Common words and single letters aren’t searched.'
       return
     }
     const pages = Math.ceil(hits.length / PER_PAGE)
     page = Math.min(page, pages)
     const shown = hits.slice((page - 1) * PER_PAGE, page * PER_PAGE)
-    let html = `<p class="result-count">${hits.length} ${hits.length === 1 ? 'result' : 'results'}${pages > 1 ? ` · page ${page} of ${pages}` : ''}</p><ul>`
+    status.textContent = `${hits.length} ${hits.length === 1 ? 'result' : 'results'}`
+    let html = '<ul>'
     for (const hit of shown) {
       const terms = new Set(hit.terms)
       html += `<li><a href="${esc(hit.url)}">${esc(hit.title)}</a> <span class="kind">${esc(hit.kind)}</span>` +
@@ -83,12 +84,29 @@
     }
     html += '</ul>'
     if (pages > 1) {
-      html += '<nav class="pager" aria-label="Pages of results">' +
-        `<button type="button" data-page="${page - 1}"${page === 1 ? ' disabled' : ''}>Previous</button>` +
-        `<span>Page ${page} of ${pages}</span>` +
-        `<button type="button" data-page="${page + 1}"${page === pages ? ' disabled' : ''}>Next</button></nav>`
+      html += `<nav class="pager" aria-label="Pages of results"><p>${pager(query, page, pages)}</p></nav>`
     }
     results.innerHTML = html
+  }
+
+  // « Previous · 1 · … · 4 · 5 · 6 · … · 20 · Next », like the book-to-book links of the Scripture
+  // index. The current page is bold and unlinked; the first and last page and the two either side
+  // of the current one are shown, and a gap is a …. (The result count is a live region of its own,
+  // so a screen reader announces it, not the whole list, as a search runs.) A link keeps the query in its address, so it
+  // works as a link too (the script takes the click).
+  function pager (query, page, pages) {
+    const link = (n, label) => `<a href="?q=${encodeURIComponent(query)}${n > 1 ? `&amp;page=${n}` : ''}" data-page="${n}">${label}</a>`
+    const items = []
+    if (page > 1) items.push(link(page - 1, '&laquo; Previous'))
+    let last = 0
+    for (let n = 1; n <= pages; n++) {
+      if (n !== 1 && n !== pages && Math.abs(n - page) > 2) continue
+      if (n - last > 1) items.push('…')
+      items.push(n === page ? `<strong aria-current="page">${n}</strong>` : link(n, n))
+      last = n
+    }
+    if (page < pages) items.push(link(page + 1, 'Next &raquo;'))
+    return items.join(' &middot; ')
   }
 
   function search () {
@@ -104,9 +122,10 @@
   }
 
   results.addEventListener('click', (event) => {
-    const button = event.target.closest('button[data-page]')
-    if (!button) return
-    page = Number(button.dataset.page)
+    const link = event.target.closest('a[data-page]')
+    if (!link) return
+    event.preventDefault()
+    page = Number(link.dataset.page)
     search()
     input.scrollIntoView()
   })
@@ -116,7 +135,7 @@
     search()
   })
 
-  results.innerHTML = '<p class="result-count">Loading the search index…</p>'
+  status.textContent = 'Loading the search index…'
   fetch('/search-index.json')
     .then((r) => r.json())
     .then((docs) => {

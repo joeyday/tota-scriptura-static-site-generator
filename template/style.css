@@ -619,7 +619,7 @@ main {
         }
     }
 
-    #search-results .result-count {
+    #search-page .result-count {
         font-family: var(--font-secondary);
         color: var(--color-main-text-muted);
     }
@@ -629,29 +629,16 @@ main {
         font-family: var(--font-secondary);
         font-size: var(--font-size-small);
         font-variant-caps: all-small-caps;
-        color: var(--color-main-text-muted);
     }
 
-    #search-results .pager {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
+    /* The page links under the results, centered like the Scripture index's book-to-book links */
+    #search-results .pager p {
+        text-align: center;
         font-family: var(--font-secondary);
         color: var(--color-main-text-muted);
 
-        button {
-            font: inherit;
+        strong {
             color: var(--color-main-text);
-            background-color: var(--color-main-tint-background);
-            border: none;
-            border-radius: 3em;
-            padding: 0.2em 1em;
-            cursor: pointer;
-
-            &:disabled {
-                color: var(--color-main-text-muted);
-                cursor: default;
-            }
         }
     }
 
