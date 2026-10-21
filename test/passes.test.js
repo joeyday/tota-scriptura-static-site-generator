@@ -141,7 +141,18 @@ test('smallAsides leaves a page with no terms or definitions alone', () => {
 
 test('a parenthetical in a term or definition becomes small', () => {
   assert.equal(smallAsides('<dl><dt>Son (of God)</dt><dd>Jesus (see John 1)</dd></dl>'),
-    '<dl><dt>Son <small>(of God)</small></dt><dd>Jesus <small>(see John 1)</small></dd></dl>')
+    '<dl><dt>Son <small>(<em>of God</em>)</small></dt><dd>Jesus <small>(see John 1)</small></dd></dl>')
+})
+
+test('a parenthetical in an h3 becomes small, like one in a term', () => {
+  assert.equal(smallAsides('<h3>Order (taxis)</h3>'), '<h3>Order <small>(<em>taxis</em>)</small></h3>')
+  // Across a link, and already italic
+  assert.equal(smallAsides('<h3>A (see <a href="/x">x</a>)</h3>'), '<h3>A <small>(<em>see <a href="/x">x</a></em>)</small></h3>')
+  assert.equal(smallAsides('<dt>A (<em>b</em>)</dt>'), '<dt>A <small>(<em>b</em>)</small></dt>')
+  assert.equal(smallAsides('<dt>A (<em>b</em> and c)</dt>'), '<dt>A <small>(<em><em>b</em> and c</em>)</small></dt>')
+  assert.equal(smallAsides('<h3>Son(s)</h3>'), '<h3>Son(s)</h3>')
+  // No dash rule outside a definition
+  assert.equal(smallAsides('<h3>Word — and more</h3>'), '<h3>Word — and more</h3>')
 })
 
 test('parentheses that are part of a word, or the whole term, are left alone', () => {
@@ -167,6 +178,8 @@ test('asides inside code and web addresses are ignored', () => {
 })
 
 test('smallAsides is idempotent', () => {
-  const once = smallAsides('<dd>Jesus (see John 1) — and more</dd>')
-  assert.equal(smallAsides(once), once)
+  for (const html of ['<dd>Jesus (see John 1) — and more</dd>', '<dt>Order (taxis)</dt>', '<h3>Order (taxis)</h3>']) {
+    const once = smallAsides(html)
+    assert.equal(smallAsides(once), once)
+  }
 })

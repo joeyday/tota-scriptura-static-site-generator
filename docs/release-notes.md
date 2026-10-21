@@ -7,7 +7,25 @@ What changed in each tsgen release, newest first, and (at the end) what the gene
 - Output changes are called out. Unless a release says otherwise, a refactor or speed-up left the built site byte-identical to the previous release, which `scripts/compare-dist.mjs` checks.
 - "The vault" is the content repo. Its own side of each change (migrations, files edited) is Joey's and lives in that repo's history.
 
-Contents: [0.19.2](#0192--2026-10-20) · [0.19.1](#0191--2026-10-20) · [0.19](#0190--2026-10-19) · [0.18](#0182--2026-10-19) · [0.17](#0170--2026-10-13) · [0.16](#0160--2026-10-13) · [0.15](#0150--2026-10-12) · [0.14](#0140--2026-10-12) · [0.13](#0130--2026-10-11) · [0.12](#0121--2026-10-11) · [0.11](#01117--2026-10-11) · [0.10](#0102--2026-10-08) · [0.9](#090--2026-10-07) · [0.8](#080--2026-10-07) · [0.7](#070--2026-10-06) · [0.6](#060--2026-10-06) · [0.5](#050--2026-10-02) · [0.4](#040--2026-10-02) · [0.3](#030--2026-10-02) · [0.2](#020--2026-10-02) · [0.1](#010--2026-10-01) · [Before tsgen](#before-tsgen-buildjs-in-the-content-repo-2026-02-28--2026-10-01)
+Contents: [0.20](#0200--2026-10-21) · [0.19.2](#0192--2026-10-20) · [0.19.1](#0191--2026-10-20) · [0.19](#0190--2026-10-19) · [0.18](#0182--2026-10-19) · [0.17](#0170--2026-10-13) · [0.16](#0160--2026-10-13) · [0.15](#0150--2026-10-12) · [0.14](#0140--2026-10-12) · [0.13](#0130--2026-10-11) · [0.12](#0121--2026-10-11) · [0.11](#01117--2026-10-11) · [0.10](#0102--2026-10-08) · [0.9](#090--2026-10-07) · [0.8](#080--2026-10-07) · [0.7](#070--2026-10-06) · [0.6](#060--2026-10-06) · [0.5](#050--2026-10-02) · [0.4](#040--2026-10-02) · [0.3](#030--2026-10-02) · [0.2](#020--2026-10-02) · [0.1](#010--2026-10-01) · [Before tsgen](#before-tsgen-buildjs-in-the-content-repo-2026-02-28--2026-10-01)
+
+---
+
+## 0.20.0 — 2026-10-21
+Commits `git log v0.19.2..v0.20.0`
+
+The site's fonts are open source and self-hosted, and no longer come from Typekit. Meta (Adobe Fonts) can't be used in a CI build or in a printed-book build, and one visual identity should serve the site and the book. No content needs to change.
+
+**Fonts**
+- **Changed (output):** the layout no longer links Typekit (the `preconnect` links and the stylesheet are gone). The text is Source Serif 4, the headings Fira Sans Condensed (Book weight), the secondary text (navigation, footnotes, search, the "Main topic" line) Fira Sans Compressed, and code Fira Mono. All are SIL OFL, built as subsets by `scripts/subset-fonts.py` (a development tool, not part of the site build or the package) and kept in `template/fonts/` with their licences. Source Serif's licence reserves its name, so its subset is "Tota Serif". Fira Sans Compressed is one step lighter than the weights the CSS asks for (its Light for 400, SemiBold for 700), because Fira looked heavier than Meta.
+- **Changed (output):** Noto Serif and Noto Sans are the fallback, not a design choice. Source Serif has no polytonic Greek and only part of the Latin letters used to transliterate Greek and Hebrew, so a Noto Serif face is listed first in the serif stack with a `unicode-range` of exactly Greek and the characters Source Serif lacks (`ḵ ḇ ḳ ẖ ḗ ə ɛ` and more), a little lighter and 92% of the size to sit beside it. Hebrew is Noto Serif Hebrew. The Fira stacks fall back to Noto Sans (and Noto Sans Hebrew), set to a semi-condensed width. Fira's own Greek is in a `-Greek` file of each face, so a page downloads it only when it has Greek in a heading, a note or the navigation. The script prints the `unicode-range` and checks `style.css` for it.
+- **Changed (output):** the fonts are about 1 MB in `dist/asset/` (28 files), and a page loads only the faces it uses: about 320 KB for a typical page, against 3.2 MB for the whole fonts. Every `@font-face` has `font-display: auto`, as Typekit did.
+- **Changed (output):** the root font size is `max(1rem, min(4.267vw, calc(1.375rem - 0.5pt)))`, half a point smaller at the cap (21.3px, from 22px), and the column is `1/0.04267` rem, which keeps it at 500px, so the text reflows to a few more characters a line. Source Serif's x-height is larger than Meta Serif's.
+- **Fixed (output):** the page numbers in print (the `@page` margin box) named Meta's Typekit font and fell back to a generic sans; they are Fira Sans Compressed.
+- **Known:** the combining marks (U+0300-036F) come only from Source Serif, so a transliteration written as a base letter plus a combining mark joins only when Source Serif has the mark; use the precomposed letter. Hebrew letters have no italic, so the italic faces reuse the upright file and nothing is slanted. Source Serif's italic has no small caps, so an italic word in a small-caps term stays lowercase (see the next section).
+
+**Small asides**
+- **Changed (output):** a parenthetical in an `<h3>` becomes `<small>`, as it already did in a term (`<dt>`) or a definition. In a term or an `<h3>`, its words are also wrapped in `<em>` (unless they are one `<em>` already), so the parentheses stay upright. A `small` in a term or an `h3` is lowercase, not small caps, so `Order (taxis)` reads as small caps, then upright parentheses around lowercase italic. A definition's aside is unchanged.
 
 ---
 

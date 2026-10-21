@@ -8,6 +8,10 @@ Open work only: bugs to fix and features to build. When something is finished, d
 - **More statistics, if wanted:** the page is built (see `docs/decisions.md` for what it counts). Candidates not built: external links by domain, abbreviation and Roman numeral counts (each needs its pass to return a count), build-over-build trends (needs history, and breaks deterministic output), and an "as of" date.
 - **Lazy-load the Scripture index entries on commentary pages** (Joey, 2026-10-19), when a much longer book than Titus arrives. Hidden entries are still downloaded with the page; a long book's could be fetched the first time the switch is turned on instead. Also check then that the Outline and the switch hold up at that length. Fine as it is for now.
 
+- **Combining marks only come from Source Serif.** A transliteration written as a base letter plus a combining mark (`p̄`, not a precomposed letter) joins only when Source Serif has the mark (21 of 112). Greek in a small-caps term stays lowercase, since Noto has no small caps where Source Serif made Greek capitals. Four vault files carry a stray byte-order mark (U+FEFF); `scripts/subset-fonts.py --vault vault` lists what no font covers (only invisible marks and the sandbox's emoji, today).
+
+- **Italics and abbreviations inside a term's italic aside.** In a topic term or `h3`, the generator wraps a parenthetical's words in `<em>` (so the parentheses stay upright). Two cases in the corpus look wrong or untested: an authored italic inside the aside (`(gr. <em>pas</em>)`, the four `fourfold-state-of-man` terms) stays italic, since an `<em>` inside an `<em>` doesn't flip, so the foreign word no longer stands out; `small em em { font-style: normal }` would flip it to roman. An abbreviation inside it (`LXX` in `baptism`, `OT` and `NT` in `hell`) renders as full-size italic capitals, because Source Serif's italic has no small caps; `small abbr { font-style: normal }` would give roman small caps. Neither rule is written, and neither case has been looked at in a browser.
+
 **Crazypants future**
 - **Static book generator.**
 
