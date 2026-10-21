@@ -96,14 +96,18 @@ FACES = {
     'NotoSansHebrew-Bold': (NOTO_SANS_HEBREW + '/NotoSansHebrew%5Bwdth%2Cwght%5D.ttf', HEBREW, HEBREW_FEATURES, {'wght': 620, 'wdth': 87.5}, None),
     'FiraSansCondensed-Book': (FIRA + '/Condensed/Roman/FiraSansCondensed-Book.woff2', LATIN, FEATURES, None, None),
     'FiraSansCondensed-BookItalic': (FIRA + '/Condensed/Italic/FiraSansCondensed-BookItalic.woff2', LATIN, FEATURES, None, None),
-    'FiraSansCompressed-Light': (FIRA + '/Compressed/Roman/FiraSansCompressed-Light.woff2', LATIN, FEATURES, None, None),
-    'FiraSansCompressed-LightItalic': (FIRA + '/Compressed/Italic/FiraSansCompressed-LightItalic.woff2', LATIN, FEATURES, None, None),
+    'FiraSansCondensed-SemiBold': (FIRA + '/Condensed/Roman/FiraSansCondensed-SemiBold.woff2', LATIN, FEATURES, None, None),
+    'FiraSansCondensed-SemiBoldItalic': (FIRA + '/Condensed/Italic/FiraSansCondensed-SemiBoldItalic.woff2', LATIN, FEATURES, None, None),
+    'FiraSansCompressed-Book': (FIRA + '/Compressed/Roman/FiraSansCompressed-Book.woff2', LATIN, FEATURES, None, None),
+    'FiraSansCompressed-BookItalic': (FIRA + '/Compressed/Italic/FiraSansCompressed-BookItalic.woff2', LATIN, FEATURES, None, None),
     'FiraSansCompressed-SemiBold': (FIRA + '/Compressed/Roman/FiraSansCompressed-SemiBold.woff2', LATIN, FEATURES, None, None),
     'FiraSansCompressed-SemiBoldItalic': (FIRA + '/Compressed/Italic/FiraSansCompressed-SemiBoldItalic.woff2', LATIN, FEATURES, None, None),
     'FiraSansCondensed-Book-Greek': (FIRA + '/Condensed/Roman/FiraSansCondensed-Book.woff2', GREEK, FEATURES, None, None),
     'FiraSansCondensed-BookItalic-Greek': (FIRA + '/Condensed/Italic/FiraSansCondensed-BookItalic.woff2', GREEK, FEATURES, None, None),
-    'FiraSansCompressed-Light-Greek': (FIRA + '/Compressed/Roman/FiraSansCompressed-Light.woff2', GREEK, FEATURES, None, None),
-    'FiraSansCompressed-LightItalic-Greek': (FIRA + '/Compressed/Italic/FiraSansCompressed-LightItalic.woff2', GREEK, FEATURES, None, None),
+    'FiraSansCondensed-SemiBold-Greek': (FIRA + '/Condensed/Roman/FiraSansCondensed-SemiBold.woff2', GREEK, FEATURES, None, None),
+    'FiraSansCondensed-SemiBoldItalic-Greek': (FIRA + '/Condensed/Italic/FiraSansCondensed-SemiBoldItalic.woff2', GREEK, FEATURES, None, None),
+    'FiraSansCompressed-Book-Greek': (FIRA + '/Compressed/Roman/FiraSansCompressed-Book.woff2', GREEK, FEATURES, None, None),
+    'FiraSansCompressed-BookItalic-Greek': (FIRA + '/Compressed/Italic/FiraSansCompressed-BookItalic.woff2', GREEK, FEATURES, None, None),
     'FiraSansCompressed-SemiBold-Greek': (FIRA + '/Compressed/Roman/FiraSansCompressed-SemiBold.woff2', GREEK, FEATURES, None, None),
     'FiraSansCompressed-SemiBoldItalic-Greek': (FIRA + '/Compressed/Italic/FiraSansCompressed-SemiBoldItalic.woff2', GREEK, FEATURES, None, None),
     'FiraMono-Regular': (FIRA_MONO + '/FiraMono-Regular.woff2', LATIN, ['kern', 'ccmp', 'locl', 'mark', 'mkmk', 'zero'], None, None),
@@ -120,12 +124,14 @@ def fetch (url, cache):
     return path
 
 
+# recalcTimestamp=False keeps the upstream modification time, so a rebuild of the same sources is
+# byte-for-byte the same file and git shows no change.
 def load (source, cache):
     if isinstance(source, tuple):
         zip_path = fetch(source[0], cache)
         with zipfile.ZipFile(zip_path) as z:
-            return TTFont(io.BytesIO(z.read(source[1])))
-    return TTFont(fetch(source, cache))
+            return TTFont(io.BytesIO(z.read(source[1])), recalcTimestamp=False)
+    return TTFont(fetch(source, cache), recalcTimestamp=False)
 
 
 def ranges (spec):
@@ -207,7 +213,7 @@ def main ():
     latin = ranges(LATIN)
     wanted = ranges(TRANSLITERATION)
     tota = latin & cmap('TotaSerif-Roman') & cmap('TotaSerif-Italic')
-    fira = (latin | ranges(GREEK)) & cmap('FiraSansCondensed-Book') & cmap('FiraSansCompressed-Light')
+    fira = (latin | ranges(GREEK)) & cmap('FiraSansCondensed-Book') & cmap('FiraSansCompressed-Book')
     serif = (ranges(GREEK) | (wanted - tota)) & cmap('NotoSerifSupplement-Roman') & cmap('NotoSerifSupplement-Italic')
     sans = ((ranges(GREEK) | wanted) - fira) & cmap('NotoSansSupplement-Regular') & cmap('NotoSansSupplement-Italic')
     sets = {SERIF_SUPPLEMENT: serif, SANS_SUPPLEMENT: sans}

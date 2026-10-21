@@ -23,8 +23,11 @@
    rather than a flash of a fallback font.
 
    Fira Sans Compressed (the "secondary" font) looks heavier than Meta did, so its normal weight (400)
-   is Fira's Light and its bold (700) is SemiBold: the files are one step lighter than the weights the
-   CSS asks for. The headline font (Fira Sans Condensed) is its Book weight, 350. */
+   is Fira's Book (350) and its bold (700) is SemiBold (600): the files are lighter than the weights the
+   CSS asks for. The headline font (Fira Sans Condensed) is Book at normal weight and SemiBold at bold
+   (loaded only on a page that has bold in a heading or table header). Fira has no static weight
+   between SemiBold and Bold, and its masters aren't compatible enough to interpolate one cleanly,
+   so there is no 650. */
 
 @font-face {
     font-family: 'Tota Serif';
@@ -198,11 +201,15 @@
 @font-face { font-family: 'Fira Sans Condensed'; src: url('/asset/FiraSansCondensed-Book-Greek.woff2') format('woff2'); font-weight: 350; font-style: normal; unicode-range: U+0370-03FF, U+1F00-1FFF; font-display: auto; }
 @font-face { font-family: 'Fira Sans Condensed'; src: url('/asset/FiraSansCondensed-BookItalic.woff2') format('woff2'); font-weight: 350; font-style: italic; font-display: auto; }
 @font-face { font-family: 'Fira Sans Condensed'; src: url('/asset/FiraSansCondensed-BookItalic-Greek.woff2') format('woff2'); font-weight: 350; font-style: italic; unicode-range: U+0370-03FF, U+1F00-1FFF; font-display: auto; }
+@font-face { font-family: 'Fira Sans Condensed'; src: url('/asset/FiraSansCondensed-SemiBold.woff2') format('woff2'); font-weight: 700; font-style: normal; font-display: auto; }
+@font-face { font-family: 'Fira Sans Condensed'; src: url('/asset/FiraSansCondensed-SemiBold-Greek.woff2') format('woff2'); font-weight: 700; font-style: normal; unicode-range: U+0370-03FF, U+1F00-1FFF; font-display: auto; }
+@font-face { font-family: 'Fira Sans Condensed'; src: url('/asset/FiraSansCondensed-SemiBoldItalic.woff2') format('woff2'); font-weight: 700; font-style: italic; font-display: auto; }
+@font-face { font-family: 'Fira Sans Condensed'; src: url('/asset/FiraSansCondensed-SemiBoldItalic-Greek.woff2') format('woff2'); font-weight: 700; font-style: italic; unicode-range: U+0370-03FF, U+1F00-1FFF; font-display: auto; }
 
-@font-face { font-family: 'Fira Sans Compressed'; src: url('/asset/FiraSansCompressed-Light.woff2') format('woff2'); font-weight: 400; font-style: normal; font-display: auto; }
-@font-face { font-family: 'Fira Sans Compressed'; src: url('/asset/FiraSansCompressed-Light-Greek.woff2') format('woff2'); font-weight: 400; font-style: normal; unicode-range: U+0370-03FF, U+1F00-1FFF; font-display: auto; }
-@font-face { font-family: 'Fira Sans Compressed'; src: url('/asset/FiraSansCompressed-LightItalic.woff2') format('woff2'); font-weight: 400; font-style: italic; font-display: auto; }
-@font-face { font-family: 'Fira Sans Compressed'; src: url('/asset/FiraSansCompressed-LightItalic-Greek.woff2') format('woff2'); font-weight: 400; font-style: italic; unicode-range: U+0370-03FF, U+1F00-1FFF; font-display: auto; }
+@font-face { font-family: 'Fira Sans Compressed'; src: url('/asset/FiraSansCompressed-Book.woff2') format('woff2'); font-weight: 400; font-style: normal; font-display: auto; }
+@font-face { font-family: 'Fira Sans Compressed'; src: url('/asset/FiraSansCompressed-Book-Greek.woff2') format('woff2'); font-weight: 400; font-style: normal; unicode-range: U+0370-03FF, U+1F00-1FFF; font-display: auto; }
+@font-face { font-family: 'Fira Sans Compressed'; src: url('/asset/FiraSansCompressed-BookItalic.woff2') format('woff2'); font-weight: 400; font-style: italic; font-display: auto; }
+@font-face { font-family: 'Fira Sans Compressed'; src: url('/asset/FiraSansCompressed-BookItalic-Greek.woff2') format('woff2'); font-weight: 400; font-style: italic; unicode-range: U+0370-03FF, U+1F00-1FFF; font-display: auto; }
 @font-face { font-family: 'Fira Sans Compressed'; src: url('/asset/FiraSansCompressed-SemiBold.woff2') format('woff2'); font-weight: 700; font-style: normal; font-display: auto; }
 @font-face { font-family: 'Fira Sans Compressed'; src: url('/asset/FiraSansCompressed-SemiBold-Greek.woff2') format('woff2'); font-weight: 700; font-style: normal; unicode-range: U+0370-03FF, U+1F00-1FFF; font-display: auto; }
 @font-face { font-family: 'Fira Sans Compressed'; src: url('/asset/FiraSansCompressed-SemiBoldItalic.woff2') format('woff2'); font-weight: 700; font-style: italic; font-display: auto; }
