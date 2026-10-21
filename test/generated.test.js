@@ -154,6 +154,21 @@ describe('other generated pages', { concurrency: true }, () => {
     assert.match(await b.read('/topic/grace'), /\/asset\/style\.css\?abcdef0/)
   })
 
+  test('the search and settings pages have a lone page tab; the random page has none', async () => {
+    const b = await build({ 'topic/Grace.md': page('g') })
+    for (const [url, label] of [['/search', 'Search page'], ['/settings', 'Settings page']]) {
+      assert.match(await b.read(url), new RegExp(`<nav class="page-actions"[\\s\\S]*<li class="page selected" aria-current="page">${label}</li>`), url)
+    }
+    assert.doesNotMatch(await b.read('/random'), /class="page-actions"/)
+  })
+
+  test('the search page has a live region for the count apart from the results', async () => {
+    const b = await build({})
+    const html = await b.read('/search')
+    assert.match(html, /<p id="search-status" class="result-count" role="status"><\/p>/)
+    assert.match(html, /<div id="search-results"><\/div>/)
+  })
+
   test('.nojekyll is written', async () => {
     const b = await build({})
     assert.ok(await b.exists('/.nojekyll'))
