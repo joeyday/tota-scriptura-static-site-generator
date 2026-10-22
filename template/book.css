@@ -1,0 +1,153 @@
+/* The book (tsgen book): one HTML document, typeset by Paged.js in headless Chrome.
+   The fonts are fonts.css's, which the book links too. Trim size and margins are the 2020 book's:
+   4.25 x 6.8598 in, 0.8 in inside and 0.5 in outside, mirrored. Paged.js turns the @page rules
+   and target-counter() into real pages and real page numbers. */
+
+@page { size: 4.25in 6.8598in; margin: 0.6in 0.5in 0.65in 0.8in; }
+@page :left { margin-left: 0.5in; margin-right: 0.8in; }
+@page :right { margin-left: 0.8in; margin-right: 0.5in; }
+/* The page numbers are not Paged.js's: lib/book/folios.js puts a .folio on each page that has one
+   and fills in every cross-reference, contents line and index entry (Paged.js's counters can't be
+   reset, and its target-counter() stops working when anything else is). The front matter, the Part
+   pages and the blank pages that start every chapter on a right-hand page have no number. */
+.folio { position: absolute; bottom: 0.3in; text-align: center; font: 8pt 'Fira Sans Compressed', sans-serif; }
+.pagedjs_left_page .folio { left: 0.5in; right: 0.8in; }
+.pagedjs_right_page .folio { left: 0.8in; right: 0.5in; }
+
+/* The same stacks as style.css: Source Serif for the text, Fira for the headings and the small
+   print, with Noto behind them for Greek, Hebrew and the odd transliteration letter */
+html {
+    --font-text: 'Noto Serif Supplement', 'Noto Serif Hebrew', 'Tota Serif', serif;
+    --font-heading: 'Fira Sans Condensed', 'Noto Sans Supplement', 'Noto Sans Hebrew', sans-serif;
+    --font-small: 'Fira Sans Compressed', 'Noto Sans Supplement', 'Noto Sans Hebrew', sans-serif;
+    font-family: var(--font-text);
+    font-size: 9.5pt;
+    line-height: 1.38;
+    hyphens: auto;
+    hyphenate-limit-chars: 6 3 3; /* no hyphen in a word under 6 letters, or leaving fewer than 3 on either side */
+    text-wrap: pretty; /* Chrome avoids a one-word last line (a runt) by moving a word down from the line above */
+    orphans: 2; /* at least two lines of a paragraph at the foot of a page, and two at the top of the next */
+    widows: 2;
+    font-variant-numeric: oldstyle-nums;
+    font-synthesis-small-caps: none;
+    color: #000;
+}
+body { margin: 0; }
+
+/* ─── Front matter, laid out as the printed 2020 book's title, copyright and dedication pages are ─── */
+.title-page, .copyright-page, .dedication, .toc, .part { break-before: right; }
+.copyright-page { break-before: left; } /* the back of the title page */
+.title-page { text-align: center; padding-top: 100pt; }
+.title-page h1 { font: 500 26pt/35pt 'Tota Serif', serif; font-variant-caps: all-small-caps; margin: 0 0 1pt; }
+.title-page .subtitle { font: 350 14pt/20.8pt var(--font-heading); margin: 0; }
+.title-page .author { font: 350 18pt/25pt var(--font-heading); margin: 23pt 0 0; }
+/* A column about 1.84 in wide, centered, small, with the last line set at the foot of the page */
+.copyright-page { display: flex; flex-direction: column; height: 5.5in; padding: 0 0.557in; text-align: center; font: 350 8pt/11.9pt var(--font-heading); font-variant-numeric: oldstyle-nums; hyphens: auto; }
+.copyright-page p { margin: 0 0 12.4pt; }
+.copyright-page p:first-child, .copyright-page p:nth-child(2) { margin-bottom: 6.6pt; }
+.copyright-page .url { margin-bottom: 12.4pt; }
+.copyright-page .cp-title { font-variant-caps: all-small-caps; }
+.copyright-page .personal { margin: auto 0 0; padding-bottom: 15pt; }
+.dedication { text-align: center; font-style: italic; font-weight: 500; font-size: 10.5pt; padding-top: 1.65in; }
+/* The table of contents, as the 2020 book's: a heading over a thin rule, then the preface, the Parts and the
+   index, each with its page number flush right */
+.toc { padding-top: 40pt; }
+.toc h1 { font: 350 19.2pt/1.2 var(--font-heading); margin: 0 0 0.5em; padding-bottom: 0.15em; border-bottom: 0.4pt solid #ccc; }
+.toc ol { list-style: none; margin: 0; padding: 0; }
+.toc li { font-size: 10.5pt; line-height: 19.3pt; font-weight: 450; }
+.toc a { display: flex; justify-content: space-between; color: inherit; text-decoration: none; }
+.toc a::after { content: attr(data-p); margin-left: 1em; }
+
+/* ─── Parts and topics ─── */
+.part { text-align: center; padding-top: 2.2in; }
+.part-number { font-variant-caps: all-small-caps; letter-spacing: 0.08em; margin: 0; }
+.part-title { font: 350 22pt/1.15 var(--font-heading); margin: 0.2em 0 0; }
+.topic { break-before: right; }
+.topic-title { font: 350 20pt/1.1 var(--font-heading); margin: 0 0 0.5em; padding-bottom: 0.15em; border-bottom: 0.5pt solid #000; hyphens: manual; }
+h2 { font: 350 12.5pt/1.2 var(--font-heading); margin: 1.1em 0 0.5em; border-bottom: 0.4pt solid #666; break-after: avoid; hyphens: manual; }
+h3, h4, h5, h6 { font-variant-caps: all-small-caps; font-variant-numeric: normal; font-size: 1em; font-weight: normal; margin: 0.8em 0 0; break-after: avoid; hyphens: manual; }
+figure { margin: 0 0 0.8em; }
+figure img { width: 100%; height: auto; display: block; }
+p { margin: 0 0 0.6em; orphans: 2; widows: 2; }
+ul, ol { margin: 0 0 0.6em; padding-left: 1.3em; }
+blockquote { margin: 0 0 0.6em 1.2em; font-size: 0.95em; } /* indented, with no rule */
+hr { border: 0; border-top: 0.4pt solid #000; margin: 0.8em 0; }
+code { font-family: 'Fira Mono', monospace; font-size: 0.9em; }
+/* As on the site, a rule between the body rows and none around the table. It is each row's top border, so it travels
+   with its row to the next page and never ends a page by itself. */
+table { width: 100%; border-collapse: collapse; font-size: 0.9em; margin: 0 0 0.8em; }
+th, td { text-align: left; padding: 0.15em 0.4em 0.15em 0; vertical-align: top; }
+td { border-top: 0.4pt solid #666; }
+th { font-family: var(--font-heading); font-weight: 700; }
+
+/* ─── Terms and definitions: a claim, and what the Bible says for it ─── */
+dl { margin: 0; }
+/* The generator wraps a term and all of its descriptions in a .claim. A page never breaks between a term and
+   its descriptions, or between two descriptions; a long description may break inside, with at least two lines
+   on either side. A claim of about ten lines or fewer (.short) moves whole instead: Paged.js can only keep a term
+   with its description when the description starts past the foot of the page, so a short claim is held together
+   outright and only the long ones depend on the keep-with rules. */
+.claim.short { break-inside: avoid; }
+.claim > dd:not(:last-child) { break-after: avoid; }
+.claim > dd { break-before: avoid; }
+.main-topic, .main-topic p { break-before: avoid; } /* Paged.js reads "keep with next" at the first node past the foot of the page, which can be this line */
+dd { orphans: 2; widows: 2; }
+dt { font-variant-caps: all-small-caps; font-variant-numeric: normal; margin: 0.8em 0 0; break-after: avoid; hyphens: manual; }
+dd { margin: 0 0 0.3em 1em; font-size: 0.95em; }
+dd > :first-child { margin-top: 0; }
+dd p { margin-bottom: 0.3em; }
+/* A commentary's terms run into their definitions, as on the site: the term in bold, a period, then the text, each pair a paragraph */
+.commentary dl { margin: 0; }
+.commentary dt, .commentary dd { display: inline; margin: 0; font-size: 1em; font-variant-caps: normal; }
+.commentary dt { font-weight: 700; font-variant-numeric: oldstyle-nums; hyphens: auto; }
+.commentary dt::after { content: ". "; font-weight: normal; }
+.commentary .para { margin: 0 0 0.6em; orphans: 2; widows: 2; }
+/* A Bible reference never breaks across lines: "Rev 1:1–3" is not split after its dash (the generator wraps each one) */
+.ref { white-space: nowrap; }
+/* An aside is lowercase italic with upright parentheses, as on the site */
+dt small, h3 small { font-variant-caps: normal; }
+small { font-size: 0.86em; }
+/* The "Main topic" line is a definition of its own, and the passages follow it closely, as on the site */
+.main-topic-dd { margin-bottom: 0; }
+.main-topic { font: italic 400 0.9em var(--font-small); }
+.main-topic p { margin: 0; }
+abbr, .roman-num, .divine-name { font-variant-caps: all-small-caps; font-variant-numeric: normal; text-decoration: none; }
+.divine-name-initial { font-variant-caps: normal; }
+
+/* ─── Cross-references and notes ─── */
+/* The page numbers in a cross-reference are filled in after layout (lib/book/folios.js) */
+a { color: inherit; text-decoration: none; }
+a.xref::after { content: " (p. " attr(data-p) ")"; font-style: normal; }
+/* The notes close each topic, under a short rule and with no heading, as the 2020 book's do: 8 pt sans, the numbers in a column of their own */
+.fnref { font-size: 70%; vertical-align: super; line-height: 0; }
+.notes { margin-top: 1.4em; }
+/* The rule is the top of the list itself, so it goes to the next page with the first note rather than ending a page alone */
+.notes-list { font: 8pt/12pt var(--font-small); font-variant-numeric: oldstyle-nums tabular-nums; list-style: none; padding: 0.5em 0 0; margin: 0; background: linear-gradient(#000, #000) top left / 1in 0.4pt no-repeat; }
+.notes-list[data-split-from] { background: none; padding-top: 0; }
+.notes-list li { padding-left: 2em; text-indent: -2em; }
+.nn { display: inline-block; width: 1.4em; margin-right: 0.6em; text-align: right; text-indent: 0; } /* the number's own column, right-aligned: "9" under "10" */
+
+/* ─── The preface (the vault's About page) and the indexes ─── */
+.callout { margin: 0 0.5em 0.6em; }
+.callout p { text-align: center; margin-bottom: 0.3em; text-wrap: balance; } /* the lines come out about the same length */
+.index { break-before: right; }
+/* An entry is its text, hung under its first line, and its page numbers flush right */
+.ix { display: flex; justify-content: space-between; align-items: baseline; margin: 0; font-size: 0.95em; hyphens: manual; }
+.ixt { flex: 1; padding-left: 1em; text-indent: -1em; }
+.pgs { margin-left: 0.8em; text-align: right; }
+.ix-sub { margin-left: 1em; }
+.pn { color: inherit; text-decoration: none; }
+
+/* The Scripture index: the references of each book in two narrow columns, one to a line */
+.scripture-index { break-before: right; }
+.six { column-count: 2; column-gap: 0.22in; font-size: 7.5pt; line-height: 9pt; }
+.six .ix { font-size: inherit; }
+.six .ixt { padding-left: 0.9em; text-indent: -0.9em; }
+.sstart { break-inside: avoid; }
+.tally { margin: 1.4em 0.5em 0; text-align: center; font-size: 0.95em; font-style: italic; text-wrap: balance; } /* set like the other callouts: the body serif, centered */
+.sbook { font: 350 9.5pt/11pt var(--font-heading); margin: 7pt 0 2pt; border-bottom: 0.3pt solid #999; }
+
+/* Old-style figures in Fira too (a font: shorthand resets them): the headings, the page numbers, the
+   "Main topic" lines and the title page. Small-cap terms and abbreviations keep lining figures, since figures
+   as tall as the lowercase look wrong among capitals. The notes' numbers are tabular, to line up in their column. */
+.folio, .title-page .subtitle, .title-page .author, .toc h1, .part-title, .topic-title, h2, .main-topic, .sbook { font-variant-numeric: oldstyle-nums; }

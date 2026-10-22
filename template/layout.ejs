@@ -8,6 +8,7 @@
     <link rel="canonical" href="https://totascriptura.org<%= url %>">
     <%# Blocking, ahead of the stylesheets: a page in CSS Naked mode never paints styled. %>
     <script src="/asset/css-naked.js?<%= cacheBust %>"></script>
+    <link rel="stylesheet" href="/asset/fonts.css?<%= cacheBust %>">
     <link rel="stylesheet" href="/asset/style.css?<%= cacheBust %>">
 <% if (stylesheet) { %>    <link rel="stylesheet" href="/asset/<%= stylesheet %>?<%= cacheBust %>">
 <% } %>    

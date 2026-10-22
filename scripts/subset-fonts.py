@@ -227,16 +227,16 @@ def main ():
         total += size
         print(f'{name + ".woff2":42} {size / 1024:7.1f} KB')
     print(f'{"total":42} {total / 1024:7.1f} KB')
-    with open(os.path.join(OUT, '..', 'style.css'), encoding='utf8') as f:
+    with open(os.path.join(OUT, '..', 'fonts.css'), encoding='utf8') as f:
         css = f.read()
     for label, chars in (('Noto Serif Supplement', serif), ('Noto Sans Supplement', sans)):
         unicode_range = css_ranges(chars)
         print(f'{label} covers {len(chars)} characters')
         if unicode_range not in css:
-            print(f'template/style.css does not have this unicode-range on the {label} faces; paste it in:')
+            print(f'template/fonts.css does not have this unicode-range on the {label} faces; paste it in:')
             print('    unicode-range: ' + unicode_range + ';')
         else:
-            print('template/style.css has the matching unicode-range.')
+            print('template/fonts.css has the matching unicode-range.')
     if args.vault:
         text = ''
         for root, _, files in os.walk(args.vault):

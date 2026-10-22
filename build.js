@@ -342,6 +342,7 @@ async function build ({ showHidden = false, outputDir = OUTPUT_DIR } = {}) {
   await output.writeFile('.nojekyll', '')
   await writeScriptureIndex({ output, renderLayout })
   await writeCommentaryPages({ output, renderLayout, pages: commentaryPages })
+  const { version } = JSON.parse(await fs.readFile(new URL('./package.json', import.meta.url), 'utf-8'))
   await writeStatistics({
     output,
     renderLayout,
@@ -356,9 +357,7 @@ async function build ({ showHidden = false, outputDir = OUTPUT_DIR } = {}) {
       alphabeticalByNs,
       notesByPage,
       imageMap,
-      version: JSON.parse(
-        await fs.readFile(new URL('./package.json', import.meta.url), 'utf-8')
-      ).version,
+      version,
       commit: buster.value,
       commitLinked: buster.commit
     })
@@ -374,6 +373,7 @@ async function build ({ showHidden = false, outputDir = OUTPUT_DIR } = {}) {
   }
 
   await output.finish()
+  return { index, fileMap, commit: buster.commit ? buster.value : null, version }
 }
 
 // ─── Watching ─────────────────────────────────────────────────────────────────
@@ -462,18 +462,26 @@ function watchAndRebuild ({ showHidden, reloadPages }) {
 //                   errors and the address it serves at.
 //   --port <n>      serve on port n instead of 4000 (also --port=n).
 //   --no-watch      serve the first build without rebuilding on changes.
+// tsgen book       build the site, then lay the book out from it (book.json in the vault
+//                   names the parts and topics) and typeset it with Paged.js in headless
+//                   Chrome: <output>/book/book.html and book.pdf. --html stops after the HTML.
+//                   Needs pagedjs and puppeteer-core, which the site build doesn't.
 
 const USAGE =
-  'Usage: tsgen [build | serve [--show-hidden] [--verbose] [--no-watch] [--port <n>]]'
+  'Usage: tsgen [build | serve [--show-hidden] [--verbose] [--no-watch] [--port <n>] | book [--html]]'
 const [command = 'build', ...args] = process.argv.slice(2)
 let showHidden = false
 let verbose = false
 let watching = true
 let port
-let usageOk = command === 'build' || command === 'serve'
+let htmlOnly = false
+let usageOk = command === 'build' || command === 'serve' || command === 'book'
 for (let i = 0; usageOk && i < args.length; i++) {
   const [flag, inlineValue] = args[i].split(/=(.*)/s)
-  if (command !== 'serve') usageOk = false
+  if (command === 'book') {
+    if (flag === '--html' && inlineValue === undefined) htmlOnly = true
+    else usageOk = false
+  } else if (command !== 'serve') usageOk = false
   else if (flag === '--show-hidden' && inlineValue === undefined) showHidden = true
   else if (flag === '--verbose' && inlineValue === undefined) verbose = true
   else if (flag === '--no-watch' && inlineValue === undefined) watching = false
@@ -495,14 +503,25 @@ if (command === 'serve' && watching && !process.env.TSGEN_SUPERVISED) {
   await new Promise(() => {}) // the supervisor exits the process when the server stops
 }
 
-setVerbose(command === 'build' || verbose)
+setVerbose(command === 'build' || command === 'book' || verbose)
 if (showHidden) console.log('Showing hidden pages (--show-hidden).')
 
+let built
 try {
-  await build({ showHidden })
+  built = await build({ showHidden })
 } catch (err) {
   console.error('Build failed:', err instanceof BuildError ? err.message : err)
   process.exit(1)
+}
+
+if (command === 'book') {
+  try {
+    const { makeBook } = await import('./lib/book/index.js')
+    await makeBook({ outputDir: OUTPUT_DIR, ...built, pdf: !htmlOnly })
+  } catch (err) {
+    console.error('Book failed:', err instanceof BuildError ? err.message : err)
+    process.exit(1)
+  }
 }
 
 if (command === 'serve') {
