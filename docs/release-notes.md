@@ -7,7 +7,24 @@ What changed in each tsgen release, newest first, and (at the end) what the gene
 - Output changes are called out. Unless a release says otherwise, a refactor or speed-up left the built site byte-identical to the previous release, which `scripts/compare-dist.mjs` checks.
 - "The vault" is the content repo. Its own side of each change (migrations, files edited) is Joey's and lives in that repo's history.
 
-Contents: [0.20.1](#0201--2026-10-21) · [0.20](#0200--2026-10-21) · [0.19.2](#0192--2026-10-20) · [0.19.1](#0191--2026-10-20) · [0.19](#0190--2026-10-19) · [0.18](#0182--2026-10-19) · [0.17](#0170--2026-10-13) · [0.16](#0160--2026-10-13) · [0.15](#0150--2026-10-12) · [0.14](#0140--2026-10-12) · [0.13](#0130--2026-10-11) · [0.12](#0121--2026-10-11) · [0.11](#01117--2026-10-11) · [0.10](#0102--2026-10-08) · [0.9](#090--2026-10-07) · [0.8](#080--2026-10-07) · [0.7](#070--2026-10-06) · [0.6](#060--2026-10-06) · [0.5](#050--2026-10-02) · [0.4](#040--2026-10-02) · [0.3](#030--2026-10-02) · [0.2](#020--2026-10-02) · [0.1](#010--2026-10-01) · [Before tsgen](#before-tsgen-buildjs-in-the-content-repo-2026-02-28--2026-10-01)
+Contents: [0.21](#0210--2026-10-21) · [0.20.1](#0201--2026-10-21) · [0.20](#0200--2026-10-21) · [0.19.2](#0192--2026-10-20) · [0.19.1](#0191--2026-10-20) · [0.19](#0190--2026-10-19) · [0.18](#0182--2026-10-19) · [0.17](#0170--2026-10-13) · [0.16](#0160--2026-10-13) · [0.15](#0150--2026-10-12) · [0.14](#0140--2026-10-12) · [0.13](#0130--2026-10-11) · [0.12](#0121--2026-10-11) · [0.11](#01117--2026-10-11) · [0.10](#0102--2026-10-08) · [0.9](#090--2026-10-07) · [0.8](#080--2026-10-07) · [0.7](#070--2026-10-06) · [0.6](#060--2026-10-06) · [0.5](#050--2026-10-02) · [0.4](#040--2026-10-02) · [0.3](#030--2026-10-02) · [0.2](#020--2026-10-02) · [0.1](#010--2026-10-01) · [Before tsgen](#before-tsgen-buildjs-in-the-content-repo-2026-02-28--2026-10-01)
+
+---
+
+## 0.21.0 — 2026-10-21
+Commits `git log v0.20.1..v0.21.0`
+
+The book: `tsgen book` turns the vault into a print-ready PDF. The site changes only by one stylesheet link (below). No content needs to change; to make a book, the vault needs a `book.json`.
+
+**The book** (new; see the README's "The book" and `docs/decisions.md`)
+- **Added:** `tsgen book [--html]` builds the site, composes one print HTML from the built pages of the topics (and commentaries) listed in `book.json`, and has Paged.js lay it out in headless Chrome. It writes `<out>/book/book.pdf` (and `book.html`). The pages are 4.25 × 6.86 in with mirrored margins, set in the site's fonts. `pagedjs` and `puppeteer-core` are optional peer dependencies, so the site build does not install them (`npm install --no-save pagedjs puppeteer-core`); Chrome is found in the usual places or at `CHROME_PATH`.
+- **`book.json`** lists the Parts and their topics in order (a bare name is looked up like a wikilink, `commentary/Titus` with its folder), and optionally `index.groups` (headings that gather index entries). A draft, hidden, notes or category page, a duplicate, or a name that is not a page fails the book, with every problem listed.
+- **Front and back matter are the generator's:** a title page, a copyright page (the month and year, the tsgen version and the vault's commit), a dedication, a short table of contents, the Preface (the About page), a Part page before each Part, the topics, a Topic index (titles and aliases, with groups) and a Scripture index that closes with how much of the Bible the book cites. The front matter is numbered in lower Roman, and the Arabic numbers start at 1 on the first Part page.
+- **Print rules:** a term is never separated from its descriptions, and a long description may break inside with at least two lines on either side; footnotes are endnotes at the end of each topic, numbered from 1; links are removed (a cross-reference to another topic in the book gets its page number); "See also", "Main topic" lines and inline "see also" tails drop what is not in the book; an "External links" section is left out; **any other link out of the book fails the build**; hyphenation, widows, orphans and runts are controlled; figures are old-style; a commentary prints with its terms running into the text.
+- **Added:** the PDF test and the book's tests run in `npm test`; the two that lay out a real PDF run only where Chrome is found.
+
+**Site output**
+- **Changed (output):** the `@font-face` rules moved from `style.css` into a new `fonts.css`, which the layout links ahead of `style.css` (one added `<link>` on every page; `fonts.css` and `book.css` are new files in `dist/asset/`; the site's look is unchanged). The book links the same `fonts.css`.
 
 ---
 

@@ -12,8 +12,18 @@ Open work only: bugs to fix and features to build. When something is finished, d
 
 - **Italics and abbreviations inside a term's italic aside.** In a topic term or `h3`, the generator wraps a parenthetical's words in `<em>` (so the parentheses stay upright). Two cases in the corpus look wrong or untested: an authored italic inside the aside (`(gr. <em>pas</em>)`, the four `fourfold-state-of-man` terms) stays italic, since an `<em>` inside an `<em>` doesn't flip, so the foreign word no longer stands out; `small em em { font-style: normal }` would flip it to roman. An abbreviation inside it (`LXX` in `baptism`, `OT` and `NT` in `hell`) renders as full-size italic capitals, because Source Serif's italic has no small caps; `small abbr { font-style: normal }` would give roman small caps. Neither rule is written, and neither case has been looked at in a browser.
 
-**Crazypants future**
-- **Static book generator.**
+
+## The book
+The generator works end to end (`tsgen book`, see the README and `docs/decisions.md`), with the 2020 book's contents, index and trim size, a preface, and Roman front-matter numbering. Open work, roughly in the order it shows:
+- **Running heads and chapter-opening pages** without them: the Part on a left page, the topic on a right page.
+- **The Scripture index is about 43 pages** of the 213. Options to tighten it if that is too many: run the references of a chapter together on a line, three columns at a smaller size, or merge consecutive pages (21–23). Also whether the topic index wants letter headings.
+- **A colophon:** the vault's `Colophon.md` is about the typography and tools and wasn't in the 2020 book; whether it joins the generator's own pages is Joey's call.
+- **For the printer:** bleed, crop marks or a PDF/X profile, and a cover. The 2020 cover (`Cover 1.0rc1.pdf`) was one wrap-around page of 9.17 × 7.13 in (the back, the spine and the front, with bleed) made from separate artwork; the spine width depends on the page count and paper. Ask the printer for specs before building.
+- **Copyfitting: short last pages and gaps.** A claim of about ten lines or fewer moves whole to the next page and a long one may split inside a description, which leaves fewer gaps than keeping every claim whole did (measured on the 206-page book then: pages that are not a topic's last averaged 92% full, 10 of 74 under 85%; 6 of the 43 last pages of topics held under a quarter of a page, two a line or two; re-measure). Options: a copyfitting pass that lays the book out, finds a topic whose last page holds a few lines, tightens that topic's spacing a hair and lays it out again (two or three rounds), or a lower `SHORT_CLAIM`.
+- **Hyphenation depends on Chrome's dictionaries.** On a CI runner the headless Chrome may hyphenate differently or not at all, so the evergreen PDF could break lines unlike the local one. Check before publishing it; the fallback is hyphenating in the generator with a library (soft hyphens), which also lets it skip proper names.
+- **Typesetting polish:** whether Part pages and chapter openers want ornaments, and any further hyphenation tuning.
+- **The evergreen edition:** a CI step in the content repo that installs `pagedjs` and `puppeteer-core`, runs `tsgen book` and publishes `book.pdf` (about 20 MB: the hero images, and a link annotation for every index page number; consider downsampling the images for the web copy).
+- **The fonts' timestamps:** `scripts/subset-fonts.py` now keeps upstream timestamps, but the committed font files carry the old random ones, so the next rebuild shows every file as changed once; regenerate and commit them together when something else needs a font change anyway.
 
 ## Code
 

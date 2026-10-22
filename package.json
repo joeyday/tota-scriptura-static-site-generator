@@ -1,6 +1,6 @@
 {
   "name": "tsgen",
-  "version": "0.20.1",
+  "version": "0.21.0",
   "private": true,
   "description": "Bespoke static site generator for totascriptura.org",
   "type": "module",
@@ -37,6 +37,20 @@
     "yaml": "^2.9.1"
   },
   "devDependencies": {
+    "pagedjs": "^0.4.3",
+    "puppeteer-core": "^25.15.0",
     "standard": "^17.1.2"
+  },
+  "peerDependencies": {
+    "pagedjs": "^0.4.3",
+    "puppeteer-core": "^25.15.0"
+  },
+  "peerDependenciesMeta": {
+    "pagedjs": {
+      "optional": true
+    },
+    "puppeteer-core": {
+      "optional": true
+    }
   }
 }

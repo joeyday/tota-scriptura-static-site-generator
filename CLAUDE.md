@@ -5,6 +5,7 @@ A static site generator with a deliberately boring name. It turns an Obsidian-st
 - `build.js`: the CLI entry point and orchestrator (about 190 lines). It wires together the modules in `lib/`; the real logic lives there. Code is the source of truth, not the docs.
 - `lib/`: the generator, one concern per file: `vault.js` (file discovery, assets, page records), `links.js`, `partials.js`, `markdown.js`, `render.js` (Markdown → body HTML), `model.js` (categories, featured/draft, notes pairs, per-namespace lists, backlinks), `layout.js` (compiled layout, link classification), `output.js` (in-memory post-passes and the writer), `io.js`, `titles.js`, `html/` (the tag walker and the pure HTML passes), `bible/` (ref table, one-pass scanner, linker, Scripture collector, verse counts) and `stats.js` (the numbers for `/statistics`), `pages/` (one file per kind of generated page).
 - `serve.js`: the local preview server behind `tsgen serve`.
+- `lib/book/`: `tsgen book`. `manifest.js` (reads `book.json`), `compose.js` (built pages → one print HTML, plus the index), `folios.js` (page numbers, run inside the page after layout) and `pdf.js` (Paged.js in headless Chrome, both optional packages). `template/book.css` is its stylesheet; it shares `template/fonts.css` with the site.
 - `README.md`: the feature reference, written from the code. Keep it in sync whenever behaviour changes.
 - `docs/plan.md`: open work only, bugs and features. When something is finished, delete it from the plan.
 - `docs/release-notes.md`: what shipped in each release (and what the generator did before tsgen), newest first. Add an entry for every release you tag, written from the commits since the previous tag.
@@ -37,7 +38,7 @@ Search tools skip gitignored paths, so target `vault/` explicitly when searching
 
 ```sh
 npm ci                                                      # once
-npm test                                                    # unit tests, scratch-vault builds and serve tests (~16 s); needs no vault/
+npm test                                                    # unit tests, scratch-vault builds and serve tests (~16 s); needs no vault/ (the book's PDF test runs only where Chrome is found)
 npm run coverage                                            # the same, with Node's coverage report
 npm run fuzz                                                # seeded fuzzing of the Bible code (FUZZ_SEED, FUZZ_ITERATIONS)
 cd vault && rm -rf dist && node ../build.js                 # build (cwd must be the vault)
