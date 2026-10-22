@@ -14,7 +14,7 @@ Open work only: bugs to fix and features to build. When something is finished, d
 
 
 ## The book
-The generator works end to end (`tsgen book`, see the README and `docs/decisions.md`), with the 2020 book's contents, index and trim size, a preface, and Roman front-matter numbering. Open work, roughly in the order it shows:
+The generator works end to end (the book is part of every build, see the README and `docs/decisions.md`), with the 2020 book's contents, index and trim size, a preface, and Roman front-matter numbering. Open work, roughly in the order it shows:
 - **Running heads and chapter-opening pages** without them: the Part on a left page, the topic on a right page.
 - **The Scripture index is about 43 pages** of the 213. Options to tighten it if that is too many: run the references of a chapter together on a line, three columns at a smaller size, or merge consecutive pages (21–23). Also whether the topic index wants letter headings.
 - **A colophon:** the vault's `Colophon.md` is about the typography and tools and wasn't in the 2020 book; whether it joins the generator's own pages is Joey's call.
@@ -22,7 +22,7 @@ The generator works end to end (`tsgen book`, see the README and `docs/decisions
 - **Copyfitting: short last pages and gaps.** A claim of about ten lines or fewer moves whole to the next page and a long one may split inside a description, which leaves fewer gaps than keeping every claim whole did (measured on the 206-page book then: pages that are not a topic's last averaged 92% full, 10 of 74 under 85%; 6 of the 43 last pages of topics held under a quarter of a page, two a line or two; re-measure). Options: a copyfitting pass that lays the book out, finds a topic whose last page holds a few lines, tightens that topic's spacing a hair and lays it out again (two or three rounds), or a lower `SHORT_CLAIM`.
 - **Hyphenation depends on Chrome's dictionaries.** On a CI runner the headless Chrome may hyphenate differently or not at all, so the evergreen PDF could break lines unlike the local one. Check before publishing it; the fallback is hyphenating in the generator with a library (soft hyphens), which also lets it skip proper names.
 - **Typesetting polish:** whether Part pages and chapter openers want ornaments, and any further hyphenation tuning.
-- **The evergreen edition:** a CI step in the content repo that installs `pagedjs` and `puppeteer-core`, runs `tsgen book` and publishes `book.pdf` (about 20 MB: the hero images, and a link annotation for every index page number; consider downsampling the images for the web copy).
+- **Check the book on the CI runner:** the book is now made by every `tsgen` build, so the first deploy that has 0.22.0 also typesets it with the runner's Chrome. Look at that PDF (hyphenation and the page count may differ from a Mac's), and decide whether to link it from the site (nothing links to `/book/book.pdf` yet; it is about 19 MB, mostly the hero images and a link annotation for every index page number, so consider downsampling the images).
 - **The fonts' timestamps:** `scripts/subset-fonts.py` now keeps upstream timestamps, but the committed font files carry the old random ones, so the next rebuild shows every file as changed once; regenerate and commit them together when something else needs a font change anyway.
 
 ## Code

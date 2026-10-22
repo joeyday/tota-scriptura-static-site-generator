@@ -26,7 +26,8 @@ const CONTENT_TYPES = {
   '.otf': 'font/otf',
   '.ttf': 'font/ttf',
   '.woff': 'font/woff',
-  '.woff2': 'font/woff2'
+  '.woff2': 'font/woff2',
+  '.pdf': 'application/pdf'
 }
 
 // Resolve a request path to a file inside root, or null if there isn't one.

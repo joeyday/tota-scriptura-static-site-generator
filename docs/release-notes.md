@@ -7,7 +7,22 @@ What changed in each tsgen release, newest first, and (at the end) what the gene
 - Output changes are called out. Unless a release says otherwise, a refactor or speed-up left the built site byte-identical to the previous release, which `scripts/compare-dist.mjs` checks.
 - "The vault" is the content repo. Its own side of each change (migrations, files edited) is Joey's and lives in that repo's history.
 
-Contents: [0.21](#0210--2026-10-21) · [0.20.1](#0201--2026-10-21) · [0.20](#0200--2026-10-21) · [0.19.2](#0192--2026-10-20) · [0.19.1](#0191--2026-10-20) · [0.19](#0190--2026-10-19) · [0.18](#0182--2026-10-19) · [0.17](#0170--2026-10-13) · [0.16](#0160--2026-10-13) · [0.15](#0150--2026-10-12) · [0.14](#0140--2026-10-12) · [0.13](#0130--2026-10-11) · [0.12](#0121--2026-10-11) · [0.11](#01117--2026-10-11) · [0.10](#0102--2026-10-08) · [0.9](#090--2026-10-07) · [0.8](#080--2026-10-07) · [0.7](#070--2026-10-06) · [0.6](#060--2026-10-06) · [0.5](#050--2026-10-02) · [0.4](#040--2026-10-02) · [0.3](#030--2026-10-02) · [0.2](#020--2026-10-02) · [0.1](#010--2026-10-01) · [Before tsgen](#before-tsgen-buildjs-in-the-content-repo-2026-02-28--2026-10-01)
+Contents: [0.22](#0220--2026-10-21) · [0.21](#0210--2026-10-21) · [0.20.1](#0201--2026-10-21) · [0.20](#0200--2026-10-21) · [0.19.2](#0192--2026-10-20) · [0.19.1](#0191--2026-10-20) · [0.19](#0190--2026-10-19) · [0.18](#0182--2026-10-19) · [0.17](#0170--2026-10-13) · [0.16](#0160--2026-10-13) · [0.15](#0150--2026-10-12) · [0.14](#0140--2026-10-12) · [0.13](#0130--2026-10-11) · [0.12](#0121--2026-10-11) · [0.11](#01117--2026-10-11) · [0.10](#0102--2026-10-08) · [0.9](#090--2026-10-07) · [0.8](#080--2026-10-07) · [0.7](#070--2026-10-06) · [0.6](#060--2026-10-06) · [0.5](#050--2026-10-02) · [0.4](#040--2026-10-02) · [0.3](#030--2026-10-02) · [0.2](#020--2026-10-02) · [0.1](#010--2026-10-01) · [Before tsgen](#before-tsgen-buildjs-in-the-content-repo-2026-02-28--2026-10-01)
+
+---
+
+## 0.22.0 — 2026-10-21
+Commits `git log v0.21.0..v0.22.0`
+
+The book is part of the build. `tsgen` makes it by default, `tsgen serve` serves it, and `--no-book` is the only way to skip it. **A build now needs `book.json` in the vault and Chrome (or `CHROME_PATH`), or it fails** (or pass `--no-book`). The content repo's workflow needs no new step: the PDF is in `dist/book/book.pdf` after a `tsgen` build.
+
+**The book**
+- **Changed:** `tsgen` and `tsgen build` build the site and then the book: `<output>/book/book.pdf`. A real build takes about 7 seconds with the book, under 1 without. `--no-book` builds the site alone; `--book-html` stops the book at its layout, `book.html`, which is kept.
+- **Changed:** only the PDF is published: `book.html` is deleted once the PDF is made (it is kept with `--book-html`).
+- **Removed:** the `tsgen book` command (0.21.0's), and its `--html` flag (now `tsgen --book-html`).
+- **Changed:** `pagedjs` and `puppeteer-core` are ordinary dependencies, no longer optional peer dependencies, so nothing needs installing in the content repo. They are loaded only when a book is made. (`puppeteer-core` downloads no browser; Chrome comes from the machine.)
+- **Added:** `tsgen serve` typesets the book in the background and serves it at `/book/book.pdf`, with the site up at once. After each rebuild a new book is made from a private copy of the assets, and the last good PDF stays up until it is ready; changes that arrive meanwhile make one more book, not a queue. A book that fails there (no `book.json`, no Chrome, a link out of the book) is reported and does not stop the site. `serve --no-book` serves the site alone.
+- **Added:** `serve` knows `.pdf` (it is served as `application/pdf`).
 
 ---
 

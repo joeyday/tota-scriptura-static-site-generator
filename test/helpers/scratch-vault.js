@@ -45,16 +45,18 @@ export async function makeVault (files = {}) {
 
 // Builds a scratch vault (see makeVault) and runs the generator on it, in its own
 // working directory like the real build; `args` go to the CLI, `env` adds to its
-// environment and `prepare(vault)` runs first. Resolves to
+// environment and `prepare(vault)` runs first. The book is off (--no-book is added) unless
+// `book: true`, since most tests are about the site and a book takes seconds. Resolves to
 // { code, output, read(url), exists(url), cleanup() }; `output` is stdout and stderr together.
-export async function buildVault (files = {}, { args = [], env = {}, prepare } = {}) {
+export async function buildVault (files = {}, { args = [], env = {}, prepare, book = false } = {}) {
   const { root, vault, dist, cleanup } = await makeVault(files)
   await prepare?.(vault)
 
   let code = 0
   let output = ''
   try {
-    const result = await run('node', [BUILD_JS, ...args], {
+    const argv = book ? args : args.length === 0 ? ['build', '--no-book'] : [...args, '--no-book']
+    const result = await run('node', [BUILD_JS, ...argv], {
       cwd: vault,
       env: { ...process.env, TSGEN_OUT: dist, GITHUB_SHA: 'abcdef0', ...env }
     })
