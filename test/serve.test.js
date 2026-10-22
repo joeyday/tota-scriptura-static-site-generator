@@ -5,6 +5,7 @@ import http from 'node:http'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { buildVault, makeVault } from './helpers/scratch-vault.js'
+import { findChrome } from '../lib/book/pdf.js'
 import { changeUntil, copyGenerator, freePort, startServe, startStatic, waitFor } from './helpers/serve.js'
 
 // The preview server, run for real as `tsgen serve` in scratch vaults. These tests start
@@ -406,5 +407,46 @@ describe('the supervisor and the watcher, on more of tsgen\'s own files', { conc
     process.kill(child, 'SIGKILL')
     const [code] = await server.exit
     assert.equal(code, 1)
+  })
+})
+
+describe('the book while serving', { concurrency: true }, () => {
+  const manifest = JSON.stringify({ parts: [{ title: 'P', topics: ['Grace'] }] })
+  const files = { 'topic/Grace.md': page('Grace.', '', 'Grace'), 'book.json': manifest }
+
+  test('is typeset in the background: the site is up at once, and a book that fails does not stop it', async () => {
+    const made = await vaultFor({ 'topic/Grace.md': page('Grace.', '', 'Grace') }) // no book.json
+    const server = await serve(made, { book: true, args: ['--no-watch'] })
+    assert.match(server.output(), /Book: typesetting in the background; it will be at \/book\/book\.pdf\./)
+    assert.match(await (await server.get('/topic/grace/')).text(), /Grace\./)
+    await waitFor(() => /Book failed \(still serving the last good one, if any\): book\.json not found/.test(server.output()), { what: 'the book to fail' })
+    assert.equal((await server.get('/topic/grace/')).status, 200)
+    assert.equal((await server.get('/book/book.pdf')).status, 404)
+  })
+
+  test('--no-book serves the site alone', async () => {
+    const made = await vaultFor(files)
+    const server = await serve(made, { args: ['--no-watch'] })
+    assert.doesNotMatch(server.output(), /Book/)
+  })
+
+  test('is served at /book/book.pdf, and the last one stays up while the next is typeset', { skip: !findChrome() && 'no Chrome to typeset with', timeout: 180000 }, async () => {
+    const made = await vaultFor(files)
+    const server = await serve(made, { book: true })
+    await waitFor(() => /Book: \d+ pages typeset in/.test(server.output()), { timeout: 90000, what: `the book to be typeset:\n${server.output()}` })
+    const pdf = await server.get('/book/book.pdf')
+    assert.equal(pdf.status, 200)
+    assert.equal(pdf.headers.get('content-type'), 'application/pdf')
+    assert.equal(Buffer.from(await pdf.arrayBuffer()).subarray(0, 5).toString(), '%PDF-')
+    assert.equal((await server.get('/book/book.html')).status, 404) // only the PDF is published
+
+    // an edit rebuilds the site at once and the book after it; the old PDF is there meanwhile
+    await changeUntil(
+      (n) => fs.writeFile(path.join(made.vault, 'topic', 'Grace.md'), page(`Grace, again ${n}.`, '', 'Grace')),
+      () => /Rebuilt in/.test(server.output())
+    )
+    assert.equal((await server.get('/book/book.pdf')).status, 200)
+    await waitFor(() => (server.output().match(/Book: \d+ pages typeset in/g) ?? []).length >= 2, { timeout: 90000, what: 'the book to be typeset again' })
+    assert.equal((await server.get('/book/book.pdf')).status, 200)
   })
 })

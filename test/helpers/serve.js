@@ -76,12 +76,13 @@ export async function copyGenerator (dir) {
 // group, as Ctrl-C does). Resolves once it is serving (or has exited):
 // { port, output() (stdout and stderr so far), exit (a promise of [code, signal]),
 //   url(path), get(path, options), stop(signal) }
-// `port` is a number, or `=<number>` to be passed as --port=<number>.
-export async function startServe (vault, dist, { args = [], buildJs = path.join(TSGEN_DIR, 'build.js'), env = {}, port: wanted } = {}) {
+// `port` is a number, or `=<number>` to be passed as --port=<number>. The book is off (--no-book is
+// added) unless `book: true`: it takes seconds, and most tests are about the site.
+export async function startServe (vault, dist, { args = [], buildJs = path.join(TSGEN_DIR, 'build.js'), env = {}, port: wanted, book = false } = {}) {
   const port = typeof wanted === 'string' ? Number(wanted.slice(1)) : wanted ?? await freePort()
   let output = ''
   const portArgs = typeof wanted === 'string' ? [`--port=${port}`] : ['--port', String(port)]
-  const child = spawn(process.execPath, [buildJs, 'serve', ...portArgs, ...args], {
+  const child = spawn(process.execPath, [buildJs, 'serve', ...portArgs, ...args, ...(book ? [] : ['--no-book'])], {
     cwd: vault,
     env: { ...process.env, TSGEN_OUT: dist, GITHUB_SHA: 'abcdef0', ...env },
     stdio: ['ignore', 'pipe', 'pipe'],

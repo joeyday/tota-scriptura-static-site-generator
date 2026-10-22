@@ -311,7 +311,7 @@ describe('buildIndex', () => {
   })
 })
 
-// ─── tsgen book, on a scratch vault ───
+// ─── The book, on a scratch vault ───
 
 const builds = []
 const build = async (files, options) => {
@@ -335,9 +335,9 @@ function assertBookFails (result, pattern) {
   assert.match(result.output, pattern)
 }
 
-describe('tsgen book --html', { concurrency: true }, () => {
+describe('a build with --book-html', { concurrency: true }, () => {
   test('lays the book out from the built pages', async () => {
-    const b = await build({ ...vault, 'book.json': manifest([{ title: 'Grace', topics: ['Grace', 'Mercy'] }]) }, { args: ['book', '--html'] })
+    const b = await build({ ...vault, 'book.json': manifest([{ title: 'Grace', topics: ['Grace', 'Mercy'] }]) }, { book: true, args: ['build', '--book-html'] })
     assert.equal(b.code, 0, b.output)
     const html = await b.read('/book/book.html')
     assert.match(html, /<section class="topic" id="topic-grace">/)
@@ -359,7 +359,7 @@ describe('tsgen book --html', { concurrency: true }, () => {
       'topic/Church.md': '---\ntitle: Church\n---\nChurch.\n',
       'topic/Church discipline.md': '---\ntitle: Church discipline\naliases:\n  - Keys of the kingdom\n---\nDiscipline.\n',
       'book.json': JSON.stringify({ parts: [{ title: 'P', topics: ['Church', 'Church discipline', 'Grace', 'Mercy'] }], index: { groups: ['Church'] } })
-    }, { args: ['book', '--html'] })
+    }, { book: true, args: ['build', '--book-html'] })
     assert.equal(b.code, 0, b.output)
     const html = await b.read('/book/book.html')
     assert.match(html, /<section class="topic preface" id="preface"><h1 class="topic-title">Preface<\/h1>/)
@@ -370,27 +370,27 @@ describe('tsgen book --html', { concurrency: true }, () => {
   })
 
   test('a topic can be named with its folder', async () => {
-    const b = await build({ ...vault, 'book.json': manifest([{ title: 'P', topics: ['topic/Grace', 'Mercy'] }]) }, { args: ['book', '--html'] })
+    const b = await build({ ...vault, 'book.json': manifest([{ title: 'P', topics: ['topic/Grace', 'Mercy'] }]) }, { book: true, args: ['build', '--book-html'] })
     assert.equal(b.code, 0, b.output)
   })
 
   test('needs a book.json', async () => {
-    assertBookFails(await build(vault, { args: ['book', '--html'] }), /book\.json not found/)
+    assertBookFails(await build(vault, { book: true, args: ['build', '--book-html'] }), /book\.json not found/)
   })
 
   test('needs valid JSON with parts', async () => {
-    assertBookFails(await build({ ...vault, 'book.json': '{' }, { args: ['book', '--html'] }), /book\.json is not valid JSON/)
-    assertBookFails(await build({ ...vault, 'book.json': '{}' }, { args: ['book', '--html'] }), /needs a "parts" list/)
-    assertBookFails(await build({ ...vault, 'book.json': '[]' }, { args: ['book', '--html'] }), /must be a JSON object/)
+    assertBookFails(await build({ ...vault, 'book.json': '{' }, { book: true, args: ['build', '--book-html'] }), /book\.json is not valid JSON/)
+    assertBookFails(await build({ ...vault, 'book.json': '{}' }, { book: true, args: ['build', '--book-html'] }), /needs a "parts" list/)
+    assertBookFails(await build({ ...vault, 'book.json': '[]' }, { book: true, args: ['build', '--book-html'] }), /must be a JSON object/)
   })
 
   test('the index groups, when given, are a list of headings', async () => {
-    assertBookFails(await build({ ...vault, 'book.json': JSON.stringify({ parts: [{ title: 'P', topics: ['Grace'] }], index: { groups: 'Church' } }) }, { args: ['book', '--html'] }), /"index" "groups" must be a list of headings/)
-    assertBookFails(await build({ ...vault, 'book.json': JSON.stringify({ parts: [{ title: 'P', topics: ['Grace'] }], index: [] }) }, { args: ['book', '--html'] }), /"index" must be an object/)
+    assertBookFails(await build({ ...vault, 'book.json': JSON.stringify({ parts: [{ title: 'P', topics: ['Grace'] }], index: { groups: 'Church' } }) }, { book: true, args: ['build', '--book-html'] }), /"index" "groups" must be a list of headings/)
+    assertBookFails(await build({ ...vault, 'book.json': JSON.stringify({ parts: [{ title: 'P', topics: ['Grace'] }], index: [] }) }, { book: true, args: ['build', '--book-html'] }), /"index" must be an object/)
   })
 
   test('every part needs a title and topics', async () => {
-    const b = await build({ ...vault, 'book.json': manifest([{ topics: ['Grace'] }, { title: 'Two' }, { title: 'Three', topics: [7] }]) }, { args: ['book', '--html'] })
+    const b = await build({ ...vault, 'book.json': manifest([{ topics: ['Grace'] }, { title: 'Two' }, { title: 'Three', topics: [7] }]) }, { book: true, args: ['build', '--book-html'] })
     assertBookFails(b, /part 1 needs a "title"/)
     assert.match(b.output, /part 2 \("Two"\) needs a "topics" list/)
     assert.match(b.output, /part 3 \("Three"\) has a topic that isn't text/)
@@ -404,7 +404,7 @@ describe('tsgen book --html', { concurrency: true }, () => {
       'topic/notes/Grace.md': topic('notes'),
       'category/Things.md': topic('c'),
       'book.json': manifest([{ title: 'P', topics: ['Nowhere', 'Secret', 'Unfinished', 'topic/notes/Grace', 'Things', 'Grace', 'Grace'] }])
-    }, { args: ['book', '--html'] })
+    }, { book: true, args: ['build', '--book-html'] })
     assertBookFails(b, /"Nowhere" \(part 1 \("P"\)\) is not a page/)
     assert.match(b.output, /"Secret" .* is hidden/)
     assert.match(b.output, /"Unfinished" .* is a draft/)
@@ -418,7 +418,7 @@ describe('tsgen book --html', { concurrency: true }, () => {
       ...vault,
       'commentary/Titus.md': '---\ntitle: Titus\n---\nIntro.\n\n## Start (Tit 1:1)\n\nTit 1:1 *A term*\n: A definition.\n',
       'book.json': manifest([{ title: 'P', topics: ['Mercy'] }, { title: 'Commentaries', topics: ['commentary/Titus'] }])
-    }, { args: ['book', '--html'] })
+    }, { book: true, args: ['build', '--book-html'] })
     assert.equal(b.code, 0, b.output)
     const html = await b.read('/book/book.html')
     assert.match(html, /<section class="part" id="part-2"><p class="part-number">Part 2<\/p><h1 class="part-title">Commentaries<\/h1>/)
@@ -432,7 +432,7 @@ describe('tsgen book --html', { concurrency: true }, () => {
       'topic/Elsewhere.md': topic('Not in the book.'),
       'topic/Grace.md': topic('Grace, and [[Elsewhere]] too.\n'),
       'book.json': manifest([{ title: 'P', topics: ['Grace'] }])
-    }, { args: ['book', '--html'] })
+    }, { book: true, args: ['build', '--book-html'] })
     assertBookFails(b, /The book links to pages that are not in it:\n"Elsewhere" \(\/topic\/elsewhere\) in topic-grace/)
   })
 
@@ -442,24 +442,40 @@ describe('tsgen book --html', { concurrency: true }, () => {
       'reference/Twin.md': topic('r'),
       'category/Twin.md': topic('c'),
       'book.json': manifest([{ title: 'P', topics: ['Twin'] }])
-    }, { args: ['book', '--html'] })
+    }, { book: true, args: ['build', '--book-html'] })
     assertBookFails(b, /"Twin" \(part 1 \("P"\)\) names more than one page; write it with its folder, like "topic\/Twin"/)
   })
 
   test('a page at /book would be overwritten, so it fails the book', async () => {
-    const b = await build({ ...vault, 'book.md': topic('a page'), 'book.json': manifest([{ title: 'P', topics: ['Grace'] }]) }, { args: ['book', '--html'] })
+    const b = await build({ ...vault, 'book.md': topic('a page'), 'book.json': manifest([{ title: 'P', topics: ['Grace'] }]) }, { book: true, args: ['build', '--book-html'] })
     assertBookFails(b, /exists: a page at \/book would be overwritten/)
   })
 })
 
-describe('tsgen book', () => {
+describe('the book in a build', () => {
+  test('is made by default, so a vault without a book.json fails the build, and --no-book is the way to skip it', async () => {
+    const plain = await build(vault, { book: true })
+    assertBookFails(plain, /Book failed: book\.json not found/)
+    const without = await build(vault, { book: true, args: ['build', '--no-book'] })
+    assert.equal(without.code, 0, without.output)
+    assert.equal(await without.exists('/book'), false)
+    assert.doesNotMatch(without.output, /Book/)
+  })
+
+  test('with --book-html the layout is kept and no PDF is made', async () => {
+    const b = await build({ ...vault, 'book.json': manifest([{ title: 'P', topics: ['Grace', 'Mercy'] }]) }, { book: true, args: ['build', '--book-html'] })
+    assert.equal(b.code, 0, b.output)
+    assert.equal(await b.exists('/book/book.html'), true)
+    assert.equal(await b.exists('/book/book.pdf'), false)
+  })
+
   test('says so when the Chrome in CHROME_PATH is not there', async () => {
-    const b = await build({ ...vault, 'book.json': manifest([{ title: 'P', topics: ['Grace', 'Mercy'] }]) }, { args: ['book'], env: { CHROME_PATH: '/nowhere/chrome' } })
-    assertBookFails(b, /needs Chrome or Chromium: install it, or set CHROME_PATH to its executable \(it is not at \/nowhere\/chrome\)/)
+    const b = await build({ ...vault, 'book.json': manifest([{ title: 'P', topics: ['Grace', 'Mercy'] }]) }, { book: true, env: { CHROME_PATH: '/nowhere/chrome' } })
+    assertBookFails(b, /needs Chrome or Chromium: install it, set CHROME_PATH to its executable, or build with --no-book \(it is not at \/nowhere\/chrome\)/)
   })
 
   test('numbers the front matter and the preface in Roman numerals, and the book from 1 on the first Part', { skip: !findChrome() && 'no Chrome to typeset with', timeout: 120000 }, async () => {
-    const b = await build({ ...vault, 'About.md': topic('Hello.'), 'book.json': manifest([{ title: 'Grace', topics: ['Grace', 'Mercy'] }]) }, { args: ['book', '--html'] })
+    const b = await build({ ...vault, 'About.md': topic('Hello.'), 'book.json': manifest([{ title: 'Grace', topics: ['Grace', 'Mercy'] }]) }, { book: true, args: ['build', '--book-html'] })
     assert.equal(b.code, 0, b.output)
     const { pages, first, folios } = await renderPdf({ htmlFile: path.join(b.dist, 'book', 'book.html'), pdfFile: path.join(b.dist, 'book', 'book.pdf') })
     assert.equal(first, 9)
@@ -471,10 +487,12 @@ describe('tsgen book', () => {
   })
 
   test('typesets a PDF with Paged.js in headless Chrome', { skip: !findChrome() && 'no Chrome to typeset with', timeout: 120000 }, async () => {
-    const b = await build({ ...vault, 'About.md': topic('Hello.'), 'book.json': manifest([{ title: 'Grace', topics: ['Grace', 'Mercy'] }]) }, { args: ['book'] })
+    const b = await build({ ...vault, 'About.md': topic('Hello.'), 'book.json': manifest([{ title: 'Grace', topics: ['Grace', 'Mercy'] }]) }, { book: true })
     assert.equal(b.code, 0, b.output)
     assert.match(b.output, /Book: \d+ pages typeset in .*book\.pdf; page 1 is sheet 9/)
     const pdf = await fs.readFile(path.join(b.dist, 'book', 'book.pdf'))
     assert.equal(pdf.subarray(0, 5).toString(), '%PDF-')
+    // only the PDF is published: the layout it was typeset from is not
+    assert.equal(await b.exists('/book/book.html'), false)
   })
 })

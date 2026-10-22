@@ -395,7 +395,53 @@ function isSiteFile (relPath, skipNames) {
   return WATCHED_EXTENSIONS.has(path.extname(relPath).toLowerCase())
 }
 
-function watchAndRebuild ({ showHidden, reloadPages }) {
+// ─── The book, while serving ───
+// A book takes about half a minute to typeset, so serve builds it in the background, from a private
+// copy of the site's assets (a site rebuild swaps the served directory under it), and puts the PDF at
+// /book/book.pdf when it is done. Until then (and while a newer one is being made) the last good PDF
+// stays up. Changes that arrive meanwhile are made into one more book, not a queue of them.
+
+const BOOK_DIR = path.join(path.dirname(OUTPUT_DIR), `.${path.basename(OUTPUT_DIR)}-book`)
+
+function bookInBackground () {
+  let busy = false
+  let waiting = null // the latest build to make a book from, when one arrived while busy
+
+  async function run (built) {
+    if (busy) {
+      waiting = built
+      return
+    }
+    busy = true
+    const started = performance.now()
+    try {
+      const { makeBook } = await import('./lib/book/index.js')
+      // The pages are read as the book starts; the assets are copied, so a rebuild can't pull them away
+      await fs.rm(BOOK_DIR, { recursive: true, force: true })
+      await fs.mkdir(BOOK_DIR, { recursive: true })
+      await fs.cp(path.join(OUTPUT_DIR, 'asset'), path.join(BOOK_DIR, 'asset'), { recursive: true })
+      const { pdfFile, pages } = await makeBook({ outputDir: OUTPUT_DIR, bookDir: path.join(BOOK_DIR, 'book'), ...built })
+      const served = path.join(OUTPUT_DIR, 'book')
+      await fs.mkdir(served, { recursive: true })
+      await fs.copyFile(pdfFile, path.join(served, '.book.pdf'))
+      await fs.rename(path.join(served, '.book.pdf'), path.join(served, 'book.pdf'))
+      console.log(`Book: ${pages} pages typeset in ${((performance.now() - started) / 1000).toFixed(1)} s, at /book/book.pdf.`)
+    } catch (err) {
+      console.error('Book failed (still serving the last good one, if any):', err instanceof BuildError ? err.message : err)
+    } finally {
+      await fs.rm(BOOK_DIR, { recursive: true, force: true })
+      busy = false
+      if (waiting) {
+        const next = waiting
+        waiting = null
+        run(next)
+      }
+    }
+  }
+  return { run, cleanUp: () => fsSync.rmSync(BOOK_DIR, { recursive: true, force: true }) }
+}
+
+function watchAndRebuild ({ showHidden, reloadPages, book }) {
   let building = false
 
   // A rebuild always says what started it and how long it took (the other build
@@ -412,13 +458,16 @@ function watchAndRebuild ({ showHidden, reloadPages }) {
     building = true
     const started = performance.now()
     try {
-      await build({ showHidden, outputDir: STAGE_DIR })
+      const built = await build({ showHidden, outputDir: STAGE_DIR })
       await fs.rm(OLD_DIR, { recursive: true, force: true })
       await fs.rename(OUTPUT_DIR, OLD_DIR)
       await fs.rename(STAGE_DIR, OUTPUT_DIR)
+      // The book made so far stays up while the next one is typeset
+      await fs.rename(path.join(OLD_DIR, 'book'), path.join(OUTPUT_DIR, 'book')).catch(() => {})
       await fs.rm(OLD_DIR, { recursive: true, force: true })
       console.log(`Rebuilt in ${((performance.now() - started) / 1000).toFixed(2)} s.`)
       reloadPages()
+      book?.run(built)
     } catch (err) {
       console.error(
         'Build failed (still serving the last good build):',
@@ -438,6 +487,7 @@ function watchAndRebuild ({ showHidden, reloadPages }) {
   // The staging directories are dot-folders inside the vault; don't leave them behind.
   const cleanUp = () => {
     watcher.stop()
+    book?.cleanUp()
     fsSync.rmSync(STAGE_DIR, { recursive: true, force: true })
     fsSync.rmSync(OLD_DIR, { recursive: true, force: true })
   }
@@ -452,7 +502,12 @@ function watchAndRebuild ({ showHidden, reloadPages }) {
 }
 
 // ─── CLI ──────────────────────────────────────────────────────────────────────
-// tsgen [build]     build the site (what CI runs)
+// tsgen [build]     build the site and the book (what CI runs). The book (book.json in the vault
+//                   names its parts and topics) is laid out from the built pages and typeset
+//                   with Paged.js in headless Chrome: <output>/book/book.pdf. With:
+//   --no-book       build the site only; the book takes about half a minute.
+//   --book-html     stop the book at its layout, <output>/book/book.html, which is kept (to
+//                   look at it without typesetting).
 // tsgen serve       build, then serve the output locally (see serve.js) and rebuild
 //                   whenever the vault or the template changes (and restart itself
 //                   whenever tsgen's own code changes, see lib/supervise.js), with:
@@ -462,27 +517,26 @@ function watchAndRebuild ({ showHidden, reloadPages }) {
 //                   errors and the address it serves at.
 //   --port <n>      serve on port n instead of 4000 (also --port=n).
 //   --no-watch      serve the first build without rebuilding on changes.
-// tsgen book       build the site, then lay the book out from it (book.json in the vault
-//                   names the parts and topics) and typeset it with Paged.js in headless
-//                   Chrome: <output>/book/book.html and book.pdf. --html stops after the HTML.
-//                   Needs pagedjs and puppeteer-core, which the site build doesn't.
+//   --no-book       serve the site only. Otherwise the book is typeset in the background,
+//                   again after every rebuild, and served at /book/book.pdf.
 
 const USAGE =
-  'Usage: tsgen [build | serve [--show-hidden] [--verbose] [--no-watch] [--port <n>] | book [--html]]'
+  'Usage: tsgen [build [--no-book] [--book-html] | serve [--no-book] [--show-hidden] [--verbose] [--no-watch] [--port <n>]]'
 const [command = 'build', ...args] = process.argv.slice(2)
 let showHidden = false
 let verbose = false
 let watching = true
 let port
-let htmlOnly = false
-let usageOk = command === 'build' || command === 'serve' || command === 'book'
+let withBook = true
+let bookHtml = false
+let usageOk = command === 'build' || command === 'serve'
 for (let i = 0; usageOk && i < args.length; i++) {
   const [flag, inlineValue] = args[i].split(/=(.*)/s)
-  if (command === 'book') {
-    if (flag === '--html' && inlineValue === undefined) htmlOnly = true
+  if (flag === '--no-book' && inlineValue === undefined) withBook = false
+  else if (command === 'build') {
+    if (flag === '--book-html' && inlineValue === undefined) bookHtml = true
     else usageOk = false
-  } else if (command !== 'serve') usageOk = false
-  else if (flag === '--show-hidden' && inlineValue === undefined) showHidden = true
+  } else if (flag === '--show-hidden' && inlineValue === undefined) showHidden = true
   else if (flag === '--verbose' && inlineValue === undefined) verbose = true
   else if (flag === '--no-watch' && inlineValue === undefined) watching = false
   else if (flag === '--port') {
@@ -503,7 +557,7 @@ if (command === 'serve' && watching && !process.env.TSGEN_SUPERVISED) {
   await new Promise(() => {}) // the supervisor exits the process when the server stops
 }
 
-setVerbose(command === 'build' || command === 'book' || verbose)
+setVerbose(command === 'build' || verbose)
 if (showHidden) console.log('Showing hidden pages (--show-hidden).')
 
 let built
@@ -514,10 +568,10 @@ try {
   process.exit(1)
 }
 
-if (command === 'book') {
+if (command === 'build' && withBook) {
   try {
     const { makeBook } = await import('./lib/book/index.js')
-    await makeBook({ outputDir: OUTPUT_DIR, ...built, pdf: !htmlOnly })
+    await makeBook({ outputDir: OUTPUT_DIR, ...built, pdf: !bookHtml, keepHtml: bookHtml })
   } catch (err) {
     console.error('Book failed:', err instanceof BuildError ? err.message : err)
     process.exit(1)
@@ -528,7 +582,12 @@ if (command === 'serve') {
   try {
     const { serve } = await import('./serve.js')
     const { reloadPages } = await serve(OUTPUT_DIR, port, { watching })
-    if (watching) watchAndRebuild({ showHidden, reloadPages })
+    const book = withBook ? bookInBackground() : null
+    if (book) {
+      console.log('Book: typesetting in the background; it will be at /book/book.pdf.')
+      book.run(built)
+    }
+    if (watching) watchAndRebuild({ showHidden, reloadPages, book })
   } catch (err) {
     console.error(err.message)
     process.exit(1)
