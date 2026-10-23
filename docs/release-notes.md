@@ -14,7 +14,7 @@ Contents: [0.23](#0230--2026-10-22) · [0.22](#0220--2026-10-21) · [0.21](#0210
 ## 0.23.0 — 2026-10-22
 Commits `git log v0.22.0..v0.23.0`
 
-The book has a cover. **A build that makes the book now needs the network**: the cover's icon comes from the Font Awesome kit, which Chrome loads over the network (it answers a plain request with a 403 and Chrome's with the script, so check the first deploy on the CI runner), and a cover whose icon didn't load fails the build, like any other mistake in the book. It adds about two seconds to a build. `--no-book` is unaffected, and so is the site: no page changes.
+The book has a cover. **A build that makes the book now needs the network**: the cover's icon comes from the Font Awesome kit, which Chrome loads over the network (it answers a plain request with a 403 and Chrome's with the script; the suite's cover tests, which print both covers with their icon, passed on GitHub's runner), and a cover whose icon didn't load fails the build, like any other mistake in the book. It adds about two seconds to a build. `--no-book` is unaffected, and so is the site: no page changes.
 
 **The cover**
 - **Added:** `<output>/book/cover.pdf`, the cover as one flat sheet (back, spine and front, with bleed all round) laid out after the 2020 cover (`Cover 1.0rc1.pdf`) in the book's own fonts: the title in serif small caps over the subtitle, a short rule and the author on the front, the title and author down the spine, 2 Timothy 3:16–17 in italic on the back, and the Font Awesome feather-pointed icon (the site's logo) in place of the old feather. The icon is the kit's, loaded by script, so no Pro SVG is kept in this repo.
