@@ -1,0 +1,73 @@
+/* The book's cover (tsgen book): one flat sheet, the back, the spine and the front side by side, with
+   bleed all round. Laid out as the 2020 cover was, in the book's own type (title page: book.css).
+   lib/book/cover.js writes the page size and the --bleed, --trim-width and --spine the sheet is
+   measured from. Every vertical position is a baseline's distance from the top of the sheet, with
+   the line box's own offset to its baseline taken off, so the type sits where the 2020 cover put it. */
+
+html {
+    /* The sidebar's gray (--color-nav-background in style.css, light mode: print is always light): the cover
+       is the same work as the site, so it wears the site's color. test/book.test.js checks they agree. */
+    --color-field: oklch(0.46 0 0);
+    --color-paper: oklch(1 0 0);
+    --color-ink: oklch(0 0 0);
+    --font-heading: 'Fira Sans Condensed', 'Noto Sans Supplement', 'Noto Sans Hebrew', sans-serif;
+    font-synthesis-small-caps: none;
+    font-variant-numeric: oldstyle-nums;
+}
+body { margin: 0; }
+p, h1, hr { margin: 0; }
+
+.cover {
+    position: relative;
+    background: var(--color-paper);
+    color: var(--color-ink);
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+}
+
+/* The dark cover wears the site's dark theme: the sidebar's dark gray for the field, the page's for the back */
+.dark {
+    --color-field: oklch(0.4 0 0);
+    --color-paper: oklch(0.2 0 0);
+    --color-ink: oklch(1 0 0);
+}
+
+/* The gray field (lib/book/cover.js draws it) */
+.field { position: absolute; left: 0; top: 0; }
+.field polygon { fill: var(--color-field); }
+
+/* ─── The front ─── */
+.front, .back {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: var(--trim-width);
+    text-align: center;
+}
+.front { left: calc(var(--bleed) + var(--trim-width) + var(--spine)); color: #fff; }
+.back { left: var(--bleed); }
+
+.front > * { position: absolute; left: 0; right: 0; }
+.icon { top: 110.45pt; font-size: 36.3pt; line-height: 1; }
+.front h1 { top: 156.85pt; font: 500 26pt/35pt 'Tota Serif', serif; font-variant-caps: all-small-caps; }
+.subtitle { top: 198.15pt; font: 350 14pt/20.9pt var(--font-heading); }
+.front hr { top: 266.7pt; left: calc(50% - 24pt); right: auto; width: 48pt; height: 0; border: 0; border-top: 1pt solid #fff; }
+.author { top: 290.6pt; font: 350 18pt/25pt var(--font-heading); }
+
+/* ─── The back ─── */
+.back > * { position: absolute; left: 0; right: 0; font: italic 350 10pt/14.9pt var(--font-heading); font-variant-numeric: oldstyle-nums; } /* after the shorthand, which resets it */
+.quote { top: 312.05pt; }
+.citation { top: 392.25pt; }
+
+/* ─── The spine: its text runs down, and the title is on the gray (white), the author past the diagonal (black) ─── */
+.spine {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: calc(var(--bleed) + var(--trim-width));
+    width: var(--spine);
+    writing-mode: vertical-rl;
+}
+.spine > * { position: absolute; left: 0; width: var(--spine); line-height: var(--spine); text-align: left; white-space: nowrap; }
+.spine-title { top: 88pt; font: 500 18pt/var(--spine) 'Tota Serif', serif; font-variant-caps: all-small-caps; color: #fff; }
+.spine-author { top: 383pt; font: 350 18pt/var(--spine) var(--font-heading); }

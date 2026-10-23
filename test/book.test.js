@@ -1,11 +1,14 @@
 import { after, describe, test } from 'node:test'
 import assert from 'node:assert/strict'
 import fs from 'node:fs/promises'
+import os from 'node:os'
 import path from 'node:path'
 import { buildIndex, citationTally, composeBook, printArticle, scriptureIndexHtml, topicId } from '../lib/book/compose.js'
 import { processBibleRefs } from '../lib/bible/process.js'
 import { markRefs } from '../lib/book/scripture.js'
-import { findChrome, renderPdf } from '../lib/book/pdf.js'
+import { composeCover, coverSize } from '../lib/book/cover.js'
+import { FONT_AWESOME_KIT } from '../lib/layout.js'
+import { findChrome, renderCoverPdf, renderPdf } from '../lib/book/pdf.js'
 import { buildVault } from './helpers/scratch-vault.js'
 
 // ─── printArticle: one built page, turned into print ───
@@ -221,7 +224,7 @@ describe('composeBook', () => {
 
   test('has the front matter, a contents page, a page per part and a section per topic', () => {
     assert.match(html, /<section class="title-page">/)
-    assert.match(html, /<section class="copyright-page">[\s\S]*Copyright © 2026 by Joey Day\.<br>All rights reserved\.<br>Published by Joey Day\.[\s\S]*October 2026 edition<br>tsgen 0\.21\.0 · commit abc1234<\/p>/)
+    assert.match(html, /<section class="copyright-page">[\s\S]*Copyright © 2026 by Joey Day\.<br>All rights reserved\.<br>Published by Joey Day\.[\s\S]*October 2026 edition<br>commit abc1234 · tsgen 0\.21\.0<\/p>/)
     assert.match(html, /<p class="subtitle">A Systematic-Theological<br>Concordance of the Holy Bible<\/p>/)
     assert.match(html, /<section class="dedication">/)
     assert.match(html, /<nav class="toc">/)
@@ -349,7 +352,7 @@ describe('a build with --book-html', { concurrency: true }, () => {
     assert.ok(await b.exists('/asset/fonts.css'))
     assert.match(b.output, /Book: 1 part\(s\), 2 topic\(s\)/)
     assert.match(html, /<h2 class="sbook">John<\/h2>\n<p class="ix"><span class="ixt">3:16<\/span><span class="pgs"><span class="pg"><a class="pn" href="#topic-grace--r1">000<\/a>/)
-    assert.match(html, /[A-Z][a-z]+ 20\d\d edition<br>tsgen \d+\.\d+\.\d+ · commit abcdef0<\/p>/)
+    assert.match(html, /[A-Z][a-z]+ 20\d\d edition<br>commit abcdef0 · tsgen \d+\.\d+\.\d+<\/p>/)
   })
 
   test('the About page is the preface, and the index has the topics and their aliases, in groups', async () => {
@@ -452,6 +455,103 @@ describe('a build with --book-html', { concurrency: true }, () => {
   })
 })
 
+// ─── The cover ───
+
+// The cover's icon comes over the network, from the Font Awesome kit (which answers a plain request with a
+// 403 and a browser's with the script, so any answer means it can be reached)
+const kitReachable = await fetch(`https://kit.fontawesome.com/${FONT_AWESOME_KIT}.js`, { signal: AbortSignal.timeout(5000) }).then(() => true, () => false)
+const noCover = (!findChrome() && 'no Chrome to print with') || (!kitReachable && 'the Font Awesome kit is not reachable')
+
+describe('the cover', () => {
+  test('is the back, the spine and the front, with bleed, and the spine is as thick as the pages', () => {
+    const { spine, width, height, widthPt, heightPt, page } = coverSize(214)
+    assert.ok(Math.abs(spine - 214 * 0.002252) < 1e-9)
+    assert.equal(coverSize(213).spine, spine) // a leaf has two pages
+    assert.ok(coverSize(300).spine > spine)
+    // the sheet is two 4.25 in pages and the spine, and a 6.8598 in page, with an eighth of an inch of bleed
+    // all round, rounded up to a whole number of points (the extra falling in the bleed)
+    for (const [pt, inches] of [[widthPt, 8.75 + spine], [heightPt, 7.1098]]) {
+      assert.ok(Number.isInteger(pt) && pt >= inches * 72 && pt < inches * 72 + 1, `${pt} pt for ${inches} in`)
+    }
+    assert.equal(width, widthPt / 72)
+    assert.equal(height, heightPt / 72)
+    // and it is printed on a page of the next hundredth of an inch, which is how finely Chrome sizes one
+    for (const [size, sheet] of [[page.width, width], [page.height, height]]) {
+      assert.ok(size >= sheet && size < sheet + 0.01 + 1e-9 && Math.abs(size * 100 - Math.round(size * 100)) < 1e-9, `${size} in for ${sheet} in`)
+    }
+  })
+
+  test('sets the title, subtitle and author, the spine, and 2 Timothy on the back, with the sheet as the page', () => {
+    const html = composeCover({ pages: 214 })
+    const { page } = coverSize(214)
+    assert.ok(html.includes(`@page { size: ${page.width}in ${page.height}in; margin: 0; }`))
+    assert.match(html, /<h1>Tota Scriptura<\/h1>/)
+    assert.match(html, /<p class="subtitle">A Systematic-Theological<br>Concordance of the Holy Bible<\/p>/)
+    assert.match(html, /<p class="author">Joey Day<\/p>/)
+    assert.match(html, /<p class="spine-title">Tota Scriptura<\/p>\s*<p class="spine-author">Joey Day<\/p>/)
+    assert.match(html, /All Scripture is breathed out by God and<br>/)
+    assert.match(html, /<p class="citation">— 2 Timothy 3:16–17<\/p>/)
+    assert.match(html, new RegExp(`kit\\.fontawesome\\.com/${FONT_AWESOME_KIT}\\.js`))
+    assert.match(html, /fa-feather-pointed/)
+  })
+
+  test('is the site sidebar\'s gray', async () => {
+    const template = path.join(import.meta.dirname, '..', 'template')
+    const sidebar = /--color-nav-background: (oklch\([^)]*\));/.exec(await fs.readFile(path.join(template, 'style.css'), 'utf-8'))[1]
+    const field = /--color-field: (oklch\([^)]*\));/.exec(await fs.readFile(path.join(template, 'cover.css'), 'utf-8'))[1]
+    assert.equal(field, sidebar)
+    // and in the dark theme, the dark sidebar's gray over the dark page's
+    const style = await fs.readFile(path.join(template, 'style.css'), 'utf-8')
+    const css = await fs.readFile(path.join(template, 'cover.css'), 'utf-8')
+    assert.match(css, new RegExp(`\\.dark \\{[^}]*--color-field: ${/--color-dark-gray: (oklch\([^)]*\));/.exec(style)[1].replace(/[()]/g, '\\$&')};[^}]*--color-paper: ${/--color-darker-gray: (oklch\([^)]*\));/.exec(style)[1].replace(/[()]/g, '\\$&')};`))
+  })
+
+  test('sets the back, with the citation\'s numerals old-style, as the book\'s are', async () => {
+    // (the font shorthand resets font-variant-numeric, so it has to come after it)
+    const css = await fs.readFile(path.join(import.meta.dirname, '..', 'template', 'cover.css'), 'utf-8')
+    assert.match(css, /\.back > \* \{[^}]*font: [^;]*;\s*font-variant-numeric: oldstyle-nums;/)
+  })
+
+  test('has a dark version, in the site\'s dark theme', () => {
+    assert.doesNotMatch(composeCover({ pages: 214 }), /class="cover dark"/)
+    assert.match(composeCover({ pages: 214, dark: true }), /<div class="cover dark">/)
+  })
+
+  test('fails the book, rather than print without its icon, when the Font Awesome kit does not load', { skip: !findChrome() && 'no Chrome to print with', timeout: 60000 }, async () => {
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'tsgen-cover-'))
+    try {
+      const htmlFile = path.join(dir, 'cover.html')
+      await fs.writeFile(htmlFile, '<!doctype html><title>no icon</title><p>No kit here.</p>')
+      await assert.rejects(renderCoverPdf({ htmlFile, pdfFile: path.join(dir, 'cover.pdf'), wait: 500 }), /cover's icon didn't load/)
+    } finally {
+      await fs.rm(dir, { recursive: true, force: true })
+    }
+  })
+
+  test('is printed as one PDF page the size of the sheet', { skip: noCover, timeout: 120000 }, async () => {
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'tsgen-cover-'))
+    try {
+      await fs.mkdir(path.join(dir, 'book'))
+      await fs.cp(path.join(import.meta.dirname, '..', 'template'), path.join(dir, 'asset'), { recursive: true })
+      await fs.cp(path.join(dir, 'asset', 'fonts'), path.join(dir, 'asset'), { recursive: true })
+      const htmlFile = path.join(dir, 'book', 'cover.html')
+      await fs.writeFile(htmlFile, composeCover({ pages: 214 }))
+      const pdfFile = path.join(dir, 'book', 'cover.pdf')
+      await renderCoverPdf({ htmlFile, pdfFile, size: coverSize(214) })
+      const pdf = (await fs.readFile(pdfFile)).toString('latin1')
+      assert.equal(pdf.slice(0, 5), '%PDF-')
+      assert.equal(pdf.match(/\/Type\s*\/Page\b/g).length, 1)
+      // the page is the sheet in whole points (a fraction of a point more shows as a white hairline in a viewer)
+      const { widthPt, heightPt } = coverSize(214)
+      const [bottom, width, top] = /\/MediaBox \[0 ([\d.]+) (\d+) ([\d.]+) *\]/.exec(pdf).slice(1)
+      assert.equal(+width, widthPt)
+      assert.ok(Math.abs(top - bottom - heightPt) < 0.011, `${bottom} to ${top} pt`)
+    } finally {
+      await fs.rm(dir, { recursive: true, force: true })
+    }
+  })
+})
+
 describe('the book in a build', () => {
   test('is made by default, so a vault without a book.json fails the build, and --no-book is the way to skip it', async () => {
     const plain = await build(vault, { book: true })
@@ -486,13 +586,18 @@ describe('the book in a build', () => {
     assert.deepEqual(folios.slice(0, 11), ['', '', '', '', 'v', '', 'vii', '', '', '', '3'])
   })
 
-  test('typesets a PDF with Paged.js in headless Chrome', { skip: !findChrome() && 'no Chrome to typeset with', timeout: 120000 }, async () => {
+  test('typesets a PDF with Paged.js in headless Chrome, and prints the cover beside it', { skip: noCover, timeout: 120000 }, async () => {
     const b = await build({ ...vault, 'About.md': topic('Hello.'), 'book.json': manifest([{ title: 'Grace', topics: ['Grace', 'Mercy'] }]) }, { book: true })
     assert.equal(b.code, 0, b.output)
     assert.match(b.output, /Book: \d+ pages typeset in .*book\.pdf; page 1 is sheet 9/)
     const pdf = await fs.readFile(path.join(b.dist, 'book', 'book.pdf'))
     assert.equal(pdf.subarray(0, 5).toString(), '%PDF-')
-    // only the PDF is published: the layout it was typeset from is not
+    assert.match(b.output, /Book: the covers are in .*cover\.pdf and .*cover-dark\.pdf/)
+    for (const name of ['cover', 'cover-dark']) {
+      assert.equal((await fs.readFile(path.join(b.dist, 'book', `${name}.pdf`))).subarray(0, 5).toString(), '%PDF-')
+      assert.equal(await b.exists(`/book/${name}.html`), false)
+    }
+    // only the PDFs are published: the layouts they were made from are not
     assert.equal(await b.exists('/book/book.html'), false)
   })
 })
