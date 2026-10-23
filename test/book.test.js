@@ -224,7 +224,7 @@ describe('composeBook', () => {
 
   test('has the front matter, a contents page, a page per part and a section per topic', () => {
     assert.match(html, /<section class="title-page">/)
-    assert.match(html, /<section class="copyright-page">[\s\S]*Copyright © 2026 by Joey Day\.<br>All rights reserved\.<br>Published by Joey Day\.[\s\S]*October 2026 edition<br>tsgen 0\.21\.0 · commit abc1234<\/p>/)
+    assert.match(html, /<section class="copyright-page">[\s\S]*Copyright © 2026 by Joey Day\.<br>All rights reserved\.<br>Published by Joey Day\.[\s\S]*October 2026 edition<br>commit abc1234 · tsgen 0\.21\.0<\/p>/)
     assert.match(html, /<p class="subtitle">A Systematic-Theological<br>Concordance of the Holy Bible<\/p>/)
     assert.match(html, /<section class="dedication">/)
     assert.match(html, /<nav class="toc">/)
@@ -352,7 +352,7 @@ describe('a build with --book-html', { concurrency: true }, () => {
     assert.ok(await b.exists('/asset/fonts.css'))
     assert.match(b.output, /Book: 1 part\(s\), 2 topic\(s\)/)
     assert.match(html, /<h2 class="sbook">John<\/h2>\n<p class="ix"><span class="ixt">3:16<\/span><span class="pgs"><span class="pg"><a class="pn" href="#topic-grace--r1">000<\/a>/)
-    assert.match(html, /[A-Z][a-z]+ 20\d\d edition<br>tsgen \d+\.\d+\.\d+ · commit abcdef0<\/p>/)
+    assert.match(html, /[A-Z][a-z]+ 20\d\d edition<br>commit abcdef0 · tsgen \d+\.\d+\.\d+<\/p>/)
   })
 
   test('the About page is the preface, and the index has the topics and their aliases, in groups', async () => {
