@@ -96,12 +96,8 @@ describe('printArticle', () => {
 
   test('a term and all its descriptions are one block, so a page never breaks between them', () => {
     const out = print('<dl>\n<dt id="a">One</dt>\n<dd>first</dd>\n<dd>second</dd>\n<dt>Two</dt>\n<dd>third</dd>\n</dl>')
-    assert.equal(out.match(/<div class="claim short">/g).length, 2)
-    assert.match(out, /<div class="claim short"><dt id="topic-grace--a">One<\/dt><dd>first<\/dd><dd>second<\/dd><\/div>\n<div class="claim short"><dt>Two<\/dt><dd>third<\/dd><\/div>/)
-    // one that is long may break inside a description, so it is not marked short
-    const long = print(`<dl>\n<dt>Long</dt>\n<dd>${'word '.repeat(150)}</dd>\n<dt>Brief</dt>\n<dd>x</dd>\n</dl>`)
-    assert.match(long, /<div class="claim"><dt>Long<\/dt><dd>word/)
-    assert.match(long, /<div class="claim short"><dt>Brief/)
+    // each claim is numbered, so that a badly broken one can be held whole
+    assert.match(out, /<div class="claim" data-c="topic-grace-1"><dt id="topic-grace--a">One<\/dt><dd>first<\/dd><dd>second<\/dd><\/div>\n<div class="claim" data-c="topic-grace-2"><dt>Two<\/dt><dd>third<\/dd><\/div>/)
   })
 
   test('the "Main topic" definition is marked, so the passages follow it closely as on the site', () => {
@@ -610,6 +606,29 @@ describe('the book in a build', () => {
     // are v; a blank page; the preface is vii; a blank page; the first Part's page is 1 (no number is shown),
     // then a blank page, and the first topic is 3
     assert.deepEqual(folios.slice(0, 11), ['', '', '', '', 'v', '', 'vii', '', '', '', '3'])
+  })
+
+  test('lays a claim out again whole when Paged.js breaks it badly, so no term is left alone or a line stranded', { skip: !findChrome() && 'no Chrome to typeset with', timeout: 300000 }, async () => {
+    // claims of one or two descriptions and from one to a few lines, each after a different amount of text, so that
+    // each reaches the foot of a page in every way it can (every topic starts a page of its own)
+    const words = (n, seed) => Array.from({ length: n }, (_, i) => ['alpha', 'beta', 'gamma', 'delta', 'omega', 'sigma'][(i + seed) % 6]).join(' ')
+    const files = {}
+    const names = []
+    ;[[10], [20], [30], [45], [15, 15], [25, 10], [10, 25], [40, 12]].forEach((descriptions, shape) => {
+      for (let filler = 0; filler < 30; filler++) {
+        const name = `Claim ${shape} ${filler}`
+        names.push(name)
+        files[`topic/${name}.md`] = topic(`${'Some text to fill the page.\n\n'.repeat(filler)}Term\n${descriptions.map((n, i) => `: ${words(n, i)}`).join('\n')}\n`)
+      }
+    })
+    const b = await build({ ...files, 'About.md': topic('Hello.'), 'book.json': manifest([{ title: 'Grace', topics: names }]) }, { book: true, args: ['build', '--book-html'] })
+    assert.equal(b.code, 0, b.output)
+    const { pages, held, tall, layouts } = await renderPdf({ htmlFile: path.join(b.dist, 'book', 'book.html'), pdfFile: path.join(b.dist, 'book', 'book.pdf') })
+    assert.ok(pages > 240)
+    // Paged.js breaks some of these badly (about 5 in 240), so some are held, and the last layout is clean
+    assert.ok(held > 0 && layouts > 1, `${held} claims held in ${layouts} layouts`)
+    assert.equal(tall, 0)
+    assert.ok(layouts < 5, `${layouts} layouts`)
   })
 
   test('a "See also" list breaks only with its heading and the first item, and at least two items on the next page', { skip: !findChrome() && 'no Chrome to typeset with', timeout: 180000 }, async () => {

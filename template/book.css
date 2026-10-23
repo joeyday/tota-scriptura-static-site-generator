@@ -86,16 +86,16 @@ th { font-family: var(--font-heading); font-weight: 700; }
 
 /* ─── Terms and definitions: a claim, and what the Bible says for it ─── */
 dl { margin: 0; }
-/* The generator wraps a term and all of its descriptions in a .claim. A page never breaks between a term and
-   its descriptions, or between two descriptions; a long description may break inside, with at least two lines
-   on either side. A claim of about ten lines or fewer (.short) moves whole instead: Paged.js can only keep a term
-   with its description when the description starts past the foot of the page, so a short claim is held together
-   outright and only the long ones depend on the keep-with rules. */
-.claim.short { break-inside: avoid; }
+/* The generator wraps a term and all of its descriptions in a .claim. A claim breaks like a paragraph: a page
+   never breaks between a term and its descriptions (the term has at least one line of its first description with
+   it), or between two descriptions, and a description may break inside with at least two lines on the next page.
+   Paged.js doesn't always keep to that (it checks "keep with next" only when the next block starts past the foot
+   of the page, and it doesn't always honour widows), so after the layout lib/book/pdf.js finds the claims that
+   broke badly and lays the book out again with those held whole (break-inside: avoid, by their data-c). */
 .claim > dd:not(:last-child) { break-after: avoid; }
 .claim > dd { break-before: avoid; }
 .main-topic, .main-topic p { break-before: avoid; } /* Paged.js reads "keep with next" at the first node past the foot of the page, which can be this line */
-dd { orphans: 2; widows: 2; }
+dd { orphans: 1; widows: 2; }
 dt { font-variant-caps: all-small-caps; font-variant-numeric: normal; margin: 0.8em 0 0; break-after: avoid; hyphens: manual; }
 dd { margin: 0 0 0.3em 1em; }
 dd > :first-child { margin-top: 0; }
