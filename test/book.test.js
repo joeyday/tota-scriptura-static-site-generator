@@ -464,18 +464,27 @@ const noCover = (!findChrome() && 'no Chrome to print with') || (!kitReachable &
 
 describe('the cover', () => {
   test('is the back, the spine and the front, with bleed, and the spine is as thick as the pages', () => {
-    const { spine, width, height } = coverSize(214)
-    assert.equal(+height.toFixed(4), 7.1098) // 6.8598 in of page and an eighth of an inch of bleed above and below
-    assert.equal(+(width - spine).toFixed(4), 8.75) // two 4.25 in pages and an eighth of an inch of bleed at each edge
+    const { spine, width, height, widthPt, heightPt, page } = coverSize(214)
     assert.ok(Math.abs(spine - 214 * 0.002252) < 1e-9)
-    assert.equal(coverSize(213).spine, coverSize(214).spine) // a leaf has two pages
-    assert.ok(coverSize(300).spine > coverSize(214).spine)
+    assert.equal(coverSize(213).spine, spine) // a leaf has two pages
+    assert.ok(coverSize(300).spine > spine)
+    // the sheet is two 4.25 in pages and the spine, and a 6.8598 in page, with an eighth of an inch of bleed
+    // all round, rounded up to a whole number of points (the extra falling in the bleed)
+    for (const [pt, inches] of [[widthPt, 8.75 + spine], [heightPt, 7.1098]]) {
+      assert.ok(Number.isInteger(pt) && pt >= inches * 72 && pt < inches * 72 + 1, `${pt} pt for ${inches} in`)
+    }
+    assert.equal(width, widthPt / 72)
+    assert.equal(height, heightPt / 72)
+    // and it is printed on a page of the next hundredth of an inch, which is how finely Chrome sizes one
+    for (const [size, sheet] of [[page.width, width], [page.height, height]]) {
+      assert.ok(size >= sheet && size < sheet + 0.01 + 1e-9 && Math.abs(size * 100 - Math.round(size * 100)) < 1e-9, `${size} in for ${sheet} in`)
+    }
   })
 
   test('sets the title, subtitle and author, the spine, and 2 Timothy on the back, with the sheet as the page', () => {
     const html = composeCover({ pages: 214 })
-    const { width, height } = coverSize(214)
-    assert.ok(html.includes(`@page { size: ${+width.toFixed(4)}in ${+height.toFixed(4)}in; margin: 0; }`))
+    const { page } = coverSize(214)
+    assert.ok(html.includes(`@page { size: ${page.width}in ${page.height}in; margin: 0; }`))
     assert.match(html, /<h1>Tota Scriptura<\/h1>/)
     assert.match(html, /<p class="subtitle">A Systematic-Theological<br>Concordance of the Holy Bible<\/p>/)
     assert.match(html, /<p class="author">Joey Day<\/p>/)
@@ -528,13 +537,15 @@ describe('the cover', () => {
       const htmlFile = path.join(dir, 'book', 'cover.html')
       await fs.writeFile(htmlFile, composeCover({ pages: 214 }))
       const pdfFile = path.join(dir, 'book', 'cover.pdf')
-      await renderCoverPdf({ htmlFile, pdfFile })
+      await renderCoverPdf({ htmlFile, pdfFile, size: coverSize(214) })
       const pdf = (await fs.readFile(pdfFile)).toString('latin1')
       assert.equal(pdf.slice(0, 5), '%PDF-')
       assert.equal(pdf.match(/\/Type\s*\/Page\b/g).length, 1)
-      const [w, h] = /\/MediaBox\s*\[\s*0 0 ([\d.]+) ([\d.]+)/.exec(pdf).slice(1).map(Number)
-      const { width, height } = coverSize(214)
-      assert.ok(Math.abs(w - width * 72) < 1 && Math.abs(h - height * 72) < 1, `${w} × ${h} pt`)
+      // the page is the sheet in whole points (a fraction of a point more shows as a white hairline in a viewer)
+      const { widthPt, heightPt } = coverSize(214)
+      const [bottom, width, top] = /\/MediaBox \[0 ([\d.]+) (\d+) ([\d.]+) *\]/.exec(pdf).slice(1)
+      assert.equal(+width, widthPt)
+      assert.ok(Math.abs(top - bottom - heightPt) < 0.011, `${bottom} to ${top} pt`)
     } finally {
       await fs.rm(dir, { recursive: true, force: true })
     }

@@ -1,7 +1,7 @@
 /* The book's cover (tsgen book): one flat sheet, the back, the spine and the front side by side, with
    bleed all round. Laid out as the 2020 cover was, in the book's own type (title page: book.css).
    lib/book/cover.js writes the page size and the --bleed, --trim-width and --spine the sheet is
-   measured from (and --height, the sheet's, which the diagonal's run down it needs). Every vertical position is a baseline's distance from the top of the sheet, with
+   measured from. Every vertical position is a baseline's distance from the top of the sheet, with
    the line box's own offset to its baseline taken off, so the type sits where the 2020 cover put it. */
 
 html {
@@ -19,7 +19,6 @@ p, h1, hr { margin: 0; }
 
 .cover {
     position: relative;
-    overflow: hidden;
     background: var(--color-paper);
     color: var(--color-ink);
     -webkit-print-color-adjust: exact;
@@ -33,14 +32,9 @@ p, h1, hr { margin: 0; }
     --color-ink: oklch(1 0 0);
 }
 
-/* The gray field, cut by a diagonal at 45°: it leaves the top edge 0.326 in in from the left (the
-   2020 cover's 23.5 pt) and runs down to the right, off the bottom edge */
-.field {
-    position: absolute;
-    inset: 0;
-    background: var(--color-field);
-    clip-path: polygon(23.5pt 0, 100% 0, 100% 100%, calc(23.5pt + var(--height)) 100%);
-}
+/* The gray field (lib/book/cover.js draws it) */
+.field { position: absolute; left: 0; top: 0; }
+.field polygon { fill: var(--color-field); }
 
 /* ─── The front ─── */
 .front, .back {
