@@ -497,6 +497,12 @@ describe('the cover', () => {
     assert.match(css, new RegExp(`\\.dark \\{[^}]*--color-field: ${/--color-dark-gray: (oklch\([^)]*\));/.exec(style)[1].replace(/[()]/g, '\\$&')};[^}]*--color-paper: ${/--color-darker-gray: (oklch\([^)]*\));/.exec(style)[1].replace(/[()]/g, '\\$&')};`))
   })
 
+  test('sets the back, with the citation\'s numerals old-style, as the book\'s are', async () => {
+    // (the font shorthand resets font-variant-numeric, so it has to come after it)
+    const css = await fs.readFile(path.join(import.meta.dirname, '..', 'template', 'cover.css'), 'utf-8')
+    assert.match(css, /\.back > \* \{[^}]*font: [^;]*;\s*font-variant-numeric: oldstyle-nums;/)
+  })
+
   test('has a dark version, in the site\'s dark theme', () => {
     assert.doesNotMatch(composeCover({ pages: 214 }), /class="cover dark"/)
     assert.match(composeCover({ pages: 214, dark: true }), /<div class="cover dark">/)

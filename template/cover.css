@@ -61,7 +61,7 @@ p, h1, hr { margin: 0; }
 .author { top: 290.6pt; font: 350 18pt/25pt var(--font-heading); }
 
 /* ─── The back ─── */
-.back > * { position: absolute; left: 0; right: 0; font: italic 350 10pt/14.9pt var(--font-heading); }
+.back > * { position: absolute; left: 0; right: 0; font: italic 350 10pt/14.9pt var(--font-heading); font-variant-numeric: oldstyle-nums; } /* after the shorthand, which resets it */
 .quote { top: 312.05pt; }
 .citation { top: 392.25pt; }
 
