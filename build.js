@@ -420,12 +420,14 @@ function bookInBackground () {
       await fs.rm(BOOK_DIR, { recursive: true, force: true })
       await fs.mkdir(BOOK_DIR, { recursive: true })
       await fs.cp(path.join(OUTPUT_DIR, 'asset'), path.join(BOOK_DIR, 'asset'), { recursive: true })
-      const { pdfFile, pages } = await makeBook({ outputDir: OUTPUT_DIR, bookDir: path.join(BOOK_DIR, 'book'), ...built })
+      const { pdfFile, coverFile, darkCoverFile, pages } = await makeBook({ outputDir: OUTPUT_DIR, bookDir: path.join(BOOK_DIR, 'book'), ...built })
       const served = path.join(OUTPUT_DIR, 'book')
       await fs.mkdir(served, { recursive: true })
-      await fs.copyFile(pdfFile, path.join(served, '.book.pdf'))
-      await fs.rename(path.join(served, '.book.pdf'), path.join(served, 'book.pdf'))
-      console.log(`Book: ${pages} pages typeset in ${((performance.now() - started) / 1000).toFixed(1)} s, at /book/book.pdf.`)
+      for (const [file, name] of [[pdfFile, 'book.pdf'], [coverFile, 'cover.pdf'], [darkCoverFile, 'cover-dark.pdf']]) {
+        await fs.copyFile(file, path.join(served, `.${name}`))
+        await fs.rename(path.join(served, `.${name}`), path.join(served, name))
+      }
+      console.log(`Book: ${pages} pages typeset in ${((performance.now() - started) / 1000).toFixed(1)} s, at /book/book.pdf (the covers are /book/cover.pdf and /book/cover-dark.pdf).`)
     } catch (err) {
       console.error('Book failed (still serving the last good one, if any):', err instanceof BuildError ? err.message : err)
     } finally {
