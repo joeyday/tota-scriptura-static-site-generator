@@ -9,7 +9,7 @@ import { processBibleRefs } from '../lib/bible/process.js'
 import { markRefs } from '../lib/book/scripture.js'
 import { composeCover, coverSize } from '../lib/book/cover.js'
 import { FONT_AWESOME_KIT } from '../lib/layout.js'
-import { findChrome, load, renderCoverPdf, renderPdf } from '../lib/book/pdf.js'
+import { findChrome, load, renderCoverPdf, renderPdf, setPageSize } from '../lib/book/pdf.js'
 import { buildVault } from './helpers/scratch-vault.js'
 
 // ─── printArticle: one built page, turned into print ───
@@ -480,6 +480,31 @@ describe('the cover', () => {
     for (const [size, sheet] of [[page.width, width], [page.height, height]]) {
       assert.ok(size >= sheet && size < sheet + 0.01 + 1e-9 && Math.abs(size * 100 - Math.round(size * 100)) < 1e-9, `${size} in for ${sheet} in`)
     }
+  })
+
+  test('cuts the page box down even when it must grow (a sheet a whole number of points wide), keeping the file\'s offsets right', () => {
+    // a PDF as Chrome writes one: objects, a classic cross-reference table, and the startxref that points at it
+    const pdf = (width) => {
+      const objects = ['<</Type /Catalog /Pages 2 0 R>>', '<</Type /Pages /Kids [3 0 R] /Count 1>>', `<</Type /Page /Parent 2 0 R\n/MediaBox [0 0 ${width} 513.12]>>`, '<</Length 4>>\nstream\nabcd\nendstream']
+      let body = '%PDF-1.4\n'
+      const offsets = objects.map((o, i) => { const at = body.length; body += `${i + 1} 0 obj\n${o}\nendobj\n`; return at })
+      const xref = body.length
+      body += `xref\n0 5\n0000000000 65535 f \n${offsets.map((o) => `${String(o).padStart(10, '0')} 00000 n \n`).join('')}trailer\n<</Size 5 /Root 1 0 R>>\nstartxref\n${xref}\n%%EOF\n`
+      return body
+    }
+    const offsetsOf = (text) => {
+      const table = /startxref\n(\d+)/.exec(text)[1]
+      assert.ok(text.startsWith('xref\n0 5\n', +table), 'startxref points at the table')
+      return [...text.slice(+table).matchAll(/^(\d{10}) \d{5} n $/gm)].map((m) => +m[1])
+    }
+    for (const width of ['666', '666.24']) {
+      const out = setPageSize(pdf(width), { widthPt: 666, heightPt: 512 })
+      assert.match(out, /\/MediaBox \[0 1\.12 666 513\.12\] *\]?/)
+      offsetsOf(out).forEach((at, i) => assert.ok(out.startsWith(`${i + 1} 0 obj`, at), `object ${i + 1} (width ${width})`))
+    }
+    // a box that fits where the old one was is padded, and nothing moves
+    const same = pdf('666.24')
+    assert.equal(setPageSize(same, { widthPt: 666, heightPt: 512 }).length, same.length)
   })
 
   test('sets the title, subtitle and author, the spine, and 2 Timothy on the back, with the sheet as the page', () => {
