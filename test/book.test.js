@@ -4,7 +4,7 @@ import fs from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { buildIndex, citationTally, composeBook, printArticle, scriptureIndexHtml, topicId } from '../lib/book/compose.js'
+import { buildIndex, citationTally, composeBook, printArticle, scriptureIndexHtml, splitBook, topicId } from '../lib/book/compose.js'
 import { processBibleRefs } from '../lib/bible/process.js'
 import { markRefs } from '../lib/book/scripture.js'
 import { composeCover, coverSize } from '../lib/book/cover.js'
@@ -608,6 +608,42 @@ describe('the book in a build', () => {
     assert.deepEqual(folios.slice(0, 11), ['', '', '', '', 'v', '', 'vii', '', '', '', '3'])
   })
 
+  test('remembers each section it lays out, and lays out again only the one that changed', { skip: !findChrome() && 'no Chrome to typeset with', timeout: 300000 }, async () => {
+    const b = await build({ ...vault, 'About.md': topic('Hello.'), 'book.json': manifest([{ title: 'Grace', topics: ['Grace', 'Mercy', 'Wrath'] }]) }, { book: true, args: ['build', '--book-html'] })
+    assert.equal(b.code, 0, b.output)
+    const htmlFile = path.join(b.dist, 'book', 'book.html')
+    const cacheDir = path.join(b.dist, '..', 'cache')
+    const typeset = (pdf) => renderPdf({ htmlFile, pdfFile: path.join(b.dist, pdf), cacheDir })
+    const sections = splitBook(await fs.readFile(htmlFile, 'utf8')).sections.length
+    const cold = await typeset('cold.pdf')
+    assert.equal(cold.laid, sections)
+    assert.equal(cold.cached, 0)
+    // nothing changed: nothing is laid out, and the book is the same
+    const warm = await typeset('warm.pdf')
+    assert.equal(warm.laid, 0)
+    assert.equal(warm.cached, sections)
+    assert.equal(warm.pages, cold.pages)
+    assert.deepEqual(warm.folios, cold.folios)
+    // a topic gets longer by pages: it is the only section laid out again, and the pages after it are renumbered
+    const text = await fs.readFile(htmlFile, 'utf8')
+    await fs.writeFile(htmlFile, text.replace('<h1 class="topic-title">T</h1>', `<h1 class="topic-title">T</h1>\n${'<p>More words to fill a few lines of this paragraph, and then some more, and then some more still.</p>\n'.repeat(60)}`))
+    const longer = await typeset('longer.pdf')
+    assert.equal(longer.laid, 1)
+    assert.equal(longer.cached, sections - 1)
+    assert.ok(longer.pages > cold.pages + 2, `${longer.pages} pages, from ${cold.pages}`)
+    // and the book is what a cold layout of the same HTML makes
+    const fresh = await renderPdf({ htmlFile, pdfFile: path.join(b.dist, 'fresh.pdf'), cacheDir: path.join(b.dist, '..', 'other-cache') })
+    assert.equal(fresh.laid, sections)
+    assert.deepEqual(fresh.folios, longer.folios)
+    assert.equal(fresh.pages, longer.pages)
+    // an entry that was half written is no entry
+    const entries = path.join(cacheDir, 'book')
+    const [environment] = await fs.readdir(entries)
+    const [entry] = await fs.readdir(path.join(entries, environment))
+    await fs.writeFile(path.join(entries, environment, entry), '{"pages":')
+    assert.equal((await typeset('mended.pdf')).laid, 1)
+  })
+
   test('lays a claim out again whole when Paged.js breaks it badly, so no term is left alone or a line stranded', { skip: !findChrome() && 'no Chrome to typeset with', timeout: 300000 }, async () => {
     // claims of one or two descriptions and from one to a few lines, each after a different amount of text, so that
     // each reaches the foot of a page in every way it can (every topic starts a page of its own)
@@ -623,12 +659,12 @@ describe('the book in a build', () => {
     })
     const b = await build({ ...files, 'About.md': topic('Hello.'), 'book.json': manifest([{ title: 'Grace', topics: names }]) }, { book: true, args: ['build', '--book-html'] })
     assert.equal(b.code, 0, b.output)
-    const { pages, held, tall, layouts } = await renderPdf({ htmlFile: path.join(b.dist, 'book', 'book.html'), pdfFile: path.join(b.dist, 'book', 'book.pdf') })
+    const { pages, held, tall } = await renderPdf({ htmlFile: path.join(b.dist, 'book', 'book.html'), pdfFile: path.join(b.dist, 'book', 'book.pdf') })
     assert.ok(pages > 240)
-    // Paged.js breaks some of these badly (about 5 in 240), so some are held, and the last layout is clean
-    assert.ok(held > 0 && layouts > 1, `${held} claims held in ${layouts} layouts`)
+    // Paged.js breaks some of these badly (about 5 in 240), so some are held, and none is left (a section is laid
+    // out up to five times, and none of these would still break badly then)
+    assert.ok(held > 0, `${held} claims held`)
     assert.equal(tall, 0)
-    assert.ok(layouts < 5, `${layouts} layouts`)
   })
 
   test('a "See also" list breaks only with its heading and the first item, and at least two items on the next page', { skip: !findChrome() && 'no Chrome to typeset with', timeout: 180000 }, async () => {

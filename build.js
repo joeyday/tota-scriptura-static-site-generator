@@ -396,7 +396,7 @@ function isSiteFile (relPath, skipNames) {
 }
 
 // ─── The book, while serving ───
-// A book takes about half a minute to typeset, so serve builds it in the background, from a private
+// A book takes about ten seconds to typeset cold (a few when its sections are remembered), so serve builds it in the background, from a private
 // copy of the site's assets (a site rebuild swaps the served directory under it), and puts the PDF at
 // /book/book.pdf when it is done. Until then (and while a newer one is being made) the last good PDF
 // stays up. Changes that arrive meanwhile are made into one more book, not a queue of them.
@@ -507,7 +507,7 @@ function watchAndRebuild ({ showHidden, reloadPages, book }) {
 // tsgen [build]     build the site and the book (what CI runs). The book (book.json in the vault
 //                   names its parts and topics) is laid out from the built pages and typeset
 //                   with Paged.js in headless Chrome: <output>/book/book.pdf. With:
-//   --no-book       build the site only; the book takes about half a minute.
+//   --no-book       build the site only; the book takes about ten seconds cold.
 //   --book-html     stop the book at its layout, <output>/book/book.html, which is kept (to
 //                   look at it without typesetting).
 // tsgen serve       build, then serve the output locally (see serve.js) and rebuild
