@@ -7,9 +7,18 @@ What changed in each tsgen release, newest first, and (at the end) what the gene
 - Output changes are called out. Unless a release says otherwise, a refactor or speed-up left the built site byte-identical to the previous release, which `scripts/compare-dist.mjs` checks.
 - "The vault" is the content repo. Its own side of each change (migrations, files edited) is Joey's and lives in that repo's history.
 
-Contents: [0.23.3](#0233--2026-10-23) · [0.23.2](#0232--2026-10-23) · [0.23.1](#0231--2026-10-23) · [0.23](#0230--2026-10-22) · [0.22](#0220--2026-10-21) · [0.21](#0210--2026-10-21) · [0.20.1](#0201--2026-10-21) · [0.20](#0200--2026-10-21) · [0.19.2](#0192--2026-10-20) · [0.19.1](#0191--2026-10-20) · [0.19](#0190--2026-10-19) · [0.18](#0182--2026-10-19) · [0.17](#0170--2026-10-13) · [0.16](#0160--2026-10-13) · [0.15](#0150--2026-10-12) · [0.14](#0140--2026-10-12) · [0.13](#0130--2026-10-11) · [0.12](#0121--2026-10-11) · [0.11](#01117--2026-10-11) · [0.10](#0102--2026-10-08) · [0.9](#090--2026-10-07) · [0.8](#080--2026-10-07) · [0.7](#070--2026-10-06) · [0.6](#060--2026-10-06) · [0.5](#050--2026-10-02) · [0.4](#040--2026-10-02) · [0.3](#030--2026-10-02) · [0.2](#020--2026-10-02) · [0.1](#010--2026-10-01) · [Before tsgen](#before-tsgen-buildjs-in-the-content-repo-2026-02-28--2026-10-01)
+Contents: [0.23.4](#0234--2026-10-23) · [0.23.3](#0233--2026-10-23) · [0.23.2](#0232--2026-10-23) · [0.23.1](#0231--2026-10-23) · [0.23](#0230--2026-10-22) · [0.22](#0220--2026-10-21) · [0.21](#0210--2026-10-21) · [0.20.1](#0201--2026-10-21) · [0.20](#0200--2026-10-21) · [0.19.2](#0192--2026-10-20) · [0.19.1](#0191--2026-10-20) · [0.19](#0190--2026-10-19) · [0.18](#0182--2026-10-19) · [0.17](#0170--2026-10-13) · [0.16](#0160--2026-10-13) · [0.15](#0150--2026-10-12) · [0.14](#0140--2026-10-12) · [0.13](#0130--2026-10-11) · [0.12](#0121--2026-10-11) · [0.11](#01117--2026-10-11) · [0.10](#0102--2026-10-08) · [0.9](#090--2026-10-07) · [0.8](#080--2026-10-07) · [0.7](#070--2026-10-06) · [0.6](#060--2026-10-06) · [0.5](#050--2026-10-02) · [0.4](#040--2026-10-02) · [0.3](#030--2026-10-02) · [0.2](#020--2026-10-02) · [0.1](#010--2026-10-01) · [Before tsgen](#before-tsgen-buildjs-in-the-content-repo-2026-02-28--2026-10-01)
 
 ---
+
+## 0.23.4 — 2026-10-23
+Commits `git log v0.23.3..v0.23.4`
+
+A fix to where the book's pages break inside a term and its definitions. The site is unchanged: no page changes.
+
+- **Fixed:** a claim of up to 500 characters (about seven or eight lines) was held whole, so it moved to the next page even when it could split, which left gaps. A claim now breaks like a paragraph: it splits wherever each page keeps at least two lines of it, the term counting as one, and a claim of three lines or fewer still moves whole. Two definitions of one term are never split apart, and a term never stands alone at the foot of a page.
+- **Fixed:** Paged.js doesn't always keep to that (about 5 claims in 240 in a test book: a term left alone at the foot of a page, or one line of a definition alone on the next). After the layout the claims that broke badly are found (`lib/book/claims.js`) and the book is laid out again with those held whole, up to five layouts. A book with no bad break is laid out once. The build says how many claims it held. On the real book that was 18 claims in a second layout, which takes about 3 s more (the PDF step is about 10 s) and made the book 209 pages instead of 211.
+- **Output change:** the book's page breaks inside claims; no other page of the book changes. Tried and rejected: Chrome's own print layout in place of Paged.js (`docs/decisions.md`).
 
 ## 0.23.3 — 2026-10-23
 Commits `git log v0.23.2..v0.23.3`
