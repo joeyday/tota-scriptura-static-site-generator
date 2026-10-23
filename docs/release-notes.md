@@ -7,9 +7,18 @@ What changed in each tsgen release, newest first, and (at the end) what the gene
 - Output changes are called out. Unless a release says otherwise, a refactor or speed-up left the built site byte-identical to the previous release, which `scripts/compare-dist.mjs` checks.
 - "The vault" is the content repo. Its own side of each change (migrations, files edited) is Joey's and lives in that repo's history.
 
-Contents: [0.23.1](#0231--2026-10-23) · [0.23](#0230--2026-10-22) · [0.22](#0220--2026-10-21) · [0.21](#0210--2026-10-21) · [0.20.1](#0201--2026-10-21) · [0.20](#0200--2026-10-21) · [0.19.2](#0192--2026-10-20) · [0.19.1](#0191--2026-10-20) · [0.19](#0190--2026-10-19) · [0.18](#0182--2026-10-19) · [0.17](#0170--2026-10-13) · [0.16](#0160--2026-10-13) · [0.15](#0150--2026-10-12) · [0.14](#0140--2026-10-12) · [0.13](#0130--2026-10-11) · [0.12](#0121--2026-10-11) · [0.11](#01117--2026-10-11) · [0.10](#0102--2026-10-08) · [0.9](#090--2026-10-07) · [0.8](#080--2026-10-07) · [0.7](#070--2026-10-06) · [0.6](#060--2026-10-06) · [0.5](#050--2026-10-02) · [0.4](#040--2026-10-02) · [0.3](#030--2026-10-02) · [0.2](#020--2026-10-02) · [0.1](#010--2026-10-01) · [Before tsgen](#before-tsgen-buildjs-in-the-content-repo-2026-02-28--2026-10-01)
+Contents: [0.23.2](#0232--2026-10-23) · [0.23.1](#0231--2026-10-23) · [0.23](#0230--2026-10-22) · [0.22](#0220--2026-10-21) · [0.21](#0210--2026-10-21) · [0.20.1](#0201--2026-10-21) · [0.20](#0200--2026-10-21) · [0.19.2](#0192--2026-10-20) · [0.19.1](#0191--2026-10-20) · [0.19](#0190--2026-10-19) · [0.18](#0182--2026-10-19) · [0.17](#0170--2026-10-13) · [0.16](#0160--2026-10-13) · [0.15](#0150--2026-10-12) · [0.14](#0140--2026-10-12) · [0.13](#0130--2026-10-11) · [0.12](#0121--2026-10-11) · [0.11](#01117--2026-10-11) · [0.10](#0102--2026-10-08) · [0.9](#090--2026-10-07) · [0.8](#080--2026-10-07) · [0.7](#070--2026-10-06) · [0.6](#060--2026-10-06) · [0.5](#050--2026-10-02) · [0.4](#040--2026-10-02) · [0.3](#030--2026-10-02) · [0.2](#020--2026-10-02) · [0.1](#010--2026-10-01) · [Before tsgen](#before-tsgen-buildjs-in-the-content-repo-2026-02-28--2026-10-01)
 
 ---
+
+## 0.23.2 — 2026-10-23
+Commits `git log v0.23.1..v0.23.2`
+
+A fix to the book's type sizes. The site is unchanged: no page changes.
+
+- **Fixed:** in the book, a definition (`dd`) was set at 0.95em, 5% smaller than a paragraph, so its lines sat 0.66 pt closer together than a term's or a paragraph's (the site never did this). A definition is now the size of a paragraph, 9.5 pt, and the lines share one pitch, 13.11 pt.
+- **Changed:** a blockquote in the book (only the preface has any) is the size of a paragraph too; it was 0.95em. Tables stay at 0.9em, as before.
+- **Output change:** definitions and blockquotes in the book are a little larger, so some pages break differently.
 
 ## 0.23.1 — 2026-10-23
 Commits `git log v0.23.0..v0.23.1`

@@ -74,7 +74,7 @@ ul, ol { margin: 0 0 0.6em; padding-left: 1.3em; }
    first item sticks to the heading, the last to the one before it. So one or two items move whole, with the heading. */
 [id$="--see-also"] + ul > li:first-child { break-before: avoid; }
 [id$="--see-also"] + ul > li:last-child:not(:first-child) { break-before: avoid; }
-blockquote { margin: 0 0 0.6em 1.2em; font-size: 0.95em; } /* indented, with no rule */
+blockquote { margin: 0 0 0.6em 1.2em; } /* indented, with no rule */
 hr { border: 0; border-top: 0.4pt solid #000; margin: 0.8em 0; }
 code { font-family: 'Fira Mono', monospace; font-size: 0.9em; }
 /* As on the site, a rule between the body rows and none around the table. It is each row's top border, so it travels
@@ -97,12 +97,12 @@ dl { margin: 0; }
 .main-topic, .main-topic p { break-before: avoid; } /* Paged.js reads "keep with next" at the first node past the foot of the page, which can be this line */
 dd { orphans: 2; widows: 2; }
 dt { font-variant-caps: all-small-caps; font-variant-numeric: normal; margin: 0.8em 0 0; break-after: avoid; hyphens: manual; }
-dd { margin: 0 0 0.3em 1em; font-size: 0.95em; }
+dd { margin: 0 0 0.3em 1em; }
 dd > :first-child { margin-top: 0; }
 dd p { margin-bottom: 0.3em; }
 /* A commentary's terms run into their definitions, as on the site: the term in bold, a period, then the text, each pair a paragraph */
 .commentary dl { margin: 0; }
-.commentary dt, .commentary dd { display: inline; margin: 0; font-size: 1em; font-variant-caps: normal; }
+.commentary dt, .commentary dd { display: inline; margin: 0; font-variant-caps: normal; }
 .commentary dt { font-weight: 700; font-variant-numeric: oldstyle-nums; hyphens: auto; }
 .commentary dt::after { content: ". "; font-weight: normal; }
 .commentary .para { margin: 0 0 0.6em; orphans: 2; widows: 2; }
