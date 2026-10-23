@@ -7,7 +7,23 @@ What changed in each tsgen release, newest first, and (at the end) what the gene
 - Output changes are called out. Unless a release says otherwise, a refactor or speed-up left the built site byte-identical to the previous release, which `scripts/compare-dist.mjs` checks.
 - "The vault" is the content repo. Its own side of each change (migrations, files edited) is Joey's and lives in that repo's history.
 
-Contents: [0.22](#0220--2026-10-21) · [0.21](#0210--2026-10-21) · [0.20.1](#0201--2026-10-21) · [0.20](#0200--2026-10-21) · [0.19.2](#0192--2026-10-20) · [0.19.1](#0191--2026-10-20) · [0.19](#0190--2026-10-19) · [0.18](#0182--2026-10-19) · [0.17](#0170--2026-10-13) · [0.16](#0160--2026-10-13) · [0.15](#0150--2026-10-12) · [0.14](#0140--2026-10-12) · [0.13](#0130--2026-10-11) · [0.12](#0121--2026-10-11) · [0.11](#01117--2026-10-11) · [0.10](#0102--2026-10-08) · [0.9](#090--2026-10-07) · [0.8](#080--2026-10-07) · [0.7](#070--2026-10-06) · [0.6](#060--2026-10-06) · [0.5](#050--2026-10-02) · [0.4](#040--2026-10-02) · [0.3](#030--2026-10-02) · [0.2](#020--2026-10-02) · [0.1](#010--2026-10-01) · [Before tsgen](#before-tsgen-buildjs-in-the-content-repo-2026-02-28--2026-10-01)
+Contents: [0.23](#0230--2026-10-22) · [0.22](#0220--2026-10-21) · [0.21](#0210--2026-10-21) · [0.20.1](#0201--2026-10-21) · [0.20](#0200--2026-10-21) · [0.19.2](#0192--2026-10-20) · [0.19.1](#0191--2026-10-20) · [0.19](#0190--2026-10-19) · [0.18](#0182--2026-10-19) · [0.17](#0170--2026-10-13) · [0.16](#0160--2026-10-13) · [0.15](#0150--2026-10-12) · [0.14](#0140--2026-10-12) · [0.13](#0130--2026-10-11) · [0.12](#0121--2026-10-11) · [0.11](#01117--2026-10-11) · [0.10](#0102--2026-10-08) · [0.9](#090--2026-10-07) · [0.8](#080--2026-10-07) · [0.7](#070--2026-10-06) · [0.6](#060--2026-10-06) · [0.5](#050--2026-10-02) · [0.4](#040--2026-10-02) · [0.3](#030--2026-10-02) · [0.2](#020--2026-10-02) · [0.1](#010--2026-10-01) · [Before tsgen](#before-tsgen-buildjs-in-the-content-repo-2026-02-28--2026-10-01)
+
+---
+
+## 0.23.0 — 2026-10-22
+Commits `git log v0.22.0..v0.23.0`
+
+The book has a cover. **A build that makes the book now needs the network**: the cover's icon comes from the Font Awesome kit, which Chrome loads over the network (it answers a plain request with a 403 and Chrome's with the script, so check the first deploy on the CI runner), and a cover whose icon didn't load fails the build, like any other mistake in the book. It adds about two seconds to a build. `--no-book` is unaffected, and so is the site: no page changes.
+
+**The cover**
+- **Added:** `<output>/book/cover.pdf`, the cover as one flat sheet (back, spine and front, with bleed all round) laid out after the 2020 cover (`Cover 1.0rc1.pdf`) in the book's own fonts: the title in serif small caps over the subtitle, a short rule and the author on the front, the title and author down the spine, 2 Timothy 3:16–17 in italic on the back, and the Font Awesome feather-pointed icon (the site's logo) in place of the old feather. The icon is the kit's, loaded by script, so no Pro SVG is kept in this repo.
+- **Added:** `<output>/book/cover-dark.pdf`, the same cover in the site's dark theme. `tsgen serve` serves both beside `book.pdf`.
+- **Added:** the field is the site sidebar's gray (`oklch(0.46 0 0)`, the old cover's `#616161` was lighter), and a test fails if `cover.css` and `style.css` ever disagree about it, in light or dark. The numerals in the citation are old-style, as the book's are.
+- **Added:** the spine is as thick as the typeset book is long: its page count (rounded up to a whole leaf) times `PAPER` in `lib/book/cover.js`. **Placeholders until a printer and paper are chosen:** `PAPER` is KDP's white paper (0.002252 in a page), and the bleed is an eighth of an inch.
+- **Fixed (before it shipped):** a white hairline around the cover in Safari and Preview. Chrome prints the cover on a page a fraction of a point larger than the artwork; a viewer draws a page in whole pixels and showed what the paint didn't reach. The sheet is now a whole number of points and the PDF's page box is cut down to it from the painted corner, checked with Core Graphics at 1×, 1.5×, 2× and 3×.
+- **Changed:** the copyright page's edition line reads the content commit before the tsgen version, `commit abc1234 · tsgen 0.23.0` (it was the other way round), so "tsgen 1.0" can't be mistaken for the book's edition, which the month and year above name. The one output change to the book itself.
+- **Changed:** the Font Awesome kit id is one constant, `FONT_AWESOME_KIT` in `lib/layout.js`, which the layout and the cover share (the pages are unchanged).
 
 ---
 
