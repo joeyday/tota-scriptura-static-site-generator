@@ -70,6 +70,10 @@ figure { margin: 0 0 0.8em; }
 figure img { width: 100%; height: auto; display: block; }
 p { margin: 0 0 0.6em; orphans: 2; widows: 2; }
 ul, ol { margin: 0 0 0.6em; padding-left: 1.3em; }
+/* A "See also" list may break only where the heading keeps at least one item and the next page gets at least two: the
+   first item sticks to the heading, the last to the one before it. So one or two items move whole, with the heading. */
+[id$="--see-also"] + ul > li:first-child { break-before: avoid; }
+[id$="--see-also"] + ul > li:last-child:not(:first-child) { break-before: avoid; }
 blockquote { margin: 0 0 0.6em 1.2em; font-size: 0.95em; } /* indented, with no rule */
 hr { border: 0; border-top: 0.4pt solid #000; margin: 0.8em 0; }
 code { font-family: 'Fira Mono', monospace; font-size: 0.9em; }

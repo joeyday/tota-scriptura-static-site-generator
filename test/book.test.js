@@ -3,12 +3,13 @@ import assert from 'node:assert/strict'
 import fs from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
+import { pathToFileURL } from 'node:url'
 import { buildIndex, citationTally, composeBook, printArticle, scriptureIndexHtml, topicId } from '../lib/book/compose.js'
 import { processBibleRefs } from '../lib/bible/process.js'
 import { markRefs } from '../lib/book/scripture.js'
 import { composeCover, coverSize } from '../lib/book/cover.js'
 import { FONT_AWESOME_KIT } from '../lib/layout.js'
-import { findChrome, renderCoverPdf, renderPdf } from '../lib/book/pdf.js'
+import { findChrome, load, renderCoverPdf, renderPdf } from '../lib/book/pdf.js'
 import { buildVault } from './helpers/scratch-vault.js'
 
 // ─── printArticle: one built page, turned into print ───
@@ -584,6 +585,53 @@ describe('the book in a build', () => {
     // are v; a blank page; the preface is vii; a blank page; the first Part's page is 1 (no number is shown),
     // then a blank page, and the first topic is 3
     assert.deepEqual(folios.slice(0, 11), ['', '', '', '', 'v', '', 'vii', '', '', '', '3'])
+  })
+
+  test('a "See also" list breaks only with its heading and the first item, and at least two items on the next page', { skip: !findChrome() && 'no Chrome to typeset with', timeout: 180000 }, async () => {
+    // topics with a "See also" of one to four items, each after a different amount of text, so that the list
+    // reaches the foot of a page in every way it can (every topic starts a page of its own)
+    const files = { 'topic/Mercy.md': topic('Mercy.') }
+    const names = []
+    for (const items of [1, 2, 3, 4]) {
+      for (let filler = 0; filler < 22; filler++) {
+        const name = `Fill ${items} ${filler}`
+        names.push(name)
+        files[`topic/${name}.md`] = topic(`${'Some text to fill the page.\n\n'.repeat(filler)}## See also\n\n${'- [[Mercy]]\n'.repeat(items)}`)
+      }
+    }
+    const b = await build({ ...files, 'About.md': topic('Hello.'), 'book.json': manifest([{ title: 'Grace', topics: ['Mercy', ...names] }]) }, { book: true, args: ['build', '--book-html'] })
+    assert.equal(b.code, 0, b.output)
+    const { puppeteer, polyfill, chrome } = await load()
+    const browser = await puppeteer.launch({ executablePath: chrome, headless: true, args: ['--allow-file-access-from-files'] })
+    try {
+      const page = await browser.newPage()
+      await page.evaluateOnNewDocument(() => { window.PagedConfig = { auto: false } })
+      await page.goto(pathToFileURL(path.join(b.dist, 'book', 'book.html')).href, { waitUntil: 'networkidle0' })
+      await page.addScriptTag({ path: polyfill })
+      const lists = await page.evaluate(async () => {
+        await document.fonts.ready
+        await window.PagedPolyfill.preview()
+        const pages = [...document.querySelectorAll('.pagedjs_page')]
+        const at = (el) => pages.findIndex((p) => p.contains(el))
+        // Paged.js splits a list across pages by cloning it, so take the items in document order: a See also
+        // heading's are the list items up to the next heading
+        const lists = []
+        for (const el of document.querySelectorAll('h2, .topic-title, li')) {
+          if (/--see-also$/.test(el.id)) lists.push({ id: el.id, heading: at(el), items: [] })
+          else if (el.tagName === 'LI' && lists.length > 0 && !lists.at(-1).done && el.closest('ul:not([class])')) lists.at(-1).items.push(at(el))
+          else if (lists.length > 0) lists.at(-1).done = true
+        }
+        return lists
+      })
+      assert.equal(lists.length, names.length)
+      for (const { id, heading, items } of lists) {
+        const [first] = items
+        assert.equal(first, heading, `${id}: the heading is alone on its page`)
+        if (items.length > 1) assert.equal(items.at(-1), items.at(-2), `${id}: the last item is alone on its page`)
+      }
+    } finally {
+      await browser.close()
+    }
   })
 
   test('typesets a PDF with Paged.js in headless Chrome, and prints the cover beside it', { skip: noCover, timeout: 120000 }, async () => {
