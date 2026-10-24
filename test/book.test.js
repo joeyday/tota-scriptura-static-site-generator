@@ -472,9 +472,10 @@ describe('the cover', () => {
     }
     assert.equal(width, widthPt / 72)
     assert.equal(height, heightPt / 72)
-    // and it is printed on a page of the next hundredth of an inch, which is how finely Chrome sizes one
+    // and it is printed on a page of the next hundredth of an inch (which is how finely Chrome sizes one) after half a
+    // point more, for Chrome prints a page up to 0.48 pt off either way
     for (const [size, sheet] of [[page.width, width], [page.height, height]]) {
-      assert.ok(size >= sheet && size < sheet + 0.01 + 1e-9 && Math.abs(size * 100 - Math.round(size * 100)) < 1e-9, `${size} in for ${sheet} in`)
+      assert.ok(size >= sheet + 0.5 / 72 - 1e-9 && size < sheet + 0.5 / 72 + 0.01 + 1e-9 && Math.abs(size * 100 - Math.round(size * 100)) < 1e-9, `${size} in for ${sheet} in`)
     }
   })
 
@@ -501,6 +502,25 @@ describe('the cover', () => {
     // a box that fits where the old one was is padded, and nothing moves
     const same = pdf('666.24')
     assert.equal(setPageSize(same, { widthPt: 666, heightPt: 512 }).length, same.length)
+  })
+
+  test('Chrome prints the page of a cover no smaller than its sheet, for a book of any length', { skip: !findChrome() && 'no Chrome to print with', timeout: 120000 }, async () => {
+    // (a page of 9.27 in came out 666.96 pt wide, short of a sheet of 667 pt, and the build failed)
+    const sizes = new Map()
+    for (let pages = 20; pages <= 1200; pages += 2) sizes.set(`${coverSize(pages).page.width}x${coverSize(pages).page.height}`, coverSize(pages))
+    const { puppeteer, chrome } = await load()
+    const browser = await puppeteer.launch({ executablePath: chrome, headless: true })
+    try {
+      const page = await browser.newPage()
+      for (const [size, sheet] of sizes) {
+        await page.setContent(`<style>@page { size: ${sheet.page.width}in ${sheet.page.height}in; margin: 0 } body { margin: 0 }</style><div style="width: 10px; height: 10px; background: #000"></div>`)
+        const pdf = Buffer.from(await page.pdf({ preferCSSPageSize: true, printBackground: true })).toString('latin1')
+        const [, width, height] = /\/MediaBox \[0 0 ([\d.]+) ([\d.]+)\]/.exec(pdf)
+        assert.ok(+width >= sheet.widthPt && +height >= sheet.heightPt, `${size} in printed ${width} × ${height} pt, for a ${sheet.widthPt} × ${sheet.heightPt} pt sheet`)
+      }
+    } finally {
+      await browser.close()
+    }
   })
 
   test('sets the title, subtitle and author, the spine, and 2 Timothy on the back, with the sheet as the page', () => {
