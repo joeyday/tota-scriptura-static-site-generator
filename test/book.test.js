@@ -355,7 +355,7 @@ describe('a build with --book-html', { concurrency: true }, () => {
   test('the About page is the preface, and the index has the topics and their aliases, in groups', async () => {
     const b = await build({
       ...vault,
-      'About.md': topic('Hi, I’m Joey.[^n]\n\n[^n]: An about note.\n\n## The inception\n\nIt began.\n'),
+      'About.md': topic('Hi, I’m Joey. See John 3:16.[^n]\n\n[^n]: An about note.\n\n## The inception\n\nIt began.\n'),
       'topic/Church.md': '---\ntitle: Church\n---\nChurch.\n',
       'topic/Church discipline.md': '---\ntitle: Church discipline\naliases:\n  - Keys of the kingdom\n---\nDiscipline.\n',
       'book.json': JSON.stringify({ parts: [{ title: 'P', topics: ['Church', 'Church discipline', 'Grace', 'Mercy'] }], index: { groups: ['Church'] } })
@@ -364,6 +364,8 @@ describe('a build with --book-html', { concurrency: true }, () => {
     const html = await b.read('/book/book.html')
     assert.match(html, /<section class="topic preface" id="preface"><h1 class="topic-title">Preface<\/h1>/)
     assert.match(html, /<h2 id="preface--the-inception">The inception<\/h2>/)
+    assert.match(html, /<span class="ref" id="preface--r1">John.3:16<\/span>/)
+    assert.match(html, /<a class="pn" href="#preface--r1">000<\/a>/)
     assert.match(html, /<li><span class="nn">1<\/span>An about note\.<\/li>/)
     assert.match(html, /<p class="ix"><span class="ixt">Church<\/span><span class="pgs"><a class="pn" href="#topic-church">000<\/a><\/span><\/p>\n<p class="ix ix-sub"><span class="ixt">discipline<\/span><span class="pgs"><a class="pn" href="#topic-church-discipline">000<\/a><\/span><\/p>/)
     assert.match(html, /<p class="ix"><span class="ixt">Keys of the kingdom<\/span><span class="pgs"><a class="pn" href="#topic-church-discipline">000<\/a><\/span><\/p>/)
@@ -616,16 +618,16 @@ describe('the book in a build', () => {
     assertBookFails(b, /needs Chrome or Chromium: install it, set CHROME_PATH to its executable, or build with --no-book \(it is not at \/nowhere\/chrome\)/)
   })
 
-  test('numbers the front matter and the preface in Roman numerals, and the book from 1 on the first Part', { skip: !findChrome() && 'no Chrome to typeset with', timeout: 120000 }, async () => {
+  test('numbers the preface (not the contents) in Roman numerals, and the book from 1 on the first Part', { skip: !findChrome() && 'no Chrome to typeset with', timeout: 120000 }, async () => {
     const b = await build({ ...vault, 'About.md': topic('Hello.'), 'book.json': manifest([{ title: 'Grace', topics: ['Grace', 'Mercy'] }]) }, { book: true, args: ['build', '--book-html'] })
     assert.equal(b.code, 0, b.output)
     const { pages, first, folios } = await renderPdf({ htmlFile: path.join(b.dist, 'book', 'book.html'), pdfFile: path.join(b.dist, 'book', 'book.pdf') })
     assert.equal(first, 9)
     assert.equal(folios.length, pages)
     // The title, copyright and dedication pages show nothing, nor does the blank page after them; the contents
-    // are v; a blank page; the preface is vii; a blank page; the first Part's page is 1 (no number is shown),
+    // (v) show none either; a blank page; the preface is vii; a blank page; the first Part's page is 1 (no number is shown),
     // then a blank page, and the first topic is 3
-    assert.deepEqual(folios.slice(0, 11), ['', '', '', '', 'v', '', 'vii', '', '', '', '3'])
+    assert.deepEqual(folios.slice(0, 11), ['', '', '', '', '', '', 'vii', '', '', '', '3'])
   })
 
   test('remembers each section it lays out, and lays out again only the one that changed', { skip: !findChrome() && 'no Chrome to typeset with', timeout: 300000 }, async () => {
