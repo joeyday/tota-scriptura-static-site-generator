@@ -27,7 +27,7 @@ describe('indexes', { concurrency: true }, () => {
       'topic/A Banana.md': page('b', '', 'A Banana')
     })
     assert.equal(b.code, 0, b.output)
-    const html = await b.read('/index/alphabetical/topic')
+    const html = await b.read('/index/topic')
     assert.deepEqual(listed(html).filter((u) => u.startsWith('/topic/')),
       ['/topic/apple', '/topic/a-banana', '/topic/the-law', '/topic/zeal'])
     assert.match(html, /<li>Torah <small>\(see <a [^>]*href="\/topic\/the-law"[^>]*>The Law<\/a>\)<\/small><\/li>/)
@@ -37,16 +37,39 @@ describe('indexes', { concurrency: true }, () => {
   test('the namespace menu links the other listed namespaces; one with nothing listed is left out', async () => {
     const b = await build({ 'topic/A.md': page('a'), 'reference/R.md': page('r') })
     assert.equal(b.code, 0, b.output)
-    const html = await b.read('/index/alphabetical/topic')
+    const html = await b.read('/index/topic')
     assert.match(html, /<li class="selected" aria-current="page">Topics<\/li>/)
-    assert.match(html, /<a [^>]*href="\/index\/alphabetical\/reference"[^>]*>Reference<\/a>/)
-    assert.doesNotMatch(html, /alphabetical\/commentary/)
+    assert.match(html, /<a [^>]*href="\/index\/reference"[^>]*>Reference<\/a>/)
+    assert.doesNotMatch(html, /index\/commentary/)
+    assert.equal(await b.exists('/index/commentary'), false)
+    // Featured pages lead the top line and Scripture ends the bottom one
+    assert.match(html, /<div class="namespace-menu index-menu"[^>]*>\n<ul>\n {2}<li><a [^>]*href="\/index\/featured"[^>]*>Featured pages<\/a><\/li>\n {2}<li class="selected"[^>]*>Topics<\/li>\n<\/ul>\n<ul>\n {2}<li><a [^>]*href="\/index\/reference"[^>]*>Reference<\/a><\/li>/)
+    assert.match(html, /<\/a><\/li>\n {2}<li><a [^>]*href="\/index\/scripture"[^>]*>Scripture<\/a><\/li>\n<\/ul>/)
+    // The same menu is on the featured and Scripture pages, with that page selected
+    assert.match(await b.read('/index/featured'), /<li class="selected" aria-current="page">Featured pages<\/li>/)
+    assert.match(await b.read('/index/scripture'), /<li class="selected" aria-current="page">Scripture<\/li>/)
+  })
+
+  test('the old addresses (/index/alphabetical…, /index/categorical) redirect to the new ones', async () => {
+    const b = await build({ 'topic/A.md': page('a'), 'reference/R.md': page('r') })
+    const to = (html) => /http-equiv="refresh" content="0; url=([^"]*)"/.exec(html)?.[1]
+    assert.equal(to(await b.read('/index/alphabetical')), '/index/topic')
+    assert.equal(to(await b.read('/index/alphabetical/topic')), '/index/topic')
+    assert.equal(to(await b.read('/index/alphabetical/reference')), '/index/reference')
+    assert.equal(to(await b.read('/index/categorical')), '/index/category')
     assert.equal(await b.exists('/index/alphabetical/commentary'), false)
   })
 
-  test('/index/alphabetical redirects to the topic list', async () => {
-    const b = await build({ 'topic/A.md': page('a') })
-    assert.match(await b.read('/index/alphabetical'), /http-equiv="refresh" content="0; url=\/index\/alphabetical\/topic"/)
+  test('the commentary index is in canonical order', async () => {
+    const b = await build({
+      'commentary/Jude.md': page('j', '', 'Jude'),
+      'commentary/Acts.md': page('a', '', 'Acts'),
+      'commentary/Matthew.md': page('m', '', 'Matthew'),
+      'topic/Cited.md': page('Mt 5:3; Ac 1:1; Jude 1:3', '', 'Cited')
+    })
+    assert.equal(b.code, 0, b.output)
+    assert.deepEqual(listed(await b.read('/index/commentary')).filter((u) => u.startsWith('/commentary/')),
+      ['/commentary/matthew', '/commentary/acts', '/commentary/jude'])
   })
 
   test('featured, "featured with" and drafts', async () => {
@@ -62,7 +85,7 @@ describe('indexes', { concurrency: true }, () => {
     assert.doesNotMatch(featured, /\/topic\/plain|\/topic\/wip/)
     assert.deepEqual(listed(await b.read('/index/drafts')).filter((u) => u.startsWith('/topic/')), ['/topic/wip'])
     // The alphabetical index stars featured pages (and those featured with one).
-    const alphabetical = await b.read('/index/alphabetical/topic')
+    const alphabetical = await b.read('/index/topic')
     assert.equal([...alphabetical.matchAll(/featured-badge/g)].length, 2)
     // A link to a draft or featured page is classed.
     const home = await build({ 'topic/Grace.md': page('[[Wip]]'), 'topic/Wip.md': page('w', 'draft: true\n') })
@@ -73,7 +96,7 @@ describe('indexes', { concurrency: true }, () => {
     const b = await build({ 'topic/Quiet.md': page('q', 'unlisted: true\n'), 'topic/Loud.md': page('l') })
     assert.equal(b.code, 0, b.output)
     assert.ok(await b.exists('/topic/quiet'))
-    assert.doesNotMatch(await b.read('/index/alphabetical/topic'), /quiet/)
+    assert.doesNotMatch(await b.read('/index/topic'), /quiet/)
     assert.doesNotMatch(await b.read('/search-index.json'), /quiet/)
     assert.doesNotMatch(await b.read('/random'), /quiet/)
   })
@@ -83,10 +106,10 @@ describe('indexes', { concurrency: true }, () => {
     assert.equal(b.code, 0, b.output)
     assert.ok(await b.exists('/404'))
     assert.doesNotMatch(await b.read('/search-index.json'), /Lost/)
-    assert.doesNotMatch(await b.read('/index/alphabetical/meta'), /Not found/)
+    assert.doesNotMatch(await b.read('/index/meta'), /Not found/)
   })
 
-  test('categories: top-level ones are listed, subcategories sit inside, and empty ones vanish up the tree', async () => {
+  test('categories: the index nests them, and also lists them alphabetically, and empty ones vanish up the tree', async () => {
     const b = await build({
       'category/Doctrine.md': page('d', '', 'Doctrine'),
       'category/Soteriology.md': page('s', 'categories:\n  - Doctrine\n', 'Soteriology'),
@@ -95,13 +118,24 @@ describe('indexes', { concurrency: true }, () => {
       'topic/Grace.md': page('g', 'categories:\n  - "[[Soteriology]]"\n', 'Grace')
     })
     assert.equal(b.code, 0, b.output)
-    const categorical = await b.read('/index/categorical')
-    assert.deepEqual(listed(categorical).filter((u) => u.startsWith('/category/')), ['/category/doctrine'])
+    const categorical = await b.read('/index/category')
+    // Nested, every category: Soteriology is inside Doctrine; and again, with all of them, alphabetically
+    const [nested, alphabetical] = categorical.split('<section class="category-alphabetical">')
+    assert.deepEqual(listed(nested).filter((u) => u.startsWith('/category/')), ['/category/doctrine', '/category/soteriology'])
+    assert.match(nested, /<li><a [^>]*href="\/category\/doctrine">Doctrine<\/a><ul>\n<li><a [^>]*href="\/category\/soteriology">Soteriology<\/a><\/li>\n<\/ul><\/li>/)
+    assert.deepEqual(listed(alphabetical).filter((u) => u.startsWith('/category/')), ['/category/doctrine', '/category/soteriology'])
+    assert.match(categorical, /<input type="checkbox" role="switch" id="list-alphabetically">/)
+    // The saved choice is applied before the lists are drawn, and the settings page has the same switch
+    assert.ok(categorical.indexOf("getItem('category-list')") < categorical.indexOf('class="category-tree"') && categorical.indexOf('class="category-alphabetical"') < categorical.indexOf('id="list-alphabetically"'))
+    const settings = await b.read('/settings')
+    assert.match(settings, /<h2[^>]*>Page features<\/h2>/)
+    assert.match(settings, /id="categories-alphabetically"/)
+    assert.match(settings, /localStorage\.setItem\('category-list'/)
     const doctrine = await b.read('/category/doctrine')
     assert.match(doctrine, /href="\/category\/soteriology"/)
     assert.match(await b.read('/category/soteriology'), /href="\/topic\/grace"/)
     // Hollower has no members, so it is unlisted, which empties Hollow in turn.
-    assert.doesNotMatch(await b.read('/index/alphabetical/category'), /hollow/i)
+    assert.doesNotMatch(await b.read('/index/category'), /hollow/i)
   })
 
   test('a page naming a category that does not exist only warns', async () => {

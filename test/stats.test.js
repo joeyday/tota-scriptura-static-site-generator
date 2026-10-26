@@ -35,7 +35,7 @@ const stats = (overrides = {}) => computeStatistics({
   otherRefs: [],
   backlinksMap: {},
   membersMap: {},
-  alphabeticalByNs: {},
+  indexByNs: {},
   notesByPage: {},
   imageMap: {},
   version: '0.0.0',
