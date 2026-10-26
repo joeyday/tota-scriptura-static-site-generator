@@ -59,9 +59,10 @@ body { margin: 0; }
 .toc a::after { content: attr(data-p); margin-left: 1em; }
 
 /* ─── Parts and topics ─── */
-.part { text-align: center; padding-top: 2.2in; }
+.part { display: flex; flex-direction: column; justify-content: center; box-sizing: border-box; height: 5.5in; padding-bottom: 1.1in; text-align: center; } /* the block's middle sits 40% down the page, a little above the center, whatever its length (the padding moves the middle up by half of itself; the text area is 5.61in tall, and a hair less never spills onto a second page) */
 .part-number { font-variant-caps: all-small-caps; letter-spacing: 0.08em; margin: 0; }
 .part-title { font: 350 22pt/1.15 var(--font-heading); margin: 0.2em 0 0; }
+.part-description { font-style: italic; margin: 1.2em auto 0; max-width: 3.2in; text-wrap: balance; } /* a callout: the body serif, centered, lines about the same length */
 .topic { break-before: right; }
 .topic-title { font: 350 20pt/1.1 var(--font-heading); margin: 0 0 0.5em; padding-bottom: 0.15em; border-bottom: 0.5pt solid #000; hyphens: manual; }
 h2 { font: 350 12.5pt/1.2 var(--font-heading); margin: 1.1em 0 0.5em; border-bottom: 0.4pt solid #666; break-after: avoid; hyphens: manual; }

@@ -213,7 +213,7 @@ describe('citationTally', () => {
 describe('composeBook', () => {
   const page = (url, title) => ({ finalUrlPath: url, title })
   const parts = [
-    { title: 'Prolegomena', pages: [page('/topic/grace', 'Grace')] },
+    { title: 'Prolegomena', description: 'First things <first>.', pages: [page('/topic/grace', 'Grace')] },
     { title: 'Theology & more', pages: [page('/topic/mercy', 'Mercy <3')] }
   ]
   const articles = { '/topic/grace': built('<p>About grace.</p>'), '/topic/mercy': built('<p>About mercy.</p>') }
@@ -227,6 +227,8 @@ describe('composeBook', () => {
     assert.match(html, /<nav class="toc">/)
     assert.match(html, /<section class="part" id="part-1">[\s\S]*Part 1[\s\S]*Prolegomena/)
     assert.match(html, /<section class="part" id="part-2">/)
+    assert.match(html, /<h1 class="part-title">Prolegomena<\/h1><p class="part-description">First things &lt;first&gt;\.<\/p><\/section>/)
+    assert.match(html, /<h1 class="part-title">Theology &amp; more<\/h1><\/section>/)
     assert.match(html, /<section class="topic" id="topic-grace"><h1 class="topic-title">Grace<\/h1>\n<p>About grace\.<\/p>/)
   })
 
@@ -389,6 +391,10 @@ describe('a build with --book-html', { concurrency: true }, () => {
   test('the index groups, when given, are a list of headings', async () => {
     assertBookFails(await build({ ...vault, 'book.json': JSON.stringify({ parts: [{ title: 'P', topics: ['Grace'] }], index: { groups: 'Church' } }) }, { book: true, args: ['build', '--book-html'] }), /"index" "groups" must be a list of headings/)
     assertBookFails(await build({ ...vault, 'book.json': JSON.stringify({ parts: [{ title: 'P', topics: ['Grace'] }], index: [] }) }, { book: true, args: ['build', '--book-html'] }), /"index" must be an object/)
+  })
+
+  test('a part\'s description, when given, is text', async () => {
+    assertBookFails(await build({ ...vault, 'book.json': manifest([{ title: 'P', description: 7, topics: ['Grace'] }]) }, { book: true, args: ['build', '--book-html'] }), /part 1 \("P"\) has a "description" that isn't text/)
   })
 
   test('every part needs a title and topics', async () => {
