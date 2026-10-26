@@ -68,8 +68,8 @@
                 <% if (frontmatter['quick nav']) { %>
                 <nav class="quick-nav" aria-label="Quick links">
                     <ul>
-                        <li><a href="/index/featured">Featured<span class="visually-hidden"> topics</span></a></li>
-                        <li><a href="/index/alphabetical/topic">Alphabetical<span class="visually-hidden"> index</span></a></li>
+                        <li><a href="/index/featured">Featured<span class="visually-hidden"> pages</span></a></li>
+                        <li><a href="/index/topic">Alphabetical<span class="visually-hidden"> index</span></a></li>
                     </ul>
                 </nav>
                 <% } else if (featured || featuredWith) { %><span class="featured-badge fa-sharp fa-solid fa-star" role="img" aria-label="Featured"></span><% } %>
@@ -108,7 +108,7 @@
             <% if (categories.length) { %>
             <p class="categories">
                 <span class="categories-icon fa-sharp fa-solid fa-tags fa-rotate-90" aria-hidden="true"></span>
-                <a class="index-link" href="/index/categorical">Categories</a>:
+                <a class="index-link" href="/index/category">Categories</a>:
                 <% categories.forEach(function(cat, i) { %>
                 <a href="<%= cat.url %>"><%= cat.title %></a><%= i < categories.length - 1 ? ', ' : '' %>
                 <% }); %>
@@ -155,9 +155,9 @@
     <nav class="site-navigation" aria-labelledby="site-navigation">
         <div>
             <ul>
-                <li><a href="/index/featured">Featured topics</a></li>
-                <li><a href="/index/alphabetical/topic">Alphabetical index</a></li>
-                <li><a href="/index/categorical">Categorical index</a></li>
+                <li><a href="/index/featured">Featured pages</a></li>
+                <li><a href="/index/topic">Alphabetical index</a></li>
+                <li><a href="/index/category">Categorical index</a></li>
                 <li><a href="/index/scripture">Scripture index</a></li>
                 <li><a href="/random">Random page</a></li>
             </ul>

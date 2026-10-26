@@ -14,6 +14,7 @@ const build = async (files, options) => {
 }
 after(() => Promise.all(builds.map((b) => b.cleanup())))
 
+const titled = (title, data = '') => `---\ntitle: ${title}\n${data}---\nText.\n`
 const page = (body, data = '') => `---\ntitle: T\n${data}---\n${body}\n`
 
 function assertFails (result, pattern) {
@@ -119,6 +120,7 @@ describe('mistakes that fail the build', { concurrency: true }, () => {
     assertFails(await build({ 'topic/A.md': '---\n- a\n---\nBody\n' }), /must be a set of key: value pairs/)
     assertFails(await build({ 'topic/A.md': '---\nTitle: A\n---\nBody\n' }), /the key "Title" must be lowercase/)
     assertFails(await build({ 'topic/A.md': '---\ntitle: [a, b]\n---\nBody\n' }), /"title" must be text/)
+    assertFails(await build({ 'topic/A.md': '---\norder: first\n---\nBody\n' }), /"order" must be a number/)
   })
 
   test('Markdown in a folder that is not a page folder', async () => {
@@ -267,7 +269,34 @@ describe('pages and their relations', { concurrency: true }, () => {
     assert.equal(b.code, 0, b.output)
     assert.match(await b.read('/category/doctrine'), /href="\/topic\/grace"/)
     assert.match(await b.read('/topic/grace'), /href="\/category\/doctrine"/)
-    assert.doesNotMatch(await b.read('/index/categorical'), /Empty/)
+    assert.doesNotMatch(await b.read('/index/category'), /Empty/)
+  })
+
+  test('`order` sets the order of a category\'s pages and subcategories and of the categorical index, and nowhere else', async () => {
+    const inDoctrine = 'categories:\n  - "[[Doctrine]]"\n'
+    const b = await build({
+      'category/Doctrine.md': titled('Doctrine', 'order: 2\n'),
+      'category/Apples.md': titled('Apples', 'order: 1.5\n'),
+      'category/Zebra.md': titled('Zebra'),
+      'category/Sub B.md': titled('Sub B', `${inDoctrine}order: 1\n`),
+      'category/Sub A.md': titled('Sub A', inDoctrine),
+      'topic/Delta.md': titled('Delta', `${inDoctrine}order: 1\n`),
+      'topic/Alpha.md': titled('Alpha', inDoctrine),
+      'topic/Charlie.md': titled('Charlie', `${inDoctrine}order: -3\n`),
+      'topic/Bravo.md': titled('Bravo', `${inDoctrine}order: 1\n`),
+      'topic/Echo.md': titled('Echo', 'categories:\n  - "[[Apples]]"\n'),
+      'topic/Foxtrot.md': titled('Foxtrot', 'categories:\n  - "[[Zebra]]"\n'),
+      'topic/Sub.md': titled('Sub', 'categories:\n  - "[[Sub A]]"\n  - "[[Sub B]]"\n')
+    })
+    assert.equal(b.code, 0, b.output)
+    const order = (html, names) => names.map((n) => html.indexOf(`>${n}</a>`))
+    const inOrder = (positions) => positions.every((p, i) => p > 0 && (i === 0 || p > positions[i - 1]))
+    // Lowest first, those without one last, equal orders alphabetical
+    assert.ok(inOrder(order(await b.read('/category/doctrine'), ['Sub B', 'Sub A', 'Charlie', 'Bravo', 'Delta', 'Alpha'])))
+    // The categorical index: Apples (1.5), Doctrine (2), then Zebra
+    assert.ok(inOrder(order(await b.read('/index/category'), ['Apples', 'Doctrine', 'Zebra'])))
+    // The alphabetical index stays alphabetical
+    assert.ok(inOrder(order(await b.read('/index/topic'), ['Alpha', 'Bravo', 'Charlie', 'Delta', 'Echo'])))
   })
 
   test('a partial is expanded; a missing one only warns', async () => {

@@ -720,7 +720,7 @@ main {
         }
     }
 
-    /* Namespace menu on the alphabetical indexes: a box holding one list per line.
+    /* Index menu on the index pages: a box holding one list per line.
        Type like .quick-nav, box like .categories. */
     .namespace-menu {
         font-size: 1rem;
@@ -741,8 +741,8 @@ main {
             padding: 0;
         }
 
-        /* On the alphabetical indexes the second row is the lesser one (not /statistics'). */
-        .alphabetical & ul + ul {
+        /* On the index pages the second row is the lesser one (not /statistics'). */
+        &.index-menu ul + ul {
             font-size: var(--font-size-small);
         }
 
@@ -1315,12 +1315,12 @@ footer .social {
     }
 }
 
-.index.alphabetical article {
-	ul:not(.namespace-menu ul) li {
+.index article {
+	ul.entries li {
 		color: var(--color-main-text-muted);
 	}
 
-	.featured-badge:not(header *) {
+	ul.entries .featured-badge {
 		color: var(--color-main-text);
 		font-size: 75%;
 	}
@@ -1429,6 +1429,7 @@ html:not(.show-scripture-entries) .commentary:not(:has(#show-scripture-index:che
 /* An iOS-style switch (a track and a knob): the one under a commentary page's categories, and
    those on the settings page. */
 .scripture-toggle,
+.index-toggle,
 .setting-switch {
     font-family: var(--font-secondary);
     font-size: var(--font-size-small);
@@ -1492,6 +1493,29 @@ html:not(.show-scripture-entries) .commentary:not(:has(#show-scripture-index:che
 .scripture-toggle {
     margin: 1.5rem 0 0;
     text-align: center;
+}
+
+/* The category index holds two lists; the switch above them chooses (nested is the default). The page's
+   script keeps the class on <html> in step with the switch and the reader's saved choice; the :has() rules
+   do the same where there is no script. */
+/* Like the commentary pages' switch, it is at the foot. */
+.index-toggle {
+    margin: 1.5rem 0 0;
+    text-align: center;
+}
+
+.category-alphabetical {
+    display: none;
+}
+
+html.categories-alphabetical .category-tree,
+main:has(#list-alphabetically:checked) .category-tree {
+    display: none;
+}
+
+html.categories-alphabetical .category-alphabetical,
+main:has(#list-alphabetically:checked) .category-alphabetical {
+    display: block;
 }
 
 .setting-switch {
@@ -1576,6 +1600,7 @@ footer .print-source {
     body .footnote-backref,
     body .categories,
     body .scripture-toggle,
+    body .index-toggle,
     body .css-naked-alert {
         display: none;
     }

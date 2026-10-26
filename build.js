@@ -100,7 +100,7 @@ async function build ({ showHidden = false, outputDir = OUTPUT_DIR } = {}) {
     featuredUrls,
     categoryUrls,
     notesUrls,
-    alphabeticalByNs,
+    indexByNs,
     listedNamespaces,
     backlinksMap,
     plannedUrls
@@ -331,16 +331,17 @@ async function build ({ showHidden = false, outputDir = OUTPUT_DIR } = {}) {
     renderLayout,
     filesToProcess,
     listedNamespaces,
-    alphabeticalByNs,
+    indexByNs,
+    membersMap,
     featuredPages,
     draftPages,
     featuredWithMap
   })
   await writeSearch({ output, renderLayout, searchDocs, cacheBust: buster.value })
-  await writeRandom({ output, renderLayout, listedNamespaces, alphabeticalByNs })
+  await writeRandom({ output, renderLayout, listedNamespaces, indexByNs })
   await writeSettings({ output, renderLayout })
   await output.writeFile('.nojekyll', '')
-  await writeScriptureIndex({ output, renderLayout })
+  await writeScriptureIndex({ output, renderLayout, listedNamespaces })
   await writeCommentaryPages({ output, renderLayout, pages: commentaryPages })
   const { version } = JSON.parse(await fs.readFile(new URL('./package.json', import.meta.url), 'utf-8'))
   await writeStatistics({
@@ -354,7 +355,7 @@ async function build ({ showHidden = false, outputDir = OUTPUT_DIR } = {}) {
       otherRefs: output.otherRefs,
       backlinksMap,
       membersMap,
-      alphabeticalByNs,
+      indexByNs,
       notesByPage,
       imageMap,
       version,
@@ -523,8 +524,30 @@ function watchAndRebuild ({ showHidden, reloadPages, book }) {
 //                   again after every rebuild, and served at /book/book.pdf.
 
 const USAGE =
-  'Usage: tsgen [build [--no-book] [--book-html] | serve [--no-book] [--show-hidden] [--verbose] [--no-watch] [--port <n>]]'
+  'Usage: tsgen [build [--no-book] [--book-html] | refs [file…] | serve [--no-book] [--show-hidden] [--verbose] [--no-watch] [--port <n>]]'
 const [command = 'build', ...args] = process.argv.slice(2)
+
+// `tsgen refs [file…]` tidies the lists of Bible references in the files, or in standard input, and
+// prints the text with each list on one line. It needs no vault.
+if (command === 'refs') {
+  try {
+    const { tidyText } = await import('./lib/bible/tidy.js')
+    const texts = args.length > 0
+      ? await Promise.all(args.map((file) => fs.readFile(file, 'utf8')))
+      : [await new Promise((resolve, reject) => {
+          let data = ''
+          process.stdin.setEncoding('utf8')
+          process.stdin.on('data', (chunk) => { data += chunk })
+          process.stdin.on('end', () => resolve(data))
+          process.stdin.on('error', reject)
+        })]
+    process.stdout.write(tidyText(texts.map((text) => text.endsWith('\n') ? text : `${text}\n`).join('')))
+  } catch (err) {
+    console.error(err instanceof BuildError || err.code === 'ENOENT' ? err.message : err)
+    process.exit(1)
+  }
+  process.exit(0)
+}
 let showHidden = false
 let verbose = false
 let watching = true
