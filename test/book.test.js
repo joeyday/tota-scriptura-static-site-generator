@@ -16,7 +16,8 @@ import { buildVault } from './helpers/scratch-vault.js'
 
 const built = (body) => `<main>\n<article>\n<header><h1>T</h1><span class="featured-badge fa-sharp fa-solid fa-star" role="img"></span></header>\n${body}\n<p class="categories"><a class="index-link internal" href="/index/categorical">Categories</a>: <a class="internal category" href="/category/x">X</a></p>\n</article>\n</main>`
 const inBook = { '/topic/mercy': 'topic-mercy' }
-const print = (body, extra = {}) => printArticle(built(body), { slug: 'topic-grace', inBook, ...extra })
+// (the soft hyphens in the text are test/hyphenate.test.js's business, so they are taken out here)
+const print = (body, extra = {}) => printArticle(built(body), { slug: 'topic-grace', inBook, ...extra }).replaceAll('\u00ad', '')
 
 describe('printArticle', () => {
   test('drops what only the screen uses: the header, the categories line and icons', () => {
