@@ -112,10 +112,11 @@ a:focus-visible {
     /* light and dark UA chrome: form controls, scrollbars, focus rings */
     color-scheme: light dark;
 
-    /* The column is always 1/0.044 of the root font size wide (22.7em: about 46 characters to a
-       line), so it grows and shrinks with the text, and never exceeds the viewport. The root font
-       size itself is set below, from the viewport. */
-    --main-width: min(calc(1rem / 0.04267), 100vw);
+    /* The column is 23.4375 root font sizes wide (about 46 characters to a line), so it grows and
+       shrinks with the text: 500px at the font size's cap. Where the window is narrower than that
+       (the media query just below, whose em is the reader's default size), the column is the
+       whole window, and the root font size, set below, is fitted to it. */
+    --main-width: calc(23.4375rem);
 
     /* secondary text (blockquotes, tables, footnotes, nav) is this much smaller than its parent */
     --font-size-small: 0.857em;
@@ -197,6 +198,12 @@ a:focus-visible {
 
 /* Wide-gamut displays get the full chroma. Several hues exceed what even P3 can
    show at this lightness, so the browser maps them to the display's edge. */
+@media (width < 31.25em) {
+    :root {
+        --main-width: 100vw;
+    }
+}
+
 @media (color-gamut: p3) {
     :root {
         --c: 0.25;
@@ -275,22 +282,23 @@ html {
        size that still grew with the window would shrink by part of the zoom. Everything is in rem
        or em, which on the root element means the reader's default font size (16px unless they
        changed it), so the text, the column and the breakpoints all follow that setting. The text
-       is never smaller than that default: below 364px wide (at 16px) it stops shrinking, which
-       also lets page zoom enlarge it on a phone. */
-    font-size: max(1rem, min(4.267vw, calc(1.375rem - 0.5pt)));
+       is never smaller than that default: below about 390px wide (at 16px) it stops shrinking,
+       which also lets page zoom enlarge it on a phone.
+
+       Not quite proportional to the width, though. Tota Serif (Source Serif) has an optical-size
+       axis, which a browser sets from the font size in px, and the glyphs come out wider per em
+       the smaller the text is (3% wider at 17px than at 21.33px). So that a phone breaks its lines
+       at the same words as a desktop, the text is smaller than proportion by that much: 16.56px
+       at 402px wide (not 17.15px), 18.46px at 440px. The two lines are fitted to sizes measured
+       in Chrome (the size at which text is the same fraction of the column as at the cap, nudged up
+       half a percent to what lines actually break like), so they hold for a 16px default, and the optical size is left on auto to do its work. */
+    font-size: max(1rem, min(calc(4.988vw - 3.49px), calc(4.788vw - 2.61px), calc(1.375rem - 0.5pt)));
 
     /* No rubber-band bounce: iOS paints it with a flat color, never the sidebar's color field */
     overscroll-behavior: none;
 
     /* A font without true small-caps (Meta Sans Condensed) shows capitals, not shrunken fakes. */
     font-synthesis-small-caps: none;
-
-    /* Tota Serif (Source Serif) has an optical-size axis, which a browser sets from the font size
-       in px, so the glyphs get narrower as the text grows: 3% wider per em at a phone's 17px than
-       at the desktop's 21.33px, enough to break lines differently. The text is meant to be one
-       layout at every size, so the axis is pinned to the desktop's. */
-    font-optical-sizing: none;
-    font-variation-settings: 'opsz' 21.3333;
 }
 
 body {
@@ -1529,17 +1537,19 @@ main:has(#list-alphabetically:checked) .category-alphabetical {
     margin: 0.75rem 0;
 }
 
+/* The links of the brand icons stay on one line: the kit makes the icon inline-block, an atomic
+   box with a line-break opportunity after it, so at a very narrow width the icon was left at the
+   end of one line and the link's name started the next. These links are a single word. (Not
+   `a:has(> .fa-brands)`: Safari dropped that match while the link was hovered, and the text
+   reflowed under the pointer.) */
+a.external:is([href^="https://mastodon.social/"], [href^="https://bsky.app/"], [href^="http://facebook.com/"], [href^="https://facebook.com/"], [href^="https://www.facebook.com/"]) {
+    white-space: nowrap;
+}
+
 /* The Bluesky butterfly and the Facebook circle fill their whole icon box, so at the same size
    they look bigger than the Mastodon icon (which has padding in its box); this shrinks them a
    tenth. The vertical shift keeps their centre on Mastodon's, and the margin (all in this icon's
    own em) evens out the gap to the name after them. */
-/* A link that starts with an icon stays on one line: the kit makes the icon inline-block, an atomic
-   box with a line-break opportunity after it, so at a very narrow width the icon was left at the
-   end of one line and the link's name started the next. These links are a single word. */
-a:has(> .fa-brands:first-child) {
-    white-space: nowrap;
-}
-
 .fa-bluesky,
 .fa-facebook {
     font-size: 0.9em;
