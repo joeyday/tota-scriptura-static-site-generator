@@ -7,9 +7,17 @@ What changed in each tsgen release, newest first, and (at the end) what the gene
 - Output changes are called out. Unless a release says otherwise, a refactor or speed-up left the built site byte-identical to the previous release, which `scripts/compare-dist.mjs` checks.
 - "The vault" is the content repo. Its own side of each change (migrations, files edited) is Joey's and lives in that repo's history.
 
-Contents: [0.24.1](#0241--2026-10-26) · [0.24](#0240--2026-10-26) · [0.23.7](#0237--2026-10-24) · [0.23.6](#0236--2026-10-23) · [0.23.5](#0235--2026-10-23) · [0.23.4](#0234--2026-10-23) · [0.23.3](#0233--2026-10-23) · [0.23.2](#0232--2026-10-23) · [0.23.1](#0231--2026-10-23) · [0.23](#0230--2026-10-22) · [0.22](#0220--2026-10-21) · [0.21](#0210--2026-10-21) · [0.20.1](#0201--2026-10-21) · [0.20](#0200--2026-10-21) · [0.19.2](#0192--2026-10-20) · [0.19.1](#0191--2026-10-20) · [0.19](#0190--2026-10-19) · [0.18](#0182--2026-10-19) · [0.17](#0170--2026-10-13) · [0.16](#0160--2026-10-13) · [0.15](#0150--2026-10-12) · [0.14](#0140--2026-10-12) · [0.13](#0130--2026-10-11) · [0.12](#0121--2026-10-11) · [0.11](#01117--2026-10-11) · [0.10](#0102--2026-10-08) · [0.9](#090--2026-10-07) · [0.8](#080--2026-10-07) · [0.7](#070--2026-10-06) · [0.6](#060--2026-10-06) · [0.5](#050--2026-10-02) · [0.4](#040--2026-10-02) · [0.3](#030--2026-10-02) · [0.2](#020--2026-10-02) · [0.1](#010--2026-10-01) · [Before tsgen](#before-tsgen-buildjs-in-the-content-repo-2026-02-28--2026-10-01)
+Contents: [0.24.2](#0242--2026-10-26) · [0.24.1](#0241--2026-10-26) · [0.24](#0240--2026-10-26) · [0.23.7](#0237--2026-10-24) · [0.23.6](#0236--2026-10-23) · [0.23.5](#0235--2026-10-23) · [0.23.4](#0234--2026-10-23) · [0.23.3](#0233--2026-10-23) · [0.23.2](#0232--2026-10-23) · [0.23.1](#0231--2026-10-23) · [0.23](#0230--2026-10-22) · [0.22](#0220--2026-10-21) · [0.21](#0210--2026-10-21) · [0.20.1](#0201--2026-10-21) · [0.20](#0200--2026-10-21) · [0.19.2](#0192--2026-10-20) · [0.19.1](#0191--2026-10-20) · [0.19](#0190--2026-10-19) · [0.18](#0182--2026-10-19) · [0.17](#0170--2026-10-13) · [0.16](#0160--2026-10-13) · [0.15](#0150--2026-10-12) · [0.14](#0140--2026-10-12) · [0.13](#0130--2026-10-11) · [0.12](#0121--2026-10-11) · [0.11](#01117--2026-10-11) · [0.10](#0102--2026-10-08) · [0.9](#090--2026-10-07) · [0.8](#080--2026-10-07) · [0.7](#070--2026-10-06) · [0.6](#060--2026-10-06) · [0.5](#050--2026-10-02) · [0.4](#040--2026-10-02) · [0.3](#030--2026-10-02) · [0.2](#020--2026-10-02) · [0.1](#010--2026-10-01) · [Before tsgen](#before-tsgen-buildjs-in-the-content-repo-2026-02-28--2026-10-01)
 
 ---
+
+## 0.24.2 — 2026-10-26
+Commits `git log v0.24.1..v0.24.2`
+
+Two fixes to the site's text. The book is unchanged (it has its own stylesheet).
+
+- **Fixed (output):** the text flowed a little differently on a phone than on a desktop. The serif has an optical-size axis (`opsz`) that a browser sets from the font size in px, so its glyphs were about 3% wider per em at a phone's 17px than at the desktop's 21.33px, and now and then a line broke at a different word. The axis is pinned to 21.33 (`font-optical-sizing: none`), so every size is one layout, down to the 16px floor at about 375px wide. This reaches the desktop as well: text smaller than the body (blockquotes, footnotes) no longer tracks its own size on that axis, so expect small shifts in glyph width and a few line breaks that move.
+- **Fixed (output):** at a very narrow width the icon of a link that starts with one (Mastodon, Bluesky, Facebook) could be left at the end of a line with its name on the next. Such a link now stays on one line.
 
 ## 0.24.1 — 2026-10-26
 Commits `git log v0.24.0..v0.24.1`
