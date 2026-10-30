@@ -524,16 +524,23 @@ function watchAndRebuild ({ showHidden, reloadPages, book }) {
 //                   again after every rebuild, and served at /book/book.pdf.
 
 const USAGE =
-  'Usage: tsgen [build [--no-book] [--book-html] | refs [file…] | serve [--no-book] [--show-hidden] [--verbose] [--no-watch] [--port <n>]]'
+  'Usage: tsgen [build [--no-book] [--book-html] | refs [--no-harmonies] [file…] | serve [--no-book] [--show-hidden] [--verbose] [--no-watch] [--port <n>]]'
 const [command = 'build', ...args] = process.argv.slice(2)
 
-// `tsgen refs [file…]` tidies the lists of Bible references in the files, or in standard input, and
-// prints the text with each list on one line. It needs no vault.
+// `tsgen refs [--no-harmonies] [file…]` tidies the lists of Bible references in the files, or in
+// standard input, and prints the text with each list on one line. It needs no vault. Harmony passages
+// get their parallels unless --no-harmonies.
 if (command === 'refs') {
+  const harmonies = !args.includes('--no-harmonies')
+  const files = args.filter((arg) => arg !== '--no-harmonies')
+  if (files.some((file) => file.startsWith('--'))) {
+    console.error(USAGE)
+    process.exit(1)
+  }
   try {
     const { tidyText } = await import('./lib/bible/tidy.js')
-    const texts = args.length > 0
-      ? await Promise.all(args.map((file) => fs.readFile(file, 'utf8')))
+    const texts = files.length > 0
+      ? await Promise.all(files.map((file) => fs.readFile(file, 'utf8')))
       : [await new Promise((resolve, reject) => {
           let data = ''
           process.stdin.setEncoding('utf8')
@@ -541,7 +548,7 @@ if (command === 'refs') {
           process.stdin.on('end', () => resolve(data))
           process.stdin.on('error', reject)
         })]
-    process.stdout.write(tidyText(texts.map((text) => text.endsWith('\n') ? text : `${text}\n`).join('')))
+    process.stdout.write(tidyText(texts.map((text) => text.endsWith('\n') ? text : `${text}\n`).join(''), harmonies))
   } catch (err) {
     console.error(err instanceof BuildError || err.code === 'ENOENT' ? err.message : err)
     process.exit(1)
