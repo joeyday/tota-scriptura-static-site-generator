@@ -64,6 +64,20 @@ test('chapter-level continuations read as chapters, not verses', () => {
   assert.deepEqual(hrefs(run('Romans 3–5, 7').html), ['Ro3-5;ESV', 'Ro7;ESV'])
 })
 
+test('a bare number after a semicolon is a chapter, and after a comma a verse', () => {
+  assert.deepEqual(hrefs(run('Heb 4:2, 11').html), ['Heb4.2;ESV', 'Heb4.11;ESV'])
+  assert.deepEqual(hrefs(run('Heb 4:2; 11').html), ['Heb4.2;ESV', 'Heb11;ESV'])
+  assert.deepEqual(hrefs(run('Jn 3:16; 5–7').html), ['Jn3.16;ESV', 'Jn5-7;ESV'])
+  assert.deepEqual(hrefs(run('Jn 3:16, 18; 5; 7').html), ['Jn3.16;ESV', 'Jn3.18;ESV', 'Jn5;ESV', 'Jn7;ESV'])
+  assert.deepEqual(hrefs(run('Jn 3:16; 5, 7; 9:1, 3').html), ['Jn3.16;ESV', 'Jn5;ESV', 'Jn7;ESV', 'Jn9.1;ESV', 'Jn9.3;ESV'])
+})
+
+test('a bare number after a semicolon that is not a chapter of the book fails the build', () => {
+  const { problems } = run('Ro 4:13–16; 20–25')
+  assert.equal(problems.length, 1)
+  assert.match(problems[0], /Romans has 16 chapters/)
+})
+
 test('continuations do not carry across a block boundary', () => {
   const { html } = processBibleRefs('<p>John 3:16</p><p>, 18</p>', page)
   assert.deepEqual(hrefs(html), ['Jn3.16;ESV'])
