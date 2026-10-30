@@ -353,13 +353,13 @@ Ezr 2:68-70 = Ne 7:71-73
 # Luke, with John), so every verse of a passage belongs to one main verse. A "~" row is a whole passage
 # matched with a whole passage, for where the telling differs too much to match verse by verse.
 ~ Mt 1:2-16 = Lk 3:23-34
-# Mt 3:1-12 | Mk 1:2-8
+
+# John the Baptist, the temptation, the first disciples and the first healings
 Mt 3:1-2 = Mk 1:4
 Mt 3:3 = Mk 1:2-3
 Mt 3:4 = Mk 1:6
 Mt 3:5-6 = Mk 1:5
 Mt 3:11 = Mk 1:7-8
-# Mt 3:1-12 | Lk 3:1-18
 ~ Mt 3:1-2 = Lk 3:2-3
 Mt 3:3 = Lk 3:4-6
 Mt 3:7 = Lk 3:7
@@ -367,23 +367,18 @@ Mt 3:8-9 = Lk 3:8
 Mt 3:10 = Lk 3:9
 Mt 3:11 = Lk 3:16
 Mt 3:12 = Lk 3:17
-# Mt 3 | Jn 1:19-34
 Mt 3:3 = Jn 1:23
 Mt 3:11 = Jn 1:26-27
 Mt 3:16 = Jn 1:32
-# Mt 3:13-17 | Mk 1:9-11
 Mt 3:13 = Mk 1:9
 Mt 3:16 = Mk 1:10
 Mt 3:17 = Mk 1:11
-# Mt 3:13-17 | Lk 3:21-22
 Mt 3:13 = Lk 3:21
 Mt 3:16 = Lk 3:21-22
 Mt 3:17 = Lk 3:22
-# Mt 4:1-11 | Mk 1:12-13
 Mt 4:1 = Mk 1:12
 Mt 4:2 = Mk 1:13
 Mt 4:11 = Mk 1:13
-# Mt 4:1-11 | Lk 4:1-13
 Mt 4:1 = Lk 4:1-2
 Mt 4:2 = Lk 4:2
 Mt 4:3 = Lk 4:3
@@ -395,46 +390,36 @@ Mt 4:8 = Lk 4:5
 Mt 4:9 = Lk 4:6-7
 Mt 4:10 = Lk 4:8
 Mt 4:11 = Lk 4:13
-# Mt 4:12-17 | Mk 1:14-15, Lk 4:14
 Mt 4:12 = Mk 1:14
 Mt 4:17 = Mk 1:15
 Mt 4:12 = Lk 4:14
-# Mt 4:18-22 | Mk 1:16-20
 Mt 4:18-22 = Mk 1:16-20
-# Mt 4:18-22 | Lk 5:1-11
 Mt 4:18 = Lk 5:2-3
 Mt 4:19 = Lk 5:10
 Mt 4:20 = Lk 5:11
 Mt 4:21 = Lk 5:10
 Mt 4:22 = Lk 5:11
-# Mt 4:23 | Mk 1:39, Lk 4:44
 Mt 4:23 = Mk 1:39
 Mt 4:23 = Lk 4:44
-# Mt 7:28-29 | Mk 1:21-22, Lk 4:31-32
 Mt 7:28-29 = Mk 1:22
 Mt 7:28-29 = Lk 4:32
-# Mk 1:21-28 | Lk 4:31-37
 Mk 1:21 = Lk 4:31
 Mk 1:23-25 = Lk 4:33-35
 Mk 1:26 = Lk 4:35
 Mk 1:27-28 = Lk 4:36-37
-# Mt 8:14-15 | Mk 1:29-31, Lk 4:38-39
 Mt 8:14 = Mk 1:29-30
 Mt 8:15 = Mk 1:31
 Mt 8:14-15 = Lk 4:38-39
-# Mt 8:16 | Mk 1:32-34, Lk 4:40-41
 Mt 8:16 = Mk 1:32-34
 Mt 8:16 = Lk 4:40-41
-# Mk 1:35-39 | Lk 4:42-44
 Mk 1:35 = Lk 4:42
 Mk 1:38 = Lk 4:43
-# Mt 8:1-4 | Mk 1:40-45, Lk 5:12-16
 Mt 8:2 = Mk 1:40
 Mt 8:3 = Mk 1:41-42
 Mt 8:4 = Mk 1:43-44
 Mt 8:2-4 = Lk 5:12-14
 Mk 1:45 = Lk 5:15
-# The Sermon on the Mount and its parallels
+# The Sermon on the Mount, and the miracles of Matthew 8 and 9
 Mt 5:3 = Lk 6:20
 Mt 5:4 = Lk 6:21
 Mt 5:6 = Lk 6:21
@@ -487,8 +472,6 @@ Mt 7:22-23 = Lk 13:26-27
 Mt 7:24 = Lk 6:47-48
 Mt 7:25 = Lk 6:48
 Mt 7:26-27 = Lk 6:49
-# Mt 7:28-29 | Mk 1:22, Lk 4:32 (above)
-# Mt 8:5-13 | Lk 7:1-10
 ~ Mt 8:5-6 = Lk 7:2-3
 Mt 8:7 = Lk 7:6
 Mt 8:8 = Lk 7:6-7
@@ -498,7 +481,6 @@ Mt 8:10 = Lk 7:9
 Mt 8:13 = Lk 7:10
 Mt 8:19-20 = Lk 9:57-58
 Mt 8:21-22 = Lk 9:59-60
-# Mt 9:1-8 | Mk 2:1-12 | Lk 5:17-26
 Mt 9:1 = Mk 2:1
 Mt 9:2 = Mk 2:3-5
 Mt 9:3 = Mk 2:6-7
@@ -513,7 +495,6 @@ Mt 9:5 = Lk 5:23
 Mt 9:6 = Lk 5:24
 Mt 9:7 = Lk 5:25
 Mt 9:8 = Lk 5:26
-# Mt 9:9-13 | Mk 2:13-17 | Lk 5:27-32
 Mt 9:9 = Mk 2:13-14
 Mt 9:10 = Mk 2:15
 Mt 9:11 = Mk 2:16
@@ -523,7 +504,6 @@ Mt 9:10 = Lk 5:29
 Mt 9:11 = Lk 5:30
 Mt 9:12 = Lk 5:31
 Mt 9:13 = Lk 5:32
-# Mt 9:14-17 | Mk 2:18-22 | Lk 5:33-39
 Mt 9:14 = Mk 2:18
 Mt 9:15 = Mk 2:19-20
 Mt 9:16 = Mk 2:21
@@ -532,7 +512,6 @@ Mt 9:14 = Lk 5:33
 Mt 9:15 = Lk 5:34-35
 Mt 9:16 = Lk 5:36
 Mt 9:17 = Lk 5:37-38
-# Mt 9:18-26 | Mk 5:21-43 | Lk 8:40-56
 Mt 9:18 = Mk 5:21-23
 Mt 9:19 = Mk 5:24
 Mt 9:20 = Mk 5:25-27
