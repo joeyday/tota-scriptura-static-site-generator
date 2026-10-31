@@ -19,7 +19,7 @@ const PNG = Buffer.from(
 // Scripture reference, and they show the fallback image), the
 // fallback image and a home page.
 const BASE = {
-  'abbreviations.json': JSON.stringify({ CSS: 'Cascading Style Sheets', ESV: 'English Standard Version', HTML: 'HyperText Markup Language', KB: 'kilobytes', MB: 'megabytes' }),
+  'abbreviations.json': JSON.stringify({ CSS: 'Cascading Style Sheets', ESV: 'English Standard Version', HTML: 'HyperText Markup Language', KB: 'kilobytes', MB: 'megabytes', WPM: 'words per minute' }),
   'initials.json': '{}',
   'alt-text.json': JSON.stringify({ 'Trees-and-buildings.png': 'Trees and buildings' }),
   'image/Trees-and-buildings.png': PNG,

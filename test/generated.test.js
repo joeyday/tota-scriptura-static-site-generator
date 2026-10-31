@@ -219,7 +219,7 @@ describe('other generated pages', { concurrency: true }, () => {
 
   test('<title> is not touched by the text passes', async () => {
     const b = await build({
-      'abbreviations.json': JSON.stringify({ NT: 'New Testament', CSS: 'c', ESV: 'e', HTML: 'h', KB: 'k', MB: 'm' }),
+      'abbreviations.json': JSON.stringify({ NT: 'New Testament', CSS: 'c', ESV: 'e', HTML: 'h', KB: 'k', MB: 'm', WPM: 'w' }),
       'topic/Nt.md': page('NT text', '', 'The NT & LORD')
     })
     assert.equal(b.code, 0, b.output)

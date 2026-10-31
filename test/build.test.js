@@ -145,7 +145,7 @@ describe('mistakes that fail the build', { concurrency: true }, () => {
 
   test('the same abbreviation, initials and image with entries build', async () => {
     const b = await build({
-      'abbreviations.json': JSON.stringify({ NASA: 'Space agency', CSS: 'c', ESV: 'e', HTML: 'h', KB: 'k', MB: 'm' }),
+      'abbreviations.json': JSON.stringify({ NASA: 'Space agency', CSS: 'c', ESV: 'e', HTML: 'h', KB: 'k', MB: 'm', WPM: 'w' }),
       'initials.json': JSON.stringify({ 'R.C. Sproul': 'Robert Charles Sproul' }),
       'alt-text.json': JSON.stringify({ 'Trees-and-buildings.png': 'Trees', 'pic.png': 'A picture' }),
       'topic/Grace.md': page('NASA and R.C. Sproul.\n\n![[pic.png]]'),
