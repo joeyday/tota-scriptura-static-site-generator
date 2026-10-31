@@ -238,6 +238,7 @@ async function build ({ showHidden = false, outputDir = OUTPUT_DIR } = {}) {
     const source = {
       name: fileInfo.filePath,
       warnOnly: !!fileInfo.shownHidden,
+      bookNames: fileInfo.bookNames,
       // a table of contents from the headings, and its title
       toc: fileInfo.isNote ? 'Contents' : fileInfo.relDir === 'commentary' ? 'Outline' : null,
       // a topic page's terms are its headings; a commentary page's are bold text
