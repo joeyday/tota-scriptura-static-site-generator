@@ -11,27 +11,28 @@ test('the table is read, and every verse of it exists', () => {
   assert.ok(!hasHarmony(id('Jn', 3, 16)))
 })
 
-test('a row has no verse twice, and no member is another member', () => {
+test('a row has no verse twice, and is not in the table twice', () => {
   const seen = new Set()
-  for (const { members } of harmonyRows()) {
-    const row = members.map((ids) => ids.join())
-    assert.equal(new Set(row).size, members.length, `${members.map((ids) => ids[0])} has a member twice`)
-    for (const ids of members) assert.equal(new Set(ids).size, ids.length, `${ids[0]} has a verse twice`)
-    const key = row.join('=')
+  for (const { main, parallel } of harmonyRows()) {
+    for (const ids of [main, parallel]) assert.equal(new Set(ids).size, ids.length, `${ids[0]} has a verse twice`)
+    assert.ok(!main.some((verse) => parallel.includes(verse)), `${main[0]} is its own parallel`)
+    const key = `${main}=${parallel}`
     assert.ok(!seen.has(key), `${key} is in the table twice`)
     seen.add(key)
   }
 })
 
-test('the main member is the first canonically, and Psalms is main against the books that reproduce it', () => {
-  for (const { members, main } of harmonyRows()) {
-    const books = members.map((ids) => bookOf(ids[0]))
-    if (books.some((book) => book !== bookInfoByCwms.get('Ps').bookIndex) && books.includes(bookInfoByCwms.get('Ps').bookIndex)) {
-      assert.equal(books[main], bookInfoByCwms.get('Ps').bookIndex)
-    } else {
-      assert.equal(members[main][0], Math.min(...members.map((ids) => ids[0])))
-    }
+test('the main passage is the first book canonically, and Psalms is main against the books that reproduce it', () => {
+  const psalms = bookInfoByCwms.get('Ps').bookIndex
+  for (const { main, parallel } of harmonyRows()) {
+    const books = [bookOf(main[0]), bookOf(parallel[0])]
+    if (books.includes(psalms) && books[0] !== books[1]) assert.equal(books[0], psalms)
+    else assert.ok(books[0] <= books[1], `${main[0]} is not before ${parallel[0]}`)
   }
+})
+
+test('a row that matches each verse is the same length on both sides', () => {
+  for (const { main, parallel, each } of harmonyRows()) if (each) assert.equal(main.length, parallel.length, `${main[0]}`)
 })
 
 test('a parallel is matched with the verse beside it when the members are the same length', () => {
@@ -59,6 +60,15 @@ test('a main verse is whole only if every verse that led to it was', () => {
 test('no verse is a parallel in one row and a main verse in another', () => {
   const mains = new Set()
   const parallels = new Set()
-  for (const row of harmonyRows()) row.members.forEach((ids, member) => ids.forEach((id) => (member === row.main ? mains : parallels).add(id)))
+  for (const row of harmonyRows()) {
+    row.main.forEach((id) => mains.add(id))
+    row.parallel.forEach((id) => parallels.add(id))
+  }
   assert.deepEqual([...parallels].filter((id) => mains.has(id)), [])
+})
+
+test('a range that crosses a chapter runs on into the next', () => {
+  assert.deepEqual([...harmonize(new Map([[id('1Ch', 16, 1), false]]))].map(([main]) => main), [id('2Sa', 6, 17)])
+  assert.ok(harmonize(new Map([[id('2Ki', 24, 18), false]])).get(id('2Ki', 24, 18)).parallels.has(id('Jer', 52, 1)))
+  assert.deepEqual([...harmonize(new Map([[id('2Ch', 24, 1), false]]))].map(([main]) => main), [id('2Ki', 11, 21), id('2Ki', 12, 1)])
 })
