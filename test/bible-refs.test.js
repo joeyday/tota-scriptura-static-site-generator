@@ -78,6 +78,33 @@ test('a bare number after a semicolon that is not a chapter of the book fails th
   assert.match(problems[0], /Romans has 16 chapters/)
 })
 
+// ─── Pages that write their links without the book ───
+const bare = (text) => processBibleRefs(`<p>${text}</p>`, page, false, false)
+const linkTexts = (html) => [...html.matchAll(/<a [^>]*>([^<]*)<\/a>/g)].map((m) => m[1])
+const ariaLabels = (html) => [...html.matchAll(/aria-label="([^"]*)"/g)].map((m) => m[1])
+
+test('a page can write its links without their book, and say it in full in an aria-label', () => {
+  const { html } = bare('Mt 3:1–2, 4; Mk 1:4')
+  assert.deepEqual(linkTexts(html), ['3:1–2', '4', '1:4'])
+  assert.deepEqual(ariaLabels(html), ['Matthew 3:1–2', 'Matthew 3:4', 'Mark 1:4'])
+  assert.deepEqual(hrefs(html), ['Mt3.1-2;ESV', 'Mt3.4;ESV', 'Mk1.4;ESV'])
+  assert.deepEqual(linkTexts(bare('Mt 3:1–4:2; 5').html), ['3:1–4:2', '5'])
+  assert.deepEqual(linkTexts(bare('1Co 13; 2Sa 7').html), ['13', '7'])
+})
+
+test('a book of one chapter is its verse alone, and a translation stays', () => {
+  assert.deepEqual(linkTexts(bare('Jude 1:3–5').html), ['3–5'])
+  assert.deepEqual(ariaLabels(bare('Jude 1:3').html), ['Jude 1:3'])
+  const kjv = bare('Jn 3:16 KJV').html
+  assert.deepEqual(linkTexts(kjv), ['3:16 KJV'])
+  assert.deepEqual(ariaLabels(kjv), ['John 3:16 KJV'])
+})
+
+test('a page without its books collects the same references', () => {
+  const text = 'Mt 3:1–2, 4; 1Ch 17:20; Jude 1:3'
+  assert.deepEqual(bare(text).refs, run(text).refs)
+})
+
 test('continuations do not carry across a block boundary', () => {
   const { html } = processBibleRefs('<p>John 3:16</p><p>, 18</p>', page)
   assert.deepEqual(hrefs(html), ['Jn3.16;ESV'])

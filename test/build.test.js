@@ -121,6 +121,7 @@ describe('mistakes that fail the build', { concurrency: true }, () => {
     assertFails(await build({ 'topic/A.md': '---\nTitle: A\n---\nBody\n' }), /the key "Title" must be lowercase/)
     assertFails(await build({ 'topic/A.md': '---\ntitle: [a, b]\n---\nBody\n' }), /"title" must be text/)
     assertFails(await build({ 'topic/A.md': '---\norder: first\n---\nBody\n' }), /"order" must be a number/)
+    assertFails(await build({ 'topic/A.md': '---\nbook names: no one\n---\nBody\n' }), /"book names" must be true or false/)
   })
 
   test('Markdown in a folder that is not a page folder', async () => {
@@ -141,6 +142,18 @@ describe('mistakes that fail the build', { concurrency: true }, () => {
     assertFails(b, /NASA is not in abbreviations\.json/)
     assert.match(b.output, /initials "R\.C\." need an entry in initials\.json: "R\.C\. Sproul"/)
     assert.match(b.output, /image pic\.png has no entry in alt-text\.json/)
+  })
+
+  test('book names: false writes a page\'s Bible links without their books, and only that page\'s', async () => {
+    const b = await build({
+      'reference/Parallel passages.md': '---\nbook names: false\n---\n| Matthew | Mark |\n|---|---|\n| Mt 3:1–2, 4 | Mk 1:4 |\n',
+      'topic/Grace.md': page('See Mt 3:1.')
+    })
+    assert.equal(b.code, 0, b.output)
+    const html = await b.read('/reference/parallel-passages')
+    assert.match(html, /aria-label="Matthew 3:1–2">3:1–2<\/a>, <a [^>]*aria-label="Matthew 3:4">4<\/a>/)
+    assert.match(html, /aria-label="Mark 1:4">1:4<\/a>/)
+    assert.match(await b.read('/topic/grace'), />Mt\u00a03:1<\/a>/)
   })
 
   test('the same abbreviation, initials and image with entries build', async () => {
