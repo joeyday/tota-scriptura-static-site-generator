@@ -25,13 +25,13 @@ A static site generator with a deliberately boring name. It turns an Obsidian-st
 
 ## Running and testing
 
-`vault/` (gitignored) holds a local **copy** of the real site content. It was copied from `~/Documents/Obsidian/Tota Scriptura` and excludes `.git`, `.obsidian`, `.github`, `build.js` and the package files. It is test data: never commit it, and never write to the real vault. Refresh it with:
+`vault/` (gitignored) holds a local **copy** of the real site content. It was copied from `~/Obsidian/Tota Scriptura` and excludes `.git`, `.obsidian`, `.github`, `build.js` and the package files. It is test data: never commit it, and never write to the real vault. Refresh it with:
 
 ```sh
 rsync -a --delete --exclude='.git/' --exclude='.obsidian/' --exclude='.trash/' --exclude='.github/' \
   --exclude='.DS_Store' --exclude='node_modules/' --exclude='dist/' \
   --exclude='/build.js' --exclude='/package.json' --exclude='/package-lock.json' \
-  "$HOME/Documents/Obsidian/Tota Scriptura/" vault/
+  "$HOME/Obsidian/Tota Scriptura/" vault/
 ```
 
 Search tools skip gitignored paths, so target `vault/` explicitly when searching it.
@@ -55,7 +55,7 @@ node ../scripts/compare-dist.mjs ../baseline/dist dist      # must say IDENTICAL
 
 ## Releasing
 
-The content repo (`joeyday/totascriptura.org`, cloned at `~/Documents/Obsidian/Tota Scriptura`) depends on `github:joeyday/tota-scriptura-static-site-generator#vX.Y.Z` and runs `npm run build` → `tsgen` in CI. Nothing in tsgen reaches the live site until a tag is bumped there.
+The content repo (`joeyday/totascriptura.org`, cloned at `~/Obsidian/Tota Scriptura`) depends on `github:joeyday/tota-scriptura-static-site-generator#vX.Y.Z` and runs `npm run build` → `tsgen` in CI. Nothing in tsgen reaches the live site until a tag is bumped there.
 
 To release:
 1. Pick the number: a minor release has new features, a release of fixes is a patch even if it is breaking or fails the build in new ways (`docs/decisions.md` → Versioning). Bump `version` in `package.json`, and add the release's entry to the top of `docs/release-notes.md` (date, what changed, output changes called out). Delete what the release finished from `docs/plan.md`.
