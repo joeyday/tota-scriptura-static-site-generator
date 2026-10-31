@@ -278,7 +278,7 @@ test('a statistics page for a site that cites every book, has Hebrew, odd titles
   const everyBook = BIBLE_BOOKS.map((names) => `${names[0]} 1:1`).join('; ')
   const b = await build({
     // The index prints Song of Solomon's code, SS, which is an abbreviation like any other.
-    'abbreviations.json': JSON.stringify({ CSS: 'c', ESV: 'e', HTML: 'h', KB: 'k', MB: 'm', SS: 'Song of Solomon' }),
+    'abbreviations.json': JSON.stringify({ CSS: 'c', ESV: 'e', HTML: 'h', KB: 'k', MB: 'm', WPM: 'w', SS: 'Song of Solomon' }),
     'topic/Alpha.md': page(`${everyBook}. שלום and λόγος and LORD. `.repeat(2), 'categories:\n  - Doctrine\n', 'Alpha'),
     'topic/1984.md': page('numbers first', 'categories:\n  - Doctrine\n', '1984'),
     'topic/Zebra.md': page('z', '', 'Zebra'),
@@ -363,7 +363,7 @@ test('a site that cites every verse of the Bible has no stretch uncited', async 
     return `${name} ${chapters.join('; ')}.`
   })
   const b = await build({
-    'abbreviations.json': JSON.stringify({ CSS: 'c', ESV: 'e', HTML: 'h', KB: 'k', MB: 'm', SS: 's' }),
+    'abbreviations.json': JSON.stringify({ CSS: 'c', ESV: 'e', HTML: 'h', KB: 'k', MB: 'm', WPM: 'w', SS: 's' }),
     'topic/Everything.md': page(sentences.join('\n\n'))
   })
   assert.equal(b.code, 0, b.output)
