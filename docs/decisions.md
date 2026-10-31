@@ -53,7 +53,7 @@ Settled questions, so they aren't re-litigated. Each says who decided and when. 
 
 ## Harmony passages
 
-- **Only `tsgen refs` knows them, for now** (Joey, 2026-10-30). Passages that run in parallel (the synoptic Gospels, with John where it tells the same events; Samuel and Kings with Chronicles; Kings with Isaiah and Jeremiah; Psalms reproduced in the histories or repeated in the Psalter; the genealogies, Ezra 2 with Nehemiah 7, the Ten Commandments) live in `lib/bible/harmony.txt`. Ephesians/Colossians, 2 Peter/Jude, Obadiah/Jeremiah 49 and Isaiah 2/Micah 4 are left out as borderline. Wiring the table into the Scripture index, the statistics or links was held off.
+- **Only `tsgen refs` knows them, for now** (Joey, 2026-10-30). Passages that run in parallel (the synoptic Gospels, with John where it tells the same events; Samuel and Kings with Chronicles; Kings with Isaiah and Jeremiah; Psalms reproduced in the histories or repeated in the Psalter; the genealogies, Ezra 2 with Nehemiah 7, the Ten Commandments) live in `lib/bible/harmony.json`. Ephesians/Colossians, 2 Peter/Jude, Obadiah/Jeremiah 49 and Isaiah 2/Micah 4 are left out as borderline. Wiring the table into the Scripture index, the statistics or links was held off.
 - **Main and parallel.** The first book canonically is the main passage and the later ones are the parallels, except that Psalms is always the main passage of a Psalm reproduced elsewhere. In a sentence a lone reference is left alone, and a `(cf. …)` is only touched when it is all parallels the table gives, since Joey uses `(cf. …)` for other things.
 
 ## Statistics
