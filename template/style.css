@@ -49,6 +49,12 @@ img, picture, video, canvas, svg {
     overflow-x: auto;
 }
 
+/* A wrapper whose table fits has nothing to scroll, and one that scrolls is the container a sticky
+   header row sticks to, so table-fit.js marks it and its overflow is lifted. */
+.table-scroll.fits {
+    overflow: visible;
+}
+
 table {
 	border-collapse: collapse;
 	border-spacing: 0;
@@ -507,6 +513,15 @@ main {
             text-align: left;
             color: var(--color-nav-text);
             background-color: var(--color-nav-background);
+        }
+
+        /* The header row sticks to the top of the screen while the rows scroll past it. A table
+           that scrolls sideways inside its wrapper keeps its header with it (the wrapper is what a
+           sticky cell sticks to); table-fit.js lifts the wrapper's overflow when the table fits. */
+        thead th {
+            position: sticky;
+            top: 0;
+            z-index: 1;
         }
 
         th, td {
@@ -1736,5 +1751,9 @@ footer .print-source {
 
     .table-scroll {
         overflow: visible;
+    }
+
+    thead th {
+        position: static;
     }
 }
