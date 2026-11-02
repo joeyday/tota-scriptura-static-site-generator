@@ -1,0 +1,9 @@
+{
+  "id": "tota-scriptura",
+  "name": "Tota Scriptura",
+  "version": "0.2.2",
+  "minAppVersion": "1.5.0",
+  "description": "Links Bible references the way totascriptura.org does, and tidies lists of them.",
+  "author": "Joey Day",
+  "isDesktopOnly": false
+}

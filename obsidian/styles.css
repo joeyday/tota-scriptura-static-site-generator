@@ -1,0 +1,51 @@
+/* A Bible reference the plugin links, in Reading view (a.bible-ref) and in Live Preview
+   (.cm-bible-ref), is the color chosen in the plugin's settings (main.js sets
+   --tota-scripture-link-base), or else the site's blue: the `--color-slate` of template/style.css,
+   hue 215. Like the site it is lighter on a dark theme (Obsidian's themes are `body.theme-light` and
+   `body.theme-dark`), by the same 0.15 of lightness. It is underlined only on hover, as on the site,
+   and does not follow the accent color, which Obsidian uses for internal links. */
+body {
+	--tota-scripture-link: var(--tota-scripture-link-base, oklch(0.5 0.16 215));
+}
+
+body.theme-dark {
+	--tota-scripture-link: oklch(from var(--tota-scripture-link-base, oklch(0.5 0.16 215)) calc(l + 0.15) c h);
+}
+
+/* Obsidian underlines every link from --link-decoration (and --link-decoration-hover), so those are
+   set here on the link itself, which wins whatever rule or theme sets them. The plugin puts a class on
+   the body when the "Underline Scripture links" setting is on (it is, by default), and then the links
+   are underlined. Without it they are underlined on hover, but only for a pointer that can hover: on a
+   touch screen a tapped link stays "hovered", and would stay underlined. */
+a.bible-ref,
+.cm-bible-ref {
+	--link-decoration: none;
+	--link-decoration-hover: none;
+	color: var(--tota-scripture-link);
+	text-decoration: none;
+}
+
+a.bible-ref:hover,
+.cm-bible-ref:hover {
+	color: var(--tota-scripture-link);
+}
+
+@media (hover: hover) {
+	a.bible-ref:hover,
+	.cm-bible-ref:hover {
+		text-decoration: underline;
+		text-decoration-thickness: 0.075rem;
+	}
+}
+
+body.tota-underline-links a.bible-ref,
+body.tota-underline-links .cm-bible-ref {
+	--link-decoration: underline;
+	--link-decoration-hover: underline;
+	text-decoration: underline;
+	text-decoration-thickness: 0.075rem;
+}
+
+.cm-bible-ref {
+	cursor: pointer;
+}
