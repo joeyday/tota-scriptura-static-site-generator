@@ -322,20 +322,24 @@ test("the links are underlined, or only on hover, whatever Obsidian's own link r
   const css = await fs.readFile(path.join(import.meta.dirname, '..', 'obsidian', 'styles.css'), 'utf8')
   // the rules of Obsidian's app.css that underline every link
   const obsidian = 'body { --link-decoration: underline; --link-decoration-hover: underline; --link-color: green; --link-color-hover: green } a { color: var(--link-color); text-decoration-line: var(--link-decoration) } a:hover { color: var(--link-color-hover); text-decoration-line: var(--link-decoration-hover) }'
-  const html = (bodyClass) => `<style>${obsidian}</style><style>${css}</style><body class="theme-light ${bodyClass}"><p><a class="external bible-ref" href="#">Jn 3:16</a> <span class="cm-bible-ref">Jn 3:17</span></p></body>`
+  // (whether Chrome reports a pointer that can hover depends on the machine, a CI runner's none, so for the
+  // desktop the rule is tried with its media query opened; the touch screen below keeps the real one)
+  const html = (bodyClass, styles = css) => `<style>${obsidian}</style><style>${styles}</style><body class="theme-light ${bodyClass}"><p><a class="external bible-ref" href="#">Jn 3:16</a> <span class="cm-bible-ref">Jn 3:17</span></p></body>`
   const puppeteer = (await import('puppeteer-core')).default
   const browser = await puppeteer.launch({ executablePath: findChrome(), headless: true })
   try {
     const look = (tab, selector) => tab.$eval(selector, (el) => ({ line: getComputedStyle(el).textDecorationLine, color: getComputedStyle(el).color }))
     // (a page in the background does not render, so each is used on its own and closed)
+    const hovering = css.replace('@media (hover: hover)', '@media all')
+    assert.notEqual(hovering, css)
     const desktop = await browser.newPage()
     for (const selector of ['a.bible-ref', '.cm-bible-ref']) {
       // with the setting on (the body has the class), underlined
-      await desktop.setContent(html('tota-underline-links'))
+      await desktop.setContent(html('tota-underline-links', hovering))
       assert.equal((await look(desktop, selector)).line, 'underline', selector)
       assert.notEqual((await look(desktop, selector)).color, 'rgb(0, 128, 0)') // not the theme's link color
       // with it off, plain until hovered
-      await desktop.setContent(html(''))
+      await desktop.setContent(html('', hovering))
       assert.equal((await look(desktop, selector)).line, 'none', selector)
       await desktop.hover(selector)
       assert.equal((await look(desktop, selector)).line, 'underline', `${selector} on hover`)
