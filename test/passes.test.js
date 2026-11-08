@@ -53,6 +53,8 @@ test('the finder works with no abbreviations at all', () => {
 
 test('stripOptOuts drops the ! and nothing else', () => {
   assert.equal(stripOptOuts('<p>!NASA Wow!NASA and !</p>'), '<p>NASA Wow!NASA and !</p>')
+  // a Roman numeral keeps its ! for wrapRomanNumerals
+  assert.equal(stripOptOuts('<p>!XIV !NASA</p>'), '<p>!XIV NASA</p>')
 })
 
 // ─── Initials ───

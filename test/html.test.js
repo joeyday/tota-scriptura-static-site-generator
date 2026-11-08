@@ -87,6 +87,11 @@ test('wrapRomanNumerals wraps numerals of two or more letters, not a bare I, and
   assert.equal(wrapRomanNumerals('<code>XIV</code>'), '<code>XIV</code>')
 })
 
+test('wrapRomanNumerals: a ! opts a numeral out and is dropped; Wow!XIV is not an opt-out', () => {
+  assert.equal(wrapRomanNumerals('<p>!XIV and !X.III</p>'), '<p>XIV and X.III</p>')
+  assert.equal(wrapRomanNumerals('<p>Wow!XIV</p>'), '<p>Wow!<span class="roman-num">XIV</span></p>')
+})
+
 test('wrapDivineNames wraps LORD, GOD, YHWH and I AM with a styled initial', () => {
   assert.equal(wrapDivineNames('<p>the LORD</p>'),
     '<p>the <span class="divine-name"><span class="divine-name-initial">L</span>ORD</span></p>')
