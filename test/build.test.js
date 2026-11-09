@@ -23,6 +23,43 @@ function assertFails (result, pattern) {
   assert.match(result.output, pattern)
 }
 
+describe('the hero frontmatter', { concurrency: true }, () => {
+  const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==', 'base64')
+  const files = (extra) => ({ 'alt-text.json': JSON.stringify({ 'Town.png': 'A town', 'Trees-and-buildings.png': 'Trees' }), 'image/Town.png': png, 'image/Town.svg': '<svg xmlns="http://www.w3.org/2000/svg"/>', ...extra })
+
+  test('opens the page with the image at 300 × 137 and shares it, the same as an opening embed', async () => {
+    const b = await build(files({
+      'topic/Grace.md': page('Grace.', 'hero: Town.png\n'),
+      'topic/Mercy.md': page('![[Town.png|300x137]]\n\nGrace.')
+    }))
+    assert.equal(b.code, 0, b.output)
+    const grace = await b.read('/topic/grace')
+    assert.match(grace, /<figure><img src="\/asset\/Town\.png" alt="A town" width="300" height="137"><\/figure>/)
+    assert.match(grace, /<meta property="og:image" content="https:\/\/totascriptura\.org\/asset\/Town\.png">/)
+    assert.match(grace, /summary_large_image/)
+    // the same markup as the page that writes the embed by hand
+    const opening = (html) => html.match(/<figure>[\s\S]*?<\/figure>\n<p>/)[0]
+    assert.equal(opening(grace), opening(await b.read('/topic/mercy')))
+  })
+
+  test("a notes page shares its page's hero", async () => {
+    const b = await build(files({
+      'topic/Grace.md': page('Grace.', 'hero: Town.png\n'),
+      'topic/notes/Grace.md': page('Notes.')
+    }))
+    assert.equal(b.code, 0, b.output)
+    assert.match(await b.read('/topic/grace/notes'), /og:image" content="https:\/\/totascriptura\.org\/asset\/Town\.png"/)
+  })
+
+  test('fails for a missing image, a non-image, an SVG, a notes page, or a page that also opens with an embed', async () => {
+    assertFails(await build(files({ 'topic/Grace.md': page('Grace.', 'hero: Nowhere.png\n') })), /Nowhere\.png.*matches no image/)
+    assertFails(await build(files({ 'topic/Grace.md': page('Grace.', 'hero: 7\n') })), /"hero" must be the file name/)
+    assertFails(await build(files({ 'topic/Grace.md': page('Grace.', 'hero: Town.svg\n') })), /"hero" must be the file name/)
+    assertFails(await build(files({ 'topic/Grace.md': page('Grace.'), 'topic/notes/Grace.md': page('Notes.', 'hero: Town.png\n') })), /notes page shares its page's hero/)
+    assertFails(await build(files({ 'topic/Grace.md': page('![[Town.png|300x137]]\n\nGrace.', 'hero: Town.png\n') })), /has a hero and also opens with an image embed/)
+  })
+})
+
 describe('a good build', { concurrency: true }, () => {
   test('writes pages, resolves a wikilink and exits cleanly', async () => {
     const b = await build({

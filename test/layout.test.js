@@ -108,6 +108,13 @@ test('findHero finds an opening image embed, and whether it is wide', () => {
   assert.equal(findHero('![[missing.png]]', imageMap), null)
 })
 
+test('findHero takes the hero frontmatter first, always wide', () => {
+  const imageMap = { 'town.png': '/asset/town.png', 'image/town.png': '/asset/town.png', 'me.png': '/asset/me.png' }
+  assert.deepEqual(findHero('text', imageMap, 'Town.png'), { url: '/asset/town.png', wide: true })
+  assert.deepEqual(findHero('![[me.png|100x100]]', imageMap, ' image/Town.png '), { url: '/asset/town.png', wide: true })
+  assert.equal(findHero('text', imageMap, 'missing.png'), null)
+})
+
 test('the fallback hero must exist', () => {
   assert.deepEqual(fallbackHero({ 'trees-and-buildings.png': '/asset/t.png' }), { url: '/asset/t.png', wide: true })
   assert.throws(() => fallbackHero({}), BuildError)
