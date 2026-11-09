@@ -189,7 +189,7 @@ async function build ({ showHidden = false, outputDir = OUTPUT_DIR } = {}) {
 
     const heroOf = (page) =>
       page && page.finalUrlPath !== '/'
-        ? findHero(page.parsed.content, imageMap)
+        ? findHero(page.parsed.content, imageMap, page.parsed.data.hero)
         : null
 
     // A notes page shares its page's hero, never its own opening image (a diagram,
