@@ -42,6 +42,19 @@ describe('the hero frontmatter', { concurrency: true }, () => {
     assert.equal(opening(grace), opening(await b.read('/topic/mercy')))
   })
 
+  test('a quoted wikilink, with a path or an alias, names the image too', async () => {
+    const b = await build(files({
+      'topic/Grace.md': page('Grace.', 'hero: "[[Town.png]]"\n'),
+      'topic/Mercy.md': page('Mercy.', 'hero: "[[image/Town.png|A town]]"\n')
+    }))
+    assert.equal(b.code, 0, b.output)
+    for (const url of ['/topic/grace', '/topic/mercy']) {
+      const html = await b.read(url)
+      assert.match(html, /<figure><img src="\/asset\/Town\.png" alt="A town" width="300" height="137"><\/figure>/)
+      assert.match(html, /og:image" content="https:\/\/totascriptura\.org\/asset\/Town\.png"/)
+    }
+  })
+
   test("a notes page shares its page's hero", async () => {
     const b = await build(files({
       'topic/Grace.md': page('Grace.', 'hero: Town.png\n'),
@@ -54,6 +67,7 @@ describe('the hero frontmatter', { concurrency: true }, () => {
   test('fails for a missing image, a non-image, an SVG, a notes page, or a page that also opens with an embed', async () => {
     assertFails(await build(files({ 'topic/Grace.md': page('Grace.', 'hero: Nowhere.png\n') })), /Nowhere\.png.*matches no image/)
     assertFails(await build(files({ 'topic/Grace.md': page('Grace.', 'hero: 7\n') })), /"hero" must be the file name/)
+    assertFails(await build(files({ 'topic/Grace.md': page('Grace.', 'hero: "[[Town.svg]]"\n') })), /"hero" must be the file name/)
     assertFails(await build(files({ 'topic/Grace.md': page('Grace.', 'hero: Town.svg\n') })), /"hero" must be the file name/)
     assertFails(await build(files({ 'topic/Grace.md': page('Grace.'), 'topic/notes/Grace.md': page('Notes.', 'hero: Town.png\n') })), /notes page shares its page's hero/)
     assertFails(await build(files({ 'topic/Grace.md': page('![[Town.png|300x137]]\n\nGrace.', 'hero: Town.png\n') })), /has a hero and also opens with an image embed/)
