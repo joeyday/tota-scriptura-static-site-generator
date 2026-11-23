@@ -29,13 +29,8 @@
         left: 0.3em;
     }
 
-    /* Fine print: an explainer paragraph with no figures of its own, set like the tile
-       labels. */
-    .note {
-        font-family: var(--font-secondary);
-        font-size: var(--font-size-small);
-        color: var(--color-main-text-muted);
-    }
+    /* Fine print (an explainer paragraph with no figures of its own) is the site's .note
+       (see style.css). */
 
     .letters {
         margin: 0.5rem 0;

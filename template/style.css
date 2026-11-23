@@ -708,6 +708,16 @@ main {
         text-align: center;
         text-wrap: balance;
     }
+
+    /* Fine print, anywhere on the site: a paragraph ending in {.note} (an image's credit, the
+       statistics' explainers), set like the secondary text, small, muted and centered. */
+    .note {
+        font-family: var(--font-secondary);
+        font-size: var(--font-size-small);
+        color: var(--color-main-text-muted);
+        text-align: center;
+        text-wrap: pretty;
+    }
     
     div.indent,
     div.one-tab {
