@@ -716,7 +716,7 @@ main {
         font-size: var(--font-size-small);
         color: var(--color-main-text-muted);
         text-align: center;
-        text-wrap: pretty;
+        text-wrap: balance;
     }
     
     div.indent,
